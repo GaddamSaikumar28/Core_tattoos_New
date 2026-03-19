@@ -1,26 +1,3 @@
-// // app/new-arrivalss/page.tsx
-// import SharedHeroBanner from "@/src/components/layout/SharedHeroBanner";
-// export default function NewArrivalsPage() {
-//   return (
-//     <main>
-//       {/* Reusing your optimized component */}
-//       <SharedHeroBanner 
-//         title="New Arrivals"
-//         image="/assets/images/NewArrivalsHeroDesktop.png"
-//         mobileImage="/assets/images/NewArrivalMobile.png"
-//         useMobileImage={true}
-//         textColor="#FE8204"
-//       />
-      
-//       {/* Your product grid or other content goes here */}
-//       <section className="max-w-[1312px] mx-auto px-4 py-12">
-//         <h3 className="text-2xl font-bold mb-8">Shop the Collection</h3>
-//         {/* <ProductGrid /> */}
-//       </section>
-//     </main>
-//   );
-// }
-
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -32,9 +9,6 @@ import clsx from 'clsx';
 import { FilterSidebar } from '@/src/components/shared/FilterSidebar';
 import { ProductCard } from '@/src/components/shared/ProductLayout';
 import SharedHeroBanner from "@/src/components/layout/SharedHeroBanner";
-
-// Types & Data (Assuming these are exported from your global data file)
-// import { tattooProducts, Product, ActiveFilters } from '@/src/data/products'; 
 interface Combination {
   id: string;
   price: number | string;
@@ -487,7 +461,7 @@ export default function SalePage() {
       
       {/* HERO SECTION */}
       <SharedHeroBanner 
-        title="New Arrivals"
+        title="Sale"
         image="/assets/images/NewArrivalsHeroDesktop.png"
         mobileImage="/assets/images/NewArrivalMobile.png"
         useMobileImage={true}
@@ -566,7 +540,7 @@ export default function SalePage() {
                 viewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" : "grid-cols-1"
               )}>
                 {paginatedItems.map((item) => (
-                  <ProductCard key={item.id} item={item} viewMode={viewMode} />
+                  <ProductCard key={item.id} item={item} viewMode={viewMode} page="sale" />
                 ))}
               </div>
             ) : (

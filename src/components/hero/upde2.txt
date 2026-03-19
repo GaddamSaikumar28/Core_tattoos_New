@@ -3462,7 +3462,7 @@ export default function FeatureSection() {
 // //                           {items.map((item) => (
 // //                             <li key={item}>
 // //                               <Link
-// //                                 href={`/collection/${item.toLowerCase().replace(/ & /g, "-").replace(/, /g, "-").replace(/ /g, "-")}`}
+// //                                 href={`/collections/${item.toLowerCase().replace(/ & /g, "-").replace(/, /g, "-").replace(/ /g, "-")}`}
 // //                                 className="font-montserrat text-[15px] font-medium text-[var(--color-black)] hover:text-[var(--color-brand-orange)] transition-colors hover:pl-2 duration-300 inline-block"
 // //                                 onClick={() => setActiveDropdown(null)}
 // //                               >
@@ -3617,7 +3617,7 @@ export default function FeatureSection() {
 // //                               {items.map(item => (
 // //                                 <Link 
 // //                                   key={item} 
-// //                                   href={`/collection/${item.toLowerCase().replace(/ & /g, "-").replace(/, /g, "-").replace(/ /g, "-")}`}
+// //                                   href={`/collections/${item.toLowerCase().replace(/ & /g, "-").replace(/, /g, "-").replace(/ /g, "-")}`}
 // //                                   className="font-montserrat text-[var(--color-black)] text-[15px] font-medium hover:text-[var(--color-brand-orange)]"
 // //                                   onClick={() => setIsMobileDrawerOpen(false)}
 // //                                 >
@@ -3874,7 +3874,7 @@ export default function FeatureSection() {
 //                             {items.map((item) => (
 //                               <li key={item}>
 //                                 <Link
-//                                   href={`/collection/${item.toLowerCase().replace(/ & /g, "-").replace(/, /g, "-").replace(/ /g, "-")}`}
+//                                   href={`/collections/${item.toLowerCase().replace(/ & /g, "-").replace(/, /g, "-").replace(/ /g, "-")}`}
 //                                   className="font-montserrat text-[14px] font-medium text-gray-600 hover:text-[var(--color-brand-orange)] hover:translate-x-1 transition-all duration-300 inline-block"
 //                                   onClick={() => setActiveDropdown(null)}
 //                                 >
@@ -4113,7 +4113,7 @@ export default function FeatureSection() {
 //                               {items.map(item => (
 //                                 <Link 
 //                                   key={item} 
-//                                   href={`/collection/${item.toLowerCase().replace(/ & /g, "-").replace(/, /g, "-").replace(/ /g, "-")}`}
+//                                   href={`/collections/${item.toLowerCase().replace(/ & /g, "-").replace(/, /g, "-").replace(/ /g, "-")}`}
 //                                   className="font-montserrat text-gray-600 text-[14px] font-medium hover:text-[var(--color-brand-orange)]"
 //                                   onClick={() => setIsMobileDrawerOpen(false)}
 //                                 >

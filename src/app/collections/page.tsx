@@ -601,7 +601,7 @@ export default function ShopAll() {
       viewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" : "grid-cols-1"
     )}>
       {paginatedItems.map((item) => (
-        <ProductCard key={item.id} item={item} viewMode={viewMode} />
+        <ProductCard key={item.id} item={item} viewMode={viewMode} page="collections" />
       ))}
     </div>
   ) : (
@@ -657,70 +657,6 @@ export default function ShopAll() {
     </div>
   )}
 </div>
-          {/* <div className="flex-grow ">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4 pb-6 border-b-2 border-slate-100">
-              <div>
-                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-slate-950">{categoryFromUrl}</h1>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-3">
-                  {displayItems.length} Products Found
-                </p>
-              </div>
-              
-              <div className="flex items-center self-start sm:self-auto gap-1 bg-white border-2 border-slate-100 p-1">
-                <button onClick={() => setViewMode('grid')} className={clsx("p-2 transition-all", viewMode === 'grid' ? "bg-slate-950 text-white" : "text-slate-400 hover:text-slate-950")}><LayoutGrid className="w-4 h-4" /></button>
-                <button onClick={() => setViewMode('list')} className={clsx("p-2 transition-all", viewMode === 'list' ? "bg-slate-950 text-white" : "text-slate-400 hover:text-slate-950")}><List className="w-4 h-4" /></button>
-              </div>
-            </div>
-
-            {displayItems.length > 0 ? (
-              <div className={clsx(
-                "grid gap-6",
-                viewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" : "grid-cols-1"
-              )}>
-                {paginatedItems.map((item) => (
-                  <ProductCard key={item.id} item={item} viewMode={viewMode} />
-                ))}
-              </div>
-            ) : (
-              <div className="py-32 text-center bg-white border-2 border-dashed border-slate-300">
-                <RefreshCcw className="w-8 h-8 text-slate-300 mx-auto mb-4" />
-                <p className="text-slate-500 font-black uppercase text-[10px] tracking-[0.2em]">No Designs Match Your Criteria</p>
-                <button onClick={() => toggleFilter('RESET')} className="mt-6 text-slate-950 font-black text-[10px] uppercase tracking-widest border-b-2 border-slate-950 pb-1 hover:text-slate-600 hover:border-slate-600 transition-colors">Clear All Filters</button>
-              </div>
-            )}
-
-       
-            {totalPages > 1 && (
-              <div className="mt-16 flex items-center justify-center gap-2">
-                <button 
-                  disabled={currentPage === 1} 
-                  onClick={() => setCurrentPage(p => p - 1)} 
-                  className="w-12 h-12 flex items-center justify-center bg-white border-2 border-slate-200 disabled:opacity-30 hover:border-slate-950 hover:text-slate-950 transition-all text-slate-500"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                {[...Array(totalPages)].map((_, i) => (
-                  <button 
-                    key={i} 
-                    onClick={() => setCurrentPage(i + 1)} 
-                    className={clsx(
-                      "w-12 h-12 text-[12px] font-black transition-all border-2", 
-                      currentPage === i + 1 ? "bg-slate-950 text-white border-slate-950" : "bg-white text-slate-500 border-slate-200 hover:border-slate-950 hover:text-slate-950"
-                    )}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-                <button 
-                  disabled={currentPage === totalPages} 
-                  onClick={() => setCurrentPage(p => p + 1)} 
-                  className="w-12 h-12 flex items-center justify-center bg-white border-2 border-slate-200 disabled:opacity-30 hover:border-slate-950 hover:text-slate-950 transition-all text-slate-500"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            )}
-          </div> */}
         </div>
       </main>
     </div>

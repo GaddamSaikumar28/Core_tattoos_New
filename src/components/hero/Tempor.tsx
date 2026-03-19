@@ -9486,3 +9486,2902 @@
 //     </div>
 //   );
 // }
+
+
+// 'use client';
+
+// import React from 'react';
+// import clsx from 'clsx';
+// import { Check } from 'lucide-react';
+
+// // --- Types ---
+
+// interface Filters {
+//   styles?: string[];
+//   sizes?: string[];
+//   placements?: string[];
+// }
+
+// interface ActiveFilters {
+//   styles: string[];
+//   sizes: string[];
+//   placements: string[];
+// }
+
+// interface FilterSidebarProps {
+//   filters: Filters;
+//   activeFilters: ActiveFilters;
+//   // Category can be a key of Filters or the string 'RESET'
+//   onToggle: (category: keyof Filters | 'RESET', value?: string) => void;
+// }
+
+// interface FilterGroupProps {
+//   title: string;
+//   items: string[];
+//   activeItems: string[];
+//   onToggle: (value: string) => void;
+// }
+
+// // --- Components ---
+
+// export function FilterSidebar({ filters, activeFilters, onToggle }: FilterSidebarProps) {
+//   return (
+//     <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-700">
+//       {filters.styles && filters.styles.length > 0 && (
+//         <FilterGroup 
+//           title="Style" 
+//           items={filters.styles} 
+//           activeItems={activeFilters.styles} 
+//           onToggle={(v) => onToggle('styles', v)} 
+//         />
+//       )}
+      
+//       {filters.sizes && filters.sizes.length > 0 && (
+//         <FilterGroup 
+//           title="Size" 
+//           items={filters.sizes} 
+//           activeItems={activeFilters.sizes} 
+//           onToggle={(v) => onToggle('sizes', v)} 
+//         />
+//       )}
+      
+//       {filters.placements && filters.placements.length > 0 && (
+//         <FilterGroup 
+//           title="Placement" 
+//           items={filters.placements} 
+//           activeItems={activeFilters.placements} 
+//           onToggle={(v) => onToggle('placements', v)} 
+//         />
+//       )}
+      
+//       {Object.values(activeFilters).some(arr => arr.length > 0) && (
+//         <button 
+//           onClick={() => onToggle('RESET')} 
+//           className="w-full py-3 rounded-xl bg-slate-950 text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-800 transition-colors shadow-lg"
+//         >
+//           Reset Filters
+//         </button>
+//       )}
+//     </div>
+//   );
+// }
+
+// function FilterGroup({ title, items, activeItems, onToggle }: FilterGroupProps) {
+//   return (
+//     <div className="space-y-4">
+//       <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] border-b border-slate-200 pb-2">
+//         {title}
+//       </h4>
+//       <div className="space-y-3">
+//         {items.map((item) => {
+//           const isActive = activeItems.includes(item);
+//           return (
+//             <label key={item} className="flex items-center gap-3 cursor-pointer group select-none">
+//               <div 
+//                 className={clsx(
+//                   "w-4 h-4 rounded-sm border transition-all flex items-center justify-center",
+//                   isActive ? "bg-slate-950 border-slate-950 text-white" : "border-slate-300 bg-white group-hover:border-slate-500"
+//                 )}
+//               >
+//                 <input 
+//                   type="checkbox" 
+//                   className="hidden" 
+//                   checked={isActive} 
+//                   onChange={() => onToggle(item)} 
+//                 />
+//                 {isActive && <Check className="w-3 h-3" strokeWidth={4} />}
+//               </div>
+//               <span className={clsx(
+//                 "text-xs font-bold transition-colors uppercase tracking-widest", 
+//                 isActive ? "text-slate-950" : "text-slate-500 group-hover:text-slate-800"
+//               )}>
+//                 {item}
+//               </span>
+//             </label>
+//           );
+//         })}
+//       </div>
+//     </div>
+//   );
+// }
+
+// // // // 'use client';
+
+// // // // import React, { useState } from 'react';
+// // // // import Link from 'next/link';
+// // // // import { Plus, ArrowRight, ChevronLeft } from 'lucide-react';
+// // // // import clsx from 'clsx';
+
+// // // // // --- Types ---
+
+// // // // interface Combination {
+// // // //   id: string;
+// // // //   price: number | string;
+// // // //   image: string;
+// // // //   size: string;
+// // // // }
+
+// // // // interface ProductItem {
+// // // //   id: string;
+// // // //   originalId?: string;
+// // // //   name: string;
+// // // //   variantName?: string;
+// // // //   style: string;
+// // // //   price: number | string;
+// // // //   image: string;
+// // // //   badge?: string;
+// // // //   productColor?: string;
+// // // //   isExploded?: boolean;
+// // // //   preSelectedCombo?: Combination;
+// // // //   combinations?: Combination[];
+// // // //   handle?: string;
+// // // //   slug?: string;
+// // // // }
+
+// // // // interface ProductCardProps {
+// // // //   item: ProductItem;
+// // // //   viewMode: 'grid' | 'list';
+// // // // }
+
+// // // // // --- Component ---
+
+// // // // export function ProductCard({ item, viewMode }: ProductCardProps) {
+// // // //   const isList = viewMode === 'list';
+// // // //   const isExploded = item.isExploded;
+// // // //   const combinations = item.combinations || [];
+  
+// // // //   const [selectedCombo, setSelectedCombo] = useState<Combination | null>(
+// // // //     isExploded && item.preSelectedCombo ? item.preSelectedCombo : null
+// // // //   );
+
+// // // //   const activeColor = item.productColor || '#0f172a'; 
+// // // //   const price = selectedCombo ? selectedCombo.price : item.price;
+// // // //   const image = selectedCombo ? selectedCombo.image : item.image;
+// // // //   const parentId = isExploded ? item.originalId : item.id;
+// // // //   const slug = item.slug || `${item.handle}-${parentId}`;
+
+// // // //   const handleAddToCart = async (e: React.MouseEvent) => {
+// // // //     e.preventDefault(); 
+// // // //     const comboToAdd = isExploded ? item.preSelectedCombo : (selectedCombo || item.combinations?.[0]);
+// // // //     if (!comboToAdd?.id) return;
+    
+// // // //     console.log(`Adding Variant ${comboToAdd.id} to cart`);
+// // // //     // Example: await addToCart(comboToAdd.id, 1);
+// // // //   };
+
+// // // //   return (
+// // // //     <div className={clsx(
+// // // //       "group relative bg-white border-2 border-slate-100 transition-all duration-300",
+// // // //       "hover:border-slate-950 hover:shadow-[8px_8px_0px_0px_rgba(15,23,42,1)]",
+// // // //       isList ? "flex items-center gap-6 p-4" : "flex flex-col p-5"
+// // // //     )}>
+      
+// // // //       {/* --- IMAGE AREA --- */}
+// // // //       <div className={clsx(
+// // // //         "relative flex items-center justify-center overflow-hidden mb-5 bg-slate-50 border border-slate-100 group-hover:border-slate-300 transition-colors",
+// // // //         isList ? "w-32 h-32 shrink-0" : "w-full aspect-square"
+// // // //       )}>
+// // // //         {item.badge && (
+// // // //           <div className="absolute top-2 left-2 z-20">
+// // // //             <span 
+// // // //               style={{ backgroundColor: activeColor }} 
+// // // //               className="text-white text-[8px] font-black uppercase px-2 py-1 shadow-sm tracking-[0.2em]"
+// // // //             >
+// // // //               {item.badge}
+// // // //             </span>
+// // // //           </div>
+// // // //         )}
+
+// // // //         <Link href={`/product/${slug}`} className="w-full h-full flex items-center justify-center p-4">
+// // // //             <img 
+// // // //               src={image} 
+// // // //               alt={item.name} 
+// // // //               className="w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-out grayscale group-hover:grayscale-0" 
+// // // //             />
+// // // //         </Link>
+// // // //       </div>
+
+// // // //       {/* --- INFO AREA --- */}
+// // // //       <div className={clsx("flex flex-col flex-grow relative z-10", isList ? "text-left" : "text-center items-center")}>
+// // // //         <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{item.style}</span>
+        
+// // // //         <Link href={`/product/${slug}`} className="block">
+// // // //             <h3 className="text-lg font-black text-slate-950 uppercase tracking-tight leading-5 mb-2 group-hover:underline decoration-2 underline-offset-4">
+// // // //               {isExploded ? item.variantName : item.name}
+// // // //             </h3>
+// // // //         </Link>
+        
+// // // //         {isExploded && <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">{item.name}</p>}
+
+// // // //         <div className={clsx("flex items-center gap-3 mb-6 w-full", !isList && "justify-center flex-col xl:flex-row xl:gap-2")}>
+// // // //           <p className="text-xl font-black text-slate-950">${Number(price).toFixed(2)}</p>
+          
+// // // //           {!isExploded && combinations.length > 0 && (
+// // // //             <div className="relative group/select w-full xl:w-auto">
+// // // //               <select 
+// // // //                 className="appearance-none bg-white text-[10px] font-bold uppercase py-2 pl-3 pr-8 border-2 border-slate-200 outline-none cursor-pointer hover:border-slate-950 focus:border-slate-950 transition-all w-full xl:w-auto"
+// // // //                 value={selectedCombo ? selectedCombo.id : ""}
+// // // //                 onChange={(e) => setSelectedCombo(combinations.find(c => c.id === e.target.value) || null)}
+// // // //               >
+// // // //                 <option value="">Select Size</option>
+// // // //                 {combinations.map(c => <option key={c.id} value={c.id}>{c.size}</option>)}
+// // // //               </select>
+// // // //               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-950">
+// // // //                 <ChevronLeft className="w-3 h-3 -rotate-90" />
+// // // //               </div>
+// // // //             </div>
+// // // //           )}
+// // // //         </div>
+
+// // // //         {/* --- ACTION BUTTONS --- */}
+// // // //         <div className={clsx("mt-auto w-full grid gap-2", isList ? "grid-cols-2 max-w-md" : "grid-cols-2")}>
+// // // //           <button 
+// // // //             onClick={handleAddToCart}
+// // // //             disabled={!isExploded && combinations.length > 0 && !selectedCombo}
+// // // //             className="flex items-center justify-center gap-2 py-3 bg-slate-950 text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-all"
+// // // //           >
+// // // //             {(!isExploded && !selectedCombo) ? 'Select' : 'Add'} 
+// // // //             {(!isExploded && !selectedCombo) ? null : <Plus className="w-3 h-3" />}
+// // // //           </button>
+          
+// // // //           <Link 
+// // // //             href={`/product/${slug}`} 
+// // // //             className="flex items-center justify-center gap-2 py-3 bg-white text-slate-950 text-[10px] font-black uppercase tracking-[0.2em] border-2 border-slate-200 hover:border-slate-950 transition-all"
+// // // //           >
+// // // //             View <ArrowRight className="w-3 h-3" />
+// // // //           </Link>
+// // // //         </div>
+// // // //       </div>
+// // // //     </div>
+// // // //   );
+// // // // }
+
+
+
+
+
+
+
+
+// // // 'use client';
+
+// // // import React, { useState } from 'react';
+// // // import Link from 'next/link';
+// // // import { Plus, ArrowRight, ChevronLeft } from 'lucide-react';
+// // // import clsx from 'clsx';
+
+// // // // --- Types ---
+
+// // // interface Combination {
+// // //   id: string;
+// // //   price: number | string;
+// // //   image: string;
+// // //   size: string;
+// // // }
+
+// // // interface ProductItem {
+// // //   id: string;
+// // //   originalId?: string;
+// // //   name: string;
+// // //   variantName?: string;
+// // //   style: string;
+// // //   price: number | string;
+// // //   image: string;
+// // //   badge?: string;
+// // //   productColor?: string;
+// // //   isExploded?: boolean;
+// // //   preSelectedCombo?: Combination;
+// // //   combinations?: Combination[];
+// // //   handle?: string;
+// // //   slug?: string;
+// // // }
+
+// // // interface ProductCardProps {
+// // //   item: ProductItem;
+// // //   viewMode: 'grid' | 'list';
+// // // }
+
+// // // // --- Component ---
+
+// // // export function ProductCard({ item, viewMode }: ProductCardProps) {
+// // //   const isList = viewMode === 'list';
+// // //   const isExploded = item.isExploded;
+// // //   const combinations = item.combinations || [];
+  
+// // //   const [selectedCombo, setSelectedCombo] = useState<Combination | null>(
+// // //     isExploded && item.preSelectedCombo ? item.preSelectedCombo : null
+// // //   );
+
+// // //   const activeColor = item.productColor || '#0f172a'; 
+// // //   const price = selectedCombo ? selectedCombo.price : item.price;
+// // //   const image = selectedCombo ? selectedCombo.image : item.image;
+// // //   const parentId = isExploded ? item.originalId : item.id;
+// // //   const slug = item.slug || `${item.handle}-${parentId}`;
+
+// // //   const handleAddToCart = async (e: React.MouseEvent) => {
+// // //     e.preventDefault(); 
+// // //     const comboToAdd = isExploded ? item.preSelectedCombo : (selectedCombo || item.combinations?.[0]);
+// // //     if (!comboToAdd?.id) return;
+    
+// // //     console.log(`Adding Variant ${comboToAdd.id} to cart`);
+// // //     // Example: await addToCart(comboToAdd.id, 1);
+// // //   };
+
+// // //   return (
+// // //     <div className={clsx(
+// // //       "group relative bg-white border-2 border-slate-100 transition-all duration-300",
+// // //       "hover:border-slate-950 hover:shadow-[8px_8px_0px_0px_rgba(15,23,42,1)]",
+// // //       isList ? "flex items-center gap-6 p-4" : "flex flex-col p-5"
+// // //     )}>
+      
+// // //       {/* --- IMAGE AREA --- */}
+// // //       <div className={clsx(
+// // //         "relative flex items-center justify-center overflow-hidden mb-5 bg-slate-50 border border-slate-100 group-hover:border-slate-300 transition-colors",
+// // //         isList ? "w-32 h-32 shrink-0" : "w-full aspect-square"
+// // //       )}>
+// // //         {item.badge && (
+// // //           <div className="absolute top-2 left-2 z-20">
+// // //             <span 
+// // //               style={{ backgroundColor: activeColor }} 
+// // //               className="text-white text-[8px] font-black uppercase px-2 py-1 shadow-sm tracking-[0.2em]"
+// // //             >
+// // //               {item.badge}
+// // //             </span>
+// // //           </div>
+// // //         )}
+
+// // //         <Link href={`/product/${slug}`} className="w-full h-full flex items-center justify-center p-4">
+// // //             <img 
+// // //               src={image} 
+// // //               alt={item.name} 
+// // //               className="w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-out grayscale group-hover:grayscale-0" 
+// // //             />
+// // //         </Link>
+// // //       </div>
+
+// // //       {/* --- INFO AREA --- */}
+// // //       <div className={clsx("flex flex-col flex-grow relative z-10", isList ? "text-left" : "text-center items-center")}>
+// // //         <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{item.style}</span>
+        
+// // //         <Link href={`/product/${slug}`} className="block">
+// // //             <h3 className="text-lg font-black text-slate-950 uppercase tracking-tight leading-5 mb-2 group-hover:underline decoration-2 underline-offset-4">
+// // //               {isExploded ? item.variantName : item.name}
+// // //             </h3>
+// // //         </Link>
+        
+// // //         {isExploded && <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">{item.name}</p>}
+
+// // //         <div className={clsx("flex items-center gap-3 mb-6 w-full", !isList && "justify-center flex-col xl:flex-row xl:gap-2")}>
+// // //           <p className="text-xl font-black text-slate-950">${Number(price).toFixed(2)}</p>
+          
+// // //           {!isExploded && combinations.length > 0 && (
+// // //             <div className="relative group/select w-full xl:w-auto">
+// // //               <select 
+// // //                 className="appearance-none bg-white text-[10px] font-bold uppercase py-2 pl-3 pr-8 border-2 border-slate-200 outline-none cursor-pointer hover:border-slate-950 focus:border-slate-950 transition-all w-full xl:w-auto"
+// // //                 value={selectedCombo ? selectedCombo.id : ""}
+// // //                 onChange={(e) => setSelectedCombo(combinations.find(c => c.id === e.target.value) || null)}
+// // //               >
+// // //                 <option value="">Select Size</option>
+// // //                 {combinations.map(c => <option key={c.id} value={c.id}>{c.size}</option>)}
+// // //               </select>
+// // //               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-950">
+// // //                 <ChevronLeft className="w-3 h-3 -rotate-90" />
+// // //               </div>
+// // //             </div>
+// // //           )}
+// // //         </div>
+
+// // //         {/* --- ACTION BUTTONS --- */}
+// // //         <div className={clsx("mt-auto w-full grid gap-2", isList ? "grid-cols-2 max-w-md" : "grid-cols-2")}>
+// // //           <button 
+// // //             onClick={handleAddToCart}
+// // //             disabled={!isExploded && combinations.length > 0 && !selectedCombo}
+// // //             className="flex items-center justify-center gap-2 py-3 bg-slate-950 text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-all"
+// // //           >
+// // //             {(!isExploded && !selectedCombo) ? 'Select' : 'Add'} 
+// // //             {(!isExploded && !selectedCombo) ? null : <Plus className="w-3 h-3" />}
+// // //           </button>
+          
+// // //           <Link 
+// // //             href={`/product/${slug}`} 
+// // //             className="flex items-center justify-center gap-2 py-3 bg-white text-slate-950 text-[10px] font-black uppercase tracking-[0.2em] border-2 border-slate-200 hover:border-slate-950 transition-all"
+// // //           >
+// // //             View <ArrowRight className="w-3 h-3" />
+// // //           </Link>
+// // //         </div>
+// // //       </div>
+// // //     </div>
+// // //   );
+// // // }
+
+// // 'use client';
+
+// // import React, { useState } from 'react';
+// // import Link from 'next/link';
+// // import { Plus, ArrowRight, ChevronDown, ShoppingBag } from 'lucide-react';
+// // import clsx from 'clsx';
+
+// // // --- Types ---
+
+// // interface Combination {
+// //   id: string;
+// //   price: number | string;
+// //   image: string;
+// //   size: string;
+// // }
+
+// // interface ProductItem {
+// //   id: string;
+// //   originalId?: string;
+// //   name: string;
+// //   variantName?: string;
+// //   style: string;
+// //   price: number | string;
+// //   image: string;
+// //   badge?: string;
+// //   productColor?: string;
+// //   isExploded?: boolean;
+// //   preSelectedCombo?: Combination;
+// //   combinations?: Combination[];
+// //   handle?: string;
+// //   slug?: string;
+// // }
+
+// // interface ProductCardProps {
+// //   item: ProductItem;
+// //   viewMode: 'grid' | 'list';
+// // }
+
+// // // --- Component ---
+
+// // export function ProductCard({ item, viewMode }: ProductCardProps) {
+// //   const isList = viewMode === 'list';
+// //   const isExploded = item.isExploded;
+// //   const combinations = item.combinations || [];
+  
+// //   const [selectedCombo, setSelectedCombo] = useState<Combination | null>(
+// //     isExploded && item.preSelectedCombo ? item.preSelectedCombo : null
+// //   );
+
+// //   const price = selectedCombo ? selectedCombo.price : item.price;
+// //   const image = selectedCombo ? selectedCombo.image : item.image;
+// //   const parentId = isExploded ? item.originalId : item.id;
+// //   const slug = item.slug || `${item.handle}-${parentId}`;
+
+// //   const handleAddToCart = async (e: React.MouseEvent) => {
+// //     e.preventDefault(); 
+// //     const comboToAdd = isExploded ? item.preSelectedCombo : (selectedCombo || item.combinations?.[0]);
+// //     if (!comboToAdd?.id) return;
+    
+// //     console.log(`Adding Variant ${comboToAdd.id} to cart`);
+// //     // Example: await addToCart(comboToAdd.id, 1);
+// //   };
+
+// //   return (
+// //     <div className={clsx(
+// //       "group relative bg-white border border-gray-100 rounded-2xl overflow-hidden transition-all duration-300 ease-in-out",
+// //       "hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 hover:border-gray-200",
+// //       isList ? "flex flex-col sm:flex-row" : "flex flex-col"
+// //     )}>
+      
+// //       {/* --- IMAGE AREA --- */}
+// //       <div className={clsx(
+// //         "relative overflow-hidden bg-gray-50",
+// //         isList ? "w-full sm:w-48 sm:min-w-[12rem] h-56 sm:h-auto shrink-0" : "w-full aspect-[4/5]"
+// //       )}>
+// //         {/* Badge */}
+// //         {item.badge && (
+// //           <div className="absolute top-3 left-3 z-20">
+// //             <span className="bg-[#fe8204] text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-md shadow-sm tracking-wider">
+// //               {item.badge}
+// //             </span>
+// //           </div>
+// //         )}
+
+// //         <Link href={`/product/${slug}`} className="block w-full h-full relative">
+// //             <img 
+// //               src={image} 
+// //               alt={item.name} 
+// //               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" 
+// //             />
+// //             {/* Subtle overlay on hover for premium feel */}
+// //             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+// //         </Link>
+// //       </div>
+
+// //       {/* --- INFO AREA --- */}
+// //       <div className={clsx(
+// //         "flex flex-col flex-grow p-5 sm:p-6",
+// //         isList ? "justify-center" : ""
+// //       )}>
+        
+// //         {/* Category / Style */}
+// //         <span className="text-xs font-semibold text-[#fe8204] tracking-wider uppercase mb-1.5">
+// //           {item.style}
+// //         </span>
+        
+// //         {/* Title */}
+// //         <Link href={`/product/${slug}`} className="block mb-1">
+// //             <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-[#fe8204] transition-colors line-clamp-2">
+// //               {isExploded ? item.variantName : item.name}
+// //             </h3>
+// //         </Link>
+        
+// //         {/* Subtitle for exploded variants */}
+// //         {isExploded && (
+// //           <p className="text-sm font-medium text-gray-500 mb-3 line-clamp-1">{item.name}</p>
+// //         )}
+
+// //         <div className="flex-grow" /> {/* Spacer to push bottom content down in grid mode */}
+
+// //         {/* Price & Select Container */}
+// //         <div className={clsx(
+// //           "flex flex-col gap-4 mt-4 mb-5",
+// //           isList ? "sm:flex-row sm:items-center sm:justify-between" : ""
+// //         )}>
+// //           <p className="text-2xl font-extrabold text-gray-900">
+// //             ${Number(price).toFixed(2)}
+// //           </p>
+          
+// //           {!isExploded && combinations.length > 0 && (
+// //             <div className="relative w-full sm:max-w-[140px]">
+// //               <select 
+// //                 className="w-full appearance-none bg-gray-50 text-sm font-semibold text-gray-700 py-2.5 pl-4 pr-10 border border-gray-200 rounded-xl outline-none cursor-pointer hover:bg-gray-100 hover:border-gray-300 focus:ring-2 focus:ring-[#fe8204]/20 focus:border-[#fe8204] transition-all"
+// //                 value={selectedCombo ? selectedCombo.id : ""}
+// //                 onChange={(e) => setSelectedCombo(combinations.find(c => c.id === e.target.value) || null)}
+// //               >
+// //                 <option value="" disabled>Size</option>
+// //                 {combinations.map(c => <option key={c.id} value={c.id}>{c.size}</option>)}
+// //               </select>
+// //               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+// //                 <ChevronDown className="w-4 h-4" />
+// //               </div>
+// //             </div>
+// //           )}
+// //         </div>
+
+// //         {/* --- ACTION BUTTONS --- */}
+// //         <div className="grid grid-cols-[1fr_auto] gap-2.5">
+// //           <button 
+// //             onClick={handleAddToCart}
+// //             disabled={!isExploded && combinations.length > 0 && !selectedCombo}
+// //             className={clsx(
+// //               "flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all duration-300",
+// //               (!isExploded && combinations.length > 0 && !selectedCombo)
+// //                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+// //                 : "bg-[#fe8204] hover:bg-[#e07300] text-white shadow-lg shadow-[#fe8204]/25 hover:shadow-[#fe8204]/40"
+// //             )}
+// //           >
+// //             {(!isExploded && !selectedCombo) ? 'Select Size' : 'Add to Cart'} 
+// //             {(!isExploded && !selectedCombo) ? null : <ShoppingBag className="w-4 h-4" />}
+// //           </button>
+          
+// //           <Link 
+// //             href={`/product/${slug}`} 
+// //             className="flex items-center justify-center p-3 rounded-xl bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 transition-all duration-300 group/link"
+// //             aria-label="View Product"
+// //           >
+// //             <ArrowRight className="w-5 h-5 group-hover/link:translate-x-0.5 transition-transform" />
+// //           </Link>
+// //         </div>
+// //       </div>
+// //     </div>
+// //   );
+// // }
+
+// 'use client';
+
+// import React, { useState } from 'react';
+// import Link from 'next/link';
+// import { ChevronDown, ShoppingBag } from 'lucide-react';
+// import clsx from 'clsx';
+// import Image from 'next/image';
+// // --- Types ---
+
+// interface Combination {
+//   id: string;
+//   price: number | string;
+//   image: string;
+//   size: string;
+// }
+
+// interface ProductItem {
+//   id: string;
+//   originalId?: string;
+//   name: string;
+//   variantName?: string;
+//   style: string;
+//   price: number | string;
+//   image: string;
+//   badge?: string;
+//   productColor?: string;
+//   isExploded?: boolean;
+//   preSelectedCombo?: Combination;
+//   combinations?: Combination[];
+//   handle?: string;
+//   slug?: string;
+// }
+
+// interface ProductCardProps {
+//   item: ProductItem;
+//   viewMode: 'grid' | 'list';
+// }
+
+// // --- Component ---
+
+// export function ProductCard({ item, viewMode }: ProductCardProps) {
+//   const isList = viewMode === 'list';
+//   const isExploded = item.isExploded;
+//   const combinations = item.combinations || [];
+  
+//   const [selectedCombo, setSelectedCombo] = useState<Combination | null>(
+//     isExploded && item.preSelectedCombo ? item.preSelectedCombo : null
+//   );
+
+//   const price = selectedCombo ? selectedCombo.price : item.price;
+//   const image = selectedCombo ? selectedCombo.image : item.image;
+//   const parentId = isExploded ? item.originalId : item.id;
+//   const slug = item.slug || `${item.handle}-${parentId}`;
+
+//   const handleAddToCart = async (e: React.MouseEvent) => {
+//     e.preventDefault(); 
+//     const comboToAdd = isExploded ? item.preSelectedCombo : (selectedCombo || item.combinations?.[0]);
+//     if (!comboToAdd?.id) return;
+    
+//     console.log(`Adding Variant ${comboToAdd.id} to cart`);
+//     // Example: await addToCart(comboToAdd.id, 1);
+//   };
+
+//   return (
+//     <div className={clsx(
+//       // Added shadow-sm and slightly softer border for the light gradient background
+//       "group relative bg-white border border-gray-100/80 shadow-sm rounded-2xl overflow-hidden transition-all duration-300 ease-in-out",
+//       "hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] hover:-translate-y-1 hover:border-gray-200",
+//       isList ? "flex flex-col sm:flex-row" : "flex flex-col"
+//     )}>
+      
+//       {/* --- IMAGE AREA --- */}
+//       <div className={clsx(
+//         "relative overflow-hidden bg-gray-50/50",
+//         isList ? "w-full sm:w-48 sm:min-w-[12rem] h-56 sm:h-auto shrink-0" : "w-full aspect-[4/5]"
+//       )}>
+//         {/* Badge */}
+//         {item.badge && (
+//           <div className="absolute top-3 left-3 z-20">
+//             <span className="bg-[#fe8204] text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-md shadow-sm tracking-wider">
+//               {item.badge}
+//             </span>
+//           </div>
+//         )}
+
+//         <Link href={`/product/${slug}`} className="block w-full h-full relative">
+//             {/* <img 
+//               src={image} 
+//               alt={item.name} 
+//               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" 
+//             /> */}
+//             <Image
+//                 src={image}
+//                 alt={item.name}
+//                 fill
+//                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+//                 className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+//             />
+//             {/* Subtle overlay on hover for premium feel */}
+//             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+//         </Link>
+//       </div>
+
+//       {/* --- INFO AREA --- */}
+//       <div className={clsx(
+//         "flex flex-col flex-grow p-5 sm:p-6",
+//         isList ? "justify-center" : ""
+//       )}>
+        
+//         {/* Category / Style */}
+//         <span className="text-xs font-semibold text-[#fe8204] tracking-wider uppercase mb-1.5">
+//           {item.style}
+//         </span>
+        
+//         {/* Title */}
+//         <Link href={`/collections/${slug}`} className="block mb-1">
+//             <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-[#fe8204] transition-colors line-clamp-2">
+//               {isExploded ? item.variantName : item.name}
+//             </h3>
+//         </Link>
+        
+//         {/* Subtitle for exploded variants */}
+//         {isExploded && (
+//           <p className="text-sm font-medium text-gray-500 mb-3 line-clamp-1">{item.name}</p>
+//         )}
+
+//         <div className="flex-grow" /> {/* Spacer to push bottom content down in grid mode */}
+
+//         {/* Price & Select Container */}
+//         <div className={clsx(
+//           "flex flex-col gap-4 mt-4 mb-5",
+//           isList ? "sm:flex-row sm:items-center sm:justify-between" : ""
+//         )}>
+//           <p className="text-2xl font-extrabold text-gray-900">
+//             ${Number(price).toFixed(2)}
+//           </p>
+          
+//           {!isExploded && combinations.length > 0 && (
+//             <div className="relative w-full sm:max-w-[140px]">
+//               <select 
+//                 className="w-full appearance-none bg-gray-50/80 text-sm font-semibold text-gray-700 py-2.5 pl-4 pr-10 border border-gray-200 rounded-xl outline-none cursor-pointer hover:bg-white hover:border-gray-300 focus:ring-2 focus:ring-[#fe8204]/20 focus:border-[#fe8204] transition-all"
+//                 value={selectedCombo ? selectedCombo.id : ""}
+//                 onChange={(e) => setSelectedCombo(combinations.find(c => c.id === e.target.value) || null)}
+//               >
+//                 <option value="" disabled>Size</option>
+//                 {combinations.map(c => <option key={c.id} value={c.id}>{c.size}</option>)}
+//               </select>
+//               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+//                 <ChevronDown className="w-4 h-4" />
+//               </div>
+//             </div>
+//           )}
+//         </div>
+
+//         {/* --- ACTION BUTTONS --- */}
+//         {/* Updated to grid-cols-2 so the buttons sit perfectly side-by-side */}
+//         <div className="grid grid-cols-2 gap-2.5">
+//           <button 
+//             onClick={handleAddToCart}
+//             disabled={!isExploded && combinations.length > 0 && !selectedCombo}
+//             className={clsx(
+//               "flex items-center justify-center gap-2 py-3 px-2 rounded-xl text-sm font-bold transition-all duration-300",
+//               (!isExploded && combinations.length > 0 && !selectedCombo)
+//                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+//                 : "bg-[#fe8204] hover:bg-[#e07300] text-white shadow-md shadow-[#fe8204]/20 hover:shadow-[#fe8204]/40"
+//             )}
+//           >
+//             {(!isExploded && !selectedCombo) ? 'Select Size' : 'Add to Cart'} 
+//             {(!isExploded && !selectedCombo) ? null : <ShoppingBag className="w-4 h-4" />}
+//           </button>
+          
+//           {/* Replaced Icon with "View Details" text and styled to look great on light backgrounds */}
+//           <Link 
+//             href={`/product/${slug}`} 
+//             className="flex items-center justify-center py-3 px-2 rounded-xl bg-transparent text-gray-700 border border-gray-200 hover:bg-gray-50 hover:text-[#fe8204] hover:border-[#fe8204]/30 font-semibold text-sm transition-all duration-300"
+//             aria-label="View Product Details"
+//           >
+//             View Details
+//           </Link>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+// // "use client";
+
+// // import React, { useState, useMemo } from 'react';
+// // import { motion, AnimatePresence } from 'framer-motion';
+// // import { 
+// //   ShoppingCart, Plus, Minus, Share2, ZoomIn, 
+// //   CheckCircle2, Info, Droplets, ArrowLeft, X
+// // } from 'lucide-react';
+// // import clsx from 'clsx';
+// // // import { Product, Combination } from '../types/product';
+
+// // interface Combination {
+// //   id: string;
+// //   price: number | string;
+// //   image: string;
+// //   size: string;
+// //   stock: number;
+// // }
+
+// // interface Product {
+// //   id: string;
+// //   name: string;
+// //   category: string;
+// //   style: string;
+// //   handle?: string;
+// //   price: number | string;
+// //   image: string;
+// //   combinations?: Combination[];
+// //   placements?: string[];
+// //   productColor: any;
+// //   isExploded?: boolean;
+// //   originalId?: string;
+// //   variantName?: string;
+// //   preSelectedCombo?: Combination;
+// //   slug?: string;
+// //   badge: any;
+// // }
+
+// // // export const tattooProducts: Product[] = [
+// // //   {
+// // //     id: "prod_1",
+// // //     handle: "crying-heart-traditional",
+// // //     name: "Crying Heart",
+// // //     category: "Temporary Tattoos",
+// // //     price: "12.00",
+// // //     image: "/assets/images/Card1.png",
+// // //     badge: "Bestseller",
+// // //     style: "Traditional",
+// // //     placements: ["Forearm", "Calf", "Chest"],
+// // //     productColor: "#dc2626", 
+// // //     combinations: [
+// // //       { id: "var_1a", size: "Small (2x2)", price: "12.00", stock: 10, image: "/assets/images/Card1.png" },
+// // //       { id: "var_1b", size: "Large (4x4)", price: "18.00", stock: 5, image: "/assets/images/Card1.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_2",
+// // //     handle: "serpent-wrap",
+// // //     name: "Serpent Wrap",
+// // //     category: "Temporary Tattoos",
+// // //     price: "24.00",
+// // //     image: "/assets/images/Card2.png",
+// // //     badge: "New",
+// // //     style: "Blackwork",
+// // //     placements: ["Forearm", "Neck", "Leg"],
+// // //     productColor: "#171717", 
+// // //     combinations: [
+// // //       { id: "var_2a", size: "Medium (5x3)", price: "24.00", stock: 15, image: "/assets/images/Card2.png" },
+// // //       { id: "var_2b", size: "Sleeve (10x6)", price: "45.00", stock: 2, image: "/assets/images/Card2.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_3",
+// // //     handle: "botanical-flash-sheet",
+// // //     name: "Botanical Flash Sheet",
+// // //     category: "Flash Sheets",
+// // //     price: "30.00",
+// // //     image: "/assets/images/Card3.png",
+// // //     badge: "Digital Download",
+// // //     style: "Fine Line",
+// // //     placements: ["Any"],
+// // //     productColor: "#52525b", 
+// // //     combinations: [
+// // //       { id: "var_3a", size: "Standard (8.5x11)", price: "30.00", stock: 999, image: "/assets/images/Card3.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_4",
+// // //     handle: "minimalist-rose",
+// // //     name: "Minimalist Rose",
+// // //     category: "Temporary Tattoos",
+// // //     price: "10.00",
+// // //     image: "/assets/images/Card7.png",
+// // //     badge: null,
+// // //     style: "Fine Line",
+// // //     placements: ["Wrist", "Ankle", "Behind Ear"],
+// // //     productColor: "#ef4444", 
+// // //     combinations: [
+// // //       { id: "var_4a", size: "Tiny (1x1)", price: "10.00", stock: 20, image: "/assets/images/Card7.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_5",
+// // //     handle: "geometric-wolf",
+// // //     name: "Geometric Wolf",
+// // //     category: "Temporary Tattoos",
+// // //     price: "16.00",
+// // //     image: "/assets/images/Card4.png",
+// // //     badge: "Trending",
+// // //     style: "Geometric",
+// // //     placements: ["Forearm", "Thigh", "Shoulder"],
+// // //     productColor: "#3f3f46", 
+// // //     combinations: [
+// // //       { id: "var_5a", size: "Medium (4x4)", price: "16.00", stock: 12, image: "/assets/images/Card4.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_6",
+// // //     handle: "mandala-lotus",
+// // //     name: "Mandala Lotus",
+// // //     category: "Temporary Tattoos",
+// // //     price: "22.00",
+// // //     image: "/assets/images/Card9.png",
+// // //     badge: "Limited",
+// // //     style: "Dotwork",
+// // //     placements: ["Sternum", "Back", "Thigh"],
+// // //     productColor: "#000000", 
+// // //     combinations: [
+// // //       { id: "var_6a", size: "Medium (5x5)", price: "22.00", stock: 8, image: "/assets/images/Card9.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_7",
+// // //     handle: "skull-dagger",
+// // //     name: "Skull & Dagger",
+// // //     category: "Temporary Tattoos",
+// // //     price: "18.00",
+// // //     image: "/assets/images/Card2.png",
+// // //     badge: null,
+// // //     style: "Traditional",
+// // //     placements: ["Calf", "Forearm", "Bicep"],
+// // //     productColor: "#1c1917", 
+// // //     combinations: [
+// // //       { id: "var_7a", size: "Medium (4x6)", price: "18.00", stock: 14, image: "/assets/images/Card2.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_8",
+// // //     handle: "koi-fish-flow",
+// // //     name: "Koi Fish Flow",
+// // //     category: "Temporary Tattoos",
+// // //     price: "26.00",
+// // //     image: "/assets/images/Card5.png",
+// // //     badge: "Bestseller",
+// // //     style: "Japanese",
+// // //     placements: ["Sleeve", "Calf", "Ribs"],
+// // //     productColor: "#ea580c", 
+// // //     combinations: [
+// // //       { id: "var_8a", size: "Large (6x8)", price: "26.00", stock: 6, image: "/assets/images/Card5.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_9",
+// // //     handle: "vintage-swallow",
+// // //     name: "Vintage Swallow",
+// // //     category: "Temporary Tattoos",
+// // //     price: "14.00",
+// // //     image: "/assets/images/Card10.png",
+// // //     badge: "Classic",
+// // //     style: "Traditional",
+// // //     placements: ["Hand", "Chest", "Neck"],
+// // //     productColor: "#0284c7", 
+// // //     combinations: [
+// // //       { id: "var_9a", size: "Small (3x3)", price: "14.00", stock: 25, image: "/assets/images/Card10.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_10",
+// // //     handle: "moon-phases",
+// // //     name: "Moon Phases",
+// // //     category: "Temporary Tattoos",
+// // //     price: "15.00",
+// // //     image: "/assets/images/Card1.png",
+// // //     badge: null,
+// // //     style: "Minimalist",
+// // //     placements: ["Spine", "Forearm", "Collarbone"],
+// // //     productColor: "#71717a", 
+// // //     combinations: [
+// // //       { id: "var_10a", size: "Strip (2x8)", price: "15.00", stock: 18, image: "/assets/images/Card1.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_11",
+// // //     handle: "cyberpunk-glitch",
+// // //     name: "Cyberpunk Glitch",
+// // //     category: "Temporary Tattoos",
+// // //     price: "20.00",
+// // //     image: "/assets/images/Card8.png",
+// // //     badge: "Limited Edition",
+// // //     style: "Neo-Traditional",
+// // //     placements: ["Forearm", "Neck", "Calf"],
+// // //     productColor: "#ec4899", 
+// // //     combinations: [
+// // //       { id: "var_11a", size: "Medium (4x5)", price: "20.00", stock: 5, image: "/assets/images/Card8.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_12",
+// // //     handle: "tiger-roar",
+// // //     name: "Tiger Roar",
+// // //     category: "Temporary Tattoos",
+// // //     price: "28.00",
+// // //     image: "/assets/images/Card6.png",
+// // //     badge: "Hot",
+// // //     style: "Realism",
+// // //     placements: ["Chest", "Thigh", "Upper Back"],
+// // //     productColor: "#b45309", 
+// // //     combinations: [
+// // //       { id: "var_12a", size: "Large (6x6)", price: "28.00", stock: 7, image: "/assets/images/Card6.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_13",
+// // //     handle: "dragon-coil",
+// // //     name: "Dragon Coil",
+// // //     category: "Temporary Tattoos",
+// // //     price: "35.00",
+// // //     image: "/assets/images/Card3.png",
+// // //     badge: "Staff Pick",
+// // //     style: "Japanese",
+// // //     placements: ["Full Arm", "Leg Wrap", "Back"],
+// // //     productColor: "#0f172a", 
+// // //     combinations: [
+// // //       { id: "var_13a", size: "Extra Large (8x14)", price: "35.00", stock: 4, image: "/assets/images/Card3.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_14",
+// // //     handle: "tarot-the-moon",
+// // //     name: "Tarot Card: The Moon",
+// // //     category: "Temporary Tattoos",
+// // //     price: "16.00",
+// // //     image: "/assets/images/Card5.png",
+// // //     badge: null,
+// // //     style: "Blackwork",
+// // //     placements: ["Forearm", "Calf", "Bicep"],
+// // //     productColor: "#27272a", 
+// // //     combinations: [
+// // //       { id: "var_14a", size: "Medium (3x5)", price: "16.00", stock: 22, image: "/assets/images/Card5.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_15",
+// // //     handle: "sacred-heart",
+// // //     name: "Sacred Heart",
+// // //     category: "Temporary Tattoos",
+// // //     price: "18.00",
+// // //     image: "/assets/images/Card7.png",
+// // //     badge: "Popular",
+// // //     style: "Traditional",
+// // //     placements: ["Chest", "Sternum", "Hand"],
+// // //     productColor: "#be123c", 
+// // //     combinations: [
+// // //       { id: "var_15a", size: "Medium (4x4)", price: "18.00", stock: 11, image: "/assets/images/Card7.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_16",
+// // //     handle: "barbed-wire-armband",
+// // //     name: "Barbed Wire Armband",
+// // //     category: "Temporary Tattoos",
+// // //     price: "14.00",
+// // //     image: "/assets/images/Card9.png",
+// // //     badge: null,
+// // //     style: "Tribal",
+// // //     placements: ["Bicep", "Wrist", "Ankle"],
+// // //     productColor: "#404040", 
+// // //     combinations: [
+// // //       { id: "var_16a", size: "Wrap (2x10)", price: "14.00", stock: 30, image: "/assets/images/Card9.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_17",
+// // //     handle: "butterfly-swarm",
+// // //     name: "Butterfly Swarm",
+// // //     category: "Temporary Tattoos",
+// // //     price: "20.00",
+// // //     image: "/assets/images/Card2.png",
+// // //     badge: "Popular",
+// // //     style: "Fine Line",
+// // //     placements: ["Shoulder", "Ribs", "Thigh"],
+// // //     productColor: "#3b82f6", 
+// // //     combinations: [
+// // //       { id: "var_17a", size: "Large (5x7)", price: "20.00", stock: 16, image: "/assets/images/Card2.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_18",
+// // //     handle: "watercolor-fox",
+// // //     name: "Watercolor Fox",
+// // //     category: "Temporary Tattoos",
+// // //     price: "24.00",
+// // //     image: "/assets/images/Card10.png",
+// // //     badge: "Artistic",
+// // //     style: "Watercolor",
+// // //     placements: ["Calf", "Forearm", "Shoulder Blade"],
+// // //     productColor: "#f97316", 
+// // //     combinations: [
+// // //       { id: "var_18a", size: "Medium (4x6)", price: "24.00", stock: 9, image: "/assets/images/Card10.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_19",
+// // //     handle: "gothic-lettering-pack",
+// // //     name: "Gothic Lettering Pack",
+// // //     category: "Flash Sheets",
+// // //     price: "25.00",
+// // //     image: "/assets/images/Card4.png",
+// // //     badge: "Digital Download",
+// // //     style: "Lettering",
+// // //     placements: ["Any"],
+// // //     productColor: "#18181b", 
+// // //     combinations: [
+// // //       { id: "var_19a", size: "Standard (8.5x11)", price: "25.00", stock: 999, image: "/assets/images/Card4.png" }
+// // //     ]
+// // //   },
+// // //   {
+// // //     id: "prod_20",
+// // //     handle: "abstract-line-art",
+// // //     name: "Abstract Line Art",
+// // //     category: "Temporary Tattoos",
+// // //     price: "18.00",
+// // //     image: "/assets/images/Card8.png",
+// // //     badge: "New",
+// // //     style: "Abstract",
+// // //     placements: ["Forearm", "Ribs", "Ankle"],
+// // //     productColor: "#52525b", 
+// // //     combinations: [
+// // //       { id: "var_20a", size: "Medium (4x5)", price: "18.00", stock: 13, image: "/assets/images/Card8.png" }
+// // //     ]
+// // //   }
+// // // ];
+
+// // interface TattooProductDetailProps {
+// //   product: Product;
+// //   onAddToCart?: (variantId: string, quantity: number) => void;
+// // }
+
+// // export default function TattooProductDetail({ product, onAddToCart }: TattooProductDetailProps) {
+// //   const [activeVariant, setActiveVariant] = useState<Combination>(product.combinations[0]);
+// //   const [quantity, setQuantity] = useState(1);
+// //   const [activeTab, setActiveTab] = useState<'details' | 'care'>('details');
+// //   const [isZoomed, setIsZoomed] = useState(false);
+// //   const [isAdding, setIsAdding] = useState(false);
+
+// //   const themeColor = product.productColor || '#171717';
+// //   const displayImage = activeVariant?.image || product.image;
+// //   const currentPrice = activeVariant?.price || product.price;
+
+// //   // 1. Share Functionality
+// //   const handleShare = async () => {
+// //     const shareData = {
+// //       title: `${product.name} | Tattoo`,
+// //       text: `Check out this awesome ${product.style} tattoo: ${product.name}`,
+// //       url: window.location.href,
+// //     };
+    
+// //     if (navigator.share) {
+// //       try {
+// //         await navigator.share(shareData);
+// //       } catch (err) {
+// //         console.log('Error sharing', err);
+// //       }
+// //     } else {
+// //       navigator.clipboard.writeText(window.location.href);
+// //       alert('Link copied to clipboard!'); // Replace with a toast notification in production
+// //     }
+// //   };
+
+// //   // 2. Add To Cart Handler
+// //   const handleAddToCart = async () => {
+// //     if (!activeVariant) return;
+// //     setIsAdding(true);
+// //     // Simulate API call or call passed prop
+// //     if (onAddToCart) {
+// //       await onAddToCart(activeVariant.id, quantity);
+// //     } else {
+// //       await new Promise(res => setTimeout(res, 800)); // Mock delay
+// //     }
+// //     setIsAdding(false);
+// //   };
+
+// //   return (
+// //     <div className="bg-white min-h-screen text-zinc-900 font-sans">
+// //       <main className="container max-w-7xl mx-auto px-5 py-8 lg:py-16">
+        
+// //         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+          
+// //           {/* LEFT: IMAGE GALLERY & MAGNIFIER */}
+// //           <div className="lg:col-span-6 xl:col-span-7 sticky top-24">
+// //             <div 
+// //               className="relative aspect-[4/5] md:aspect-square rounded-3xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-6 overflow-hidden group cursor-zoom-in"
+// //               onClick={() => setIsZoomed(true)}
+// //               style={{ borderColor: `${themeColor}20` }}
+// //             >
+// //               {/* Subtle background glow */}
+// //               <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundColor: themeColor }} />
+              
+// //               <AnimatePresence mode="wait">
+// //                 <motion.img 
+// //                   key={displayImage}
+// //                   initial={{ opacity: 0, scale: 0.95 }}
+// //                   animate={{ opacity: 1, scale: 1 }}
+// //                   exit={{ opacity: 0 }}
+// //                   transition={{ duration: 0.4 }}
+// //                   src={displayImage} 
+// //                   alt={product.name}
+// //                   className="w-full h-full object-contain relative z-10 transition-transform duration-500 group-hover:scale-105"
+// //                 />
+// //               </AnimatePresence>
+
+// //               {/* Magnifier Mobile Hint */}
+// //               <div className="absolute bottom-6 right-6 z-20 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-sm flex items-center gap-2 text-xs font-semibold text-zinc-600 border border-zinc-200">
+// //                 <ZoomIn className="w-4 h-4" />
+// //                 <span className="hidden md:inline">Click to magnify</span>
+// //                 <span className="md:hidden">Tap to magnify</span>
+// //               </div>
+
+// //               {product.badge && (
+// //                 <div className="absolute top-6 left-6 z-20 px-4 py-1.5 rounded-full text-white text-[10px] font-bold uppercase tracking-widest shadow-lg" style={{ backgroundColor: themeColor }}>
+// //                   {product.badge}
+// //                 </div>
+// //               )}
+// //             </div>
+// //           </div>
+
+// //           {/* RIGHT: PRODUCT INFO */}
+// //           <div className="lg:col-span-6 xl:col-span-5 flex flex-col pt-4">
+            
+// //             <div className="flex items-center justify-between mb-4">
+// //               <span style={{ color: themeColor }} className="text-xs font-bold uppercase tracking-widest bg-zinc-50 px-3 py-1 rounded-full">
+// //                 {product.category}
+// //               </span>
+// //               <button onClick={handleShare} className="p-2 hover:bg-zinc-100 rounded-full transition-colors group">
+// //                 <Share2 className="w-5 h-5 text-zinc-400 group-hover:text-zinc-900 transition-colors" />
+// //               </button>
+// //             </div>
+
+// //             <h1 className="text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight leading-none mb-4">
+// //               {product.name}
+// //             </h1>
+
+// //             <p className="text-zinc-500 font-medium text-lg mb-8">
+// //               Premium {product.style} style temporary tattoo. Lasts 1-2 weeks.
+// //             </p>
+
+// //             {/* VARIANTS (SIZE) */}
+// //             <div className="space-y-6 mb-10">
+// //               <div>
+// //                 <label className="block text-xs font-bold uppercase tracking-widest text-zinc-400 mb-3 flex justify-between">
+// //                   <span>Select Size</span>
+// //                   <span className="text-zinc-900">{activeVariant?.stock || 0} in stock</span>
+// //                 </label>
+// //                 <div className="grid grid-cols-2 gap-3">
+// //                   {product.combinations.map((combo) => {
+// //                     const isSelected = activeVariant?.id === combo.id;
+// //                     return (
+// //                       <button
+// //                         key={combo.id}
+// //                         onClick={() => setActiveVariant(combo)}
+// //                         style={{ 
+// //                           borderColor: isSelected ? themeColor : '',
+// //                           backgroundColor: isSelected ? `${themeColor}08` : 'white',
+// //                           color: isSelected ? themeColor : ''
+// //                         }}
+// //                         className={clsx(
+// //                           "px-4 py-4 rounded-2xl border-2 text-sm font-bold transition-all duration-300 flex flex-col items-center justify-center gap-1",
+// //                           !isSelected && "border-zinc-200 text-zinc-600 hover:border-zinc-300"
+// //                         )}
+// //                       >
+// //                         <span>{combo.size}</span>
+// //                         <span className="text-xs font-medium opacity-70">${combo.price}</span>
+// //                       </button>
+// //                     );
+// //                   })}
+// //                 </div>
+// //               </div>
+
+// //               {/* PRICE & QUANTITY */}
+// //               <div className="flex items-center justify-between p-6 bg-zinc-50 rounded-2xl border border-zinc-100">
+// //                 <div className="flex flex-col">
+// //                   <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">Total</span>
+// //                   <span className="text-3xl font-black text-zinc-900">
+// //                     ${(parseFloat(currentPrice) * quantity).toFixed(2)}
+// //                   </span>
+// //                 </div>
+// //                 <div className="flex items-center bg-white border border-zinc-200 rounded-xl p-1 shadow-sm">
+// //                   <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="p-3 hover:bg-zinc-50 rounded-lg"><Minus className="w-4 h-4" /></button>
+// //                   <span className="w-12 text-center font-bold text-lg">{quantity}</span>
+// //                   <button 
+// //                     onClick={() => setQuantity(q => Math.min(activeVariant?.stock || 99, q + 1))} 
+// //                     className="p-3 hover:bg-zinc-50 rounded-lg"
+// //                   >
+// //                     <Plus className="w-4 h-4" />
+// //                   </button>
+// //                 </div>
+// //               </div>
+// //             </div>
+
+// //             {/* ADD TO CART */}
+// //             <button 
+// //               style={{ backgroundColor: themeColor }}
+// //               onClick={handleAddToCart}
+// //               disabled={isAdding || activeVariant?.stock === 0}
+// //               className="w-full py-5 rounded-2xl text-white font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 shadow-xl hover:opacity-90 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed mb-8"
+// //             >
+// //               <ShoppingCart className="w-5 h-5" />
+// //               {activeVariant?.stock === 0 ? 'Out of Stock' : isAdding ? 'Adding to Cart...' : 'Add To Cart'}
+// //             </button>
+
+// //             {/* CONTENT TABS */}
+// //             <div className="mt-8 border-t border-zinc-100 pt-8">
+// //               <div className="flex gap-8 border-b border-zinc-100 mb-6">
+// //                 {(['details', 'care'] as const).map(tab => (
+// //                   <button 
+// //                     key={tab}
+// //                     onClick={() => setActiveTab(tab)}
+// //                     className={clsx(
+// //                       "pb-4 text-xs font-bold uppercase tracking-widest transition-all relative",
+// //                       activeTab === tab ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-600"
+// //                     )}
+// //                   >
+// //                     {tab}
+// //                     {activeTab === tab && (
+// //                       <motion.div layoutId="tab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: themeColor }} />
+// //                     )}
+// //                   </button>
+// //                 ))}
+// //               </div>
+
+// //               <div className="min-h-[150px]">
+// //                 {activeTab === 'details' && (
+// //                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+// //                     <p className="text-sm text-zinc-600 leading-relaxed">
+// //                       Designed by professional artists, our {product.style.toLowerCase()} tattoos look incredibly authentic. They are waterproof, non-toxic, and safe for all skin types.
+// //                     </p>
+// //                     <div className="flex flex-col gap-2 mt-4">
+// //                       <span className="text-xs font-bold uppercase text-zinc-400 tracking-widest">Recommended Placement:</span>
+// //                       <div className="flex flex-wrap gap-2">
+// //                         {product.placements.map(place => (
+// //                           <span key={place} className="px-3 py-1 bg-zinc-100 text-zinc-700 text-xs font-semibold rounded-md">
+// //                             {place}
+// //                           </span>
+// //                         ))}
+// //                       </div>
+// //                     </div>
+// //                   </motion.div>
+// //                 )}
+// //                 {activeTab === 'care' && (
+// //                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 gap-4">
+// //                     <div className="flex gap-3 items-start">
+// //                       <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+// //                       <p className="text-sm text-zinc-600"><strong className="text-zinc-900 block">Application</strong> Peel off clear film, place face down on clean skin, and hold a wet cloth against it for 30 seconds.</p>
+// //                     </div>
+// //                     <div className="flex gap-3 items-start">
+// //                       <Droplets className="w-5 h-5 text-blue-500 shrink-0" />
+// //                       <p className="text-sm text-zinc-600"><strong className="text-zinc-900 block">Aftercare</strong> Avoid scrubbing in the shower. Pat dry. Lasts longer on areas with less friction.</p>
+// //                     </div>
+// //                   </motion.div>
+// //                 )}
+// //               </div>
+// //             </div>
+
+// //           </div>
+// //         </div>
+// //       </main>
+
+// //       {/* FULL SCREEN MAGNIFIER MODAL (Mobile & Desktop) */}
+// //       <AnimatePresence>
+// //         {isZoomed && (
+// //           <motion.div 
+// //             initial={{ opacity: 0 }} 
+// //             animate={{ opacity: 1 }} 
+// //             exit={{ opacity: 0 }}
+// //             className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex items-center justify-center p-4"
+// //           >
+// //             <button 
+// //               onClick={() => setIsZoomed(false)}
+// //               className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors z-50"
+// //             >
+// //               <X className="w-6 h-6" />
+// //             </button>
+// //             <motion.div 
+// //               initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
+// //               className="w-full h-full flex items-center justify-center overflow-auto"
+// //             >
+// //               <img 
+// //                 src={displayImage} 
+// //                 alt="Magnified view" 
+// //                 className="max-w-[150%] max-h-[150%] md:max-w-[90vw] md:max-h-[90vh] object-contain cursor-zoom-out touch-pinch-zoom"
+// //                 onClick={() => setIsZoomed(false)}
+// //               />
+// //             </motion.div>
+// //           </motion.div>
+// //         )}
+// //       </AnimatePresence>
+// //     </div>
+// //   );
+// // }
+// "use client";
+
+// import React, { useState } from 'react';
+// import { motion, AnimatePresence } from 'framer-motion';
+// import { 
+//   ShoppingCart, Plus, Minus, Share2, ZoomIn, 
+//   CheckCircle2, Droplets, ArrowLeft, X
+// } from 'lucide-react';
+// import clsx from 'clsx';
+
+// interface Combination {
+//   id: string;
+//   price: number | string;
+//   image: string;
+//   size: string;
+//   stock: number;
+// }
+
+// interface Product {
+//   id: string;
+//   name: string;
+//   category: string;
+//   style?: string;
+//   price: number | string;
+//   image: string;
+//   combinations?: Combination[];
+//   placements?: string[];
+//   productColor?: string;
+//   badge?: string | null;
+// }
+
+// interface TattooProductDetailProps {
+//   product: Product;
+//   onAddToCart?: (variantId: string, quantity: number) => void;
+//   onBack?: () => void;
+// }
+
+// export default function TattooProductDetail({ product, onAddToCart, onBack }: TattooProductDetailProps) {
+//   // Safety checks for potential missing data
+//   const combinations = product?.combinations || [];
+//   const [activeVariant, setActiveVariant] = useState<Combination | null>(combinations[0] || null);
+//   const [quantity, setQuantity] = useState(1);
+//   const [activeTab, setActiveTab] = useState<'details' | 'care'>('details');
+//   const [isZoomed, setIsZoomed] = useState(false);
+//   const [isAdding, setIsAdding] = useState(false);
+
+//   const themeColor = product?.productColor || '#171717';
+//   const displayImage = activeVariant?.image || product?.image;
+//   const currentPrice = activeVariant?.price || product?.price;
+//   const currentStock = activeVariant?.stock || 0;
+
+//   const handleShare = async () => {
+//     const shareData = {
+//       title: `${product?.name} | Tattoo`,
+//       text: `Check out this awesome tattoo: ${product?.name}`,
+//       url: typeof window !== 'undefined' ? window.location.href : '',
+//     };
+    
+//     if (typeof navigator !== 'undefined' && navigator.share) {
+//       try {
+//         await navigator.share(shareData);
+//       } catch (err) {
+//         console.log('Error sharing', err);
+//       }
+//     } else {
+//       navigator.clipboard.writeText(window.location.href);
+//       alert('Link copied to clipboard!'); 
+//     }
+//   };
+
+//   const handleAddToCart = async () => {
+//     if (!activeVariant || currentStock === 0) return;
+//     setIsAdding(true);
+//     if (onAddToCart) {
+//       await onAddToCart(activeVariant.id, quantity);
+//     } else {
+//       await new Promise(res => setTimeout(res, 800)); // Mock network delay
+//     }
+//     setIsAdding(false);
+//   };
+
+//   if (!product) return null; // Prevent render if product data is entirely missing
+
+//   return (
+//     <div className="bg-white min-h-screen text-zinc-900 font-sans selection:bg-zinc-200">
+      
+//       {/* Top Navigation Bar */}
+//       <header className="w-full border-b border-zinc-100 bg-white sticky top-0 z-30">
+//         <div className="container max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
+//           <button 
+//             onClick={onBack} 
+//             className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors"
+//           >
+//             <ArrowLeft className="w-4 h-4" />
+//             <span>Back to shop</span>
+//           </button>
+//         </div>
+//       </header>
+
+//       <main className="container max-w-7xl mx-auto px-5 py-8 lg:py-12">
+//         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+          
+//           {/* LEFT: IMAGE GALLERY & MAGNIFIER */}
+//           {/* FIX: Changed to lg:sticky to prevent mobile layout breaking */}
+//           <div className="lg:col-span-6 xl:col-span-7 relative lg:sticky lg:top-24">
+//             <div 
+//               className="relative aspect-[4/5] md:aspect-square w-full rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-6 overflow-hidden group cursor-zoom-in transition-colors duration-300"
+//               onClick={() => setIsZoomed(true)}
+//               style={{ borderColor: `${themeColor}20` }}
+//             >
+//               <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundColor: themeColor }} />
+              
+//               <AnimatePresence mode="wait">
+//                 <motion.img 
+//                   key={displayImage}
+//                   initial={{ opacity: 0, scale: 0.95 }}
+//                   animate={{ opacity: 1, scale: 1 }}
+//                   exit={{ opacity: 0 }}
+//                   transition={{ duration: 0.3 }}
+//                   src={displayImage} 
+//                   alt={product.name}
+//                   className="w-full h-full object-contain relative z-10 transition-transform duration-500 group-hover:scale-105"
+//                 />
+//               </AnimatePresence>
+
+//               <div className="absolute bottom-4 right-4 z-20 bg-white/90 backdrop-blur px-3 py-2 rounded-full shadow-sm flex items-center gap-2 text-xs font-semibold text-zinc-600 border border-zinc-200 pointer-events-none">
+//                 <ZoomIn className="w-4 h-4" />
+//                 <span className="hidden sm:inline">Magnify</span>
+//               </div>
+
+//               {product.badge && (
+//                 <div 
+//                   className="absolute top-4 left-4 z-20 px-3 py-1 rounded-full text-white text-[10px] font-bold uppercase tracking-widest shadow-md" 
+//                   style={{ backgroundColor: themeColor }}
+//                 >
+//                   {product.badge}
+//                 </div>
+//               )}
+//             </div>
+//           </div>
+
+//           {/* RIGHT: PRODUCT INFO */}
+//           <div className="lg:col-span-6 xl:col-span-5 flex flex-col">
+            
+//             <div className="flex items-center justify-between mb-4">
+//               <span style={{ color: themeColor }} className="text-xs font-bold uppercase tracking-wider bg-zinc-50 px-3 py-1 rounded-full border border-zinc-100">
+//                 {product.category}
+//               </span>
+//               <button onClick={handleShare} className="p-2 hover:bg-zinc-100 rounded-full transition-colors group">
+//                 <Share2 className="w-5 h-5 text-zinc-400 group-hover:text-zinc-900 transition-colors" />
+//               </button>
+//             </div>
+
+//             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-zinc-900 tracking-tight leading-tight mb-4">
+//               {product.name}
+//             </h1>
+
+//             <p className="text-zinc-500 font-medium text-base md:text-lg mb-8 leading-relaxed">
+//               Premium {product.style || 'custom'} style temporary tattoo. Looks authentic and lasts up to 2 weeks.
+//             </p>
+
+//             <div className="space-y-8 mb-10">
+//               {/* VARIANTS (SIZE) */}
+//               {combinations.length > 0 && (
+//                 <div>
+//                   <div className="flex justify-between items-end mb-3">
+//                     <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Select Size</label>
+//                     <span className={clsx("text-xs font-medium", currentStock > 5 ? "text-zinc-500" : "text-red-500")}>
+//                       {currentStock > 0 ? `${currentStock} in stock` : 'Out of stock'}
+//                     </span>
+//                   </div>
+//                   <div className="grid grid-cols-2 gap-3">
+//                     {combinations.map((combo) => {
+//                       const isSelected = activeVariant?.id === combo.id;
+//                       return (
+//                         <button
+//                           key={combo.id}
+//                           onClick={() => {
+//                             setActiveVariant(combo);
+//                             setQuantity(1); // Reset quantity on variant change
+//                           }}
+//                           style={{ 
+//                             borderColor: isSelected ? themeColor : '',
+//                             backgroundColor: isSelected ? `${themeColor}05` : 'white',
+//                             color: isSelected ? themeColor : ''
+//                           }}
+//                           className={clsx(
+//                             "px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 flex flex-col items-center justify-center gap-1",
+//                             !isSelected && "border-zinc-200 text-zinc-600 hover:border-zinc-300",
+//                             combo.stock === 0 && "opacity-50 cursor-not-allowed"
+//                           )}
+//                         >
+//                           <span>{combo.size}</span>
+//                           <span className="text-xs font-medium opacity-80">${Number(combo.price).toFixed(2)}</span>
+//                         </button>
+//                       );
+//                     })}
+//                   </div>
+//                 </div>
+//               )}
+
+//               {/* PRICE & QUANTITY */}
+//               <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-zinc-50 rounded-2xl border border-zinc-100 gap-4">
+//                 <div className="flex flex-col">
+//                   <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1">Total Price</span>
+//                   <span className="text-3xl font-extrabold text-zinc-900">
+//                     ${(parseFloat(currentPrice as string) * quantity).toFixed(2)}
+//                   </span>
+//                 </div>
+                
+//                 <div className="flex items-center bg-white border border-zinc-200 rounded-xl p-1 shadow-sm w-full sm:w-auto justify-between sm:justify-center">
+//                   <button 
+//                     onClick={() => setQuantity(q => Math.max(1, q - 1))} 
+//                     disabled={quantity <= 1}
+//                     className="p-3 hover:bg-zinc-50 rounded-lg text-zinc-600 disabled:opacity-50"
+//                   >
+//                     <Minus className="w-4 h-4" />
+//                   </button>
+//                   <span className="w-12 text-center font-bold text-base">{quantity}</span>
+//                   <button 
+//                     onClick={() => setQuantity(q => Math.min(currentStock, q + 1))} 
+//                     disabled={quantity >= currentStock}
+//                     className="p-3 hover:bg-zinc-50 rounded-lg text-zinc-600 disabled:opacity-50"
+//                   >
+//                     <Plus className="w-4 h-4" />
+//                   </button>
+//                 </div>
+//               </div>
+//             </div>
+
+//             {/* ADD TO CART */}
+//             <button 
+//               style={{ backgroundColor: currentStock > 0 ? themeColor : '#e4e4e7' }}
+//               onClick={handleAddToCart}
+//               disabled={isAdding || currentStock === 0}
+//               className={clsx(
+//                 "w-full py-4 rounded-xl text-white font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 shadow-lg transition-all duration-200 mb-10",
+//                 currentStock > 0 ? "hover:opacity-90 active:scale-[0.99]" : "text-zinc-400 cursor-not-allowed shadow-none"
+//               )}
+//             >
+//               <ShoppingCart className="w-5 h-5" />
+//               {currentStock === 0 ? 'Out of Stock' : isAdding ? 'Adding to Cart...' : 'Add To Cart'}
+//             </button>
+
+//             {/* CONTENT TABS */}
+//             <div className="border-t border-zinc-100 pt-8">
+//               <div className="flex gap-8 border-b border-zinc-100 mb-6">
+//                 {(['details', 'care'] as const).map(tab => (
+//                   <button 
+//                     key={tab}
+//                     onClick={() => setActiveTab(tab)}
+//                     className={clsx(
+//                       "pb-3 text-xs font-semibold uppercase tracking-wider transition-colors relative",
+//                       activeTab === tab ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-600"
+//                     )}
+//                   >
+//                     {tab}
+//                     {activeTab === tab && (
+//                       <motion.div layoutId="tab-indicator" className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ backgroundColor: themeColor }} />
+//                     )}
+//                   </button>
+//                 ))}
+//               </div>
+
+//               <div className="min-h-[160px]">
+//                 {activeTab === 'details' && (
+//                   <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+//                     <p className="text-sm text-zinc-600 leading-relaxed">
+//                       Designed by professional artists, our tattoos look incredibly authentic. They are waterproof, non-toxic, and rigorously tested for skin safety.
+//                     </p>
+                    
+//                     {product?.placements && product.placements.length > 0 && (
+//                       <div className="flex flex-col gap-3">
+//                         <span className="text-xs font-semibold uppercase text-zinc-500 tracking-wider">Recommended Placement:</span>
+//                         <div className="flex flex-wrap gap-2">
+//                           {product.placements.map(place => (
+//                             <span key={place} className="px-3 py-1.5 bg-zinc-100 text-zinc-700 text-xs font-medium rounded-md">
+//                               {place}
+//                             </span>
+//                           ))}
+//                         </div>
+//                       </div>
+//                     )}
+//                   </motion.div>
+//                 )}
+                
+//                 {activeTab === 'care' && (
+//                   <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+//                     <div className="flex gap-4 items-start p-4 rounded-xl bg-zinc-50">
+//                       <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+//                       <p className="text-sm text-zinc-600 leading-relaxed"><strong className="text-zinc-900 block font-semibold mb-1">Application</strong> Peel off clear film, place face down on clean skin, and hold a wet cloth firmly against it for 30 seconds before peeling the paper backing.</p>
+//                     </div>
+//                     <div className="flex gap-4 items-start p-4 rounded-xl bg-zinc-50">
+//                       <Droplets className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+//                       <p className="text-sm text-zinc-600 leading-relaxed"><strong className="text-zinc-900 block font-semibold mb-1">Aftercare</strong> Avoid scrubbing in the shower. Pat dry gently. Lasts significantly longer on areas with minimal friction and hair.</p>
+//                     </div>
+//                   </motion.div>
+//                 )}
+//               </div>
+//             </div>
+
+//           </div>
+//         </div>
+//       </main>
+
+//       {/* FULL SCREEN MAGNIFIER MODAL */}
+//       <AnimatePresence>
+//         {isZoomed && (
+//           <motion.div 
+//             initial={{ opacity: 0 }} 
+//             animate={{ opacity: 1 }} 
+//             exit={{ opacity: 0 }}
+//             className="fixed inset-0 z-50 bg-white/95 backdrop-blur-md flex items-center justify-center p-4"
+//           >
+//             <button 
+//               onClick={() => setIsZoomed(false)}
+//               className="absolute mt-15 top-6 right-3 p-3 bg-zinc-100 hover:bg-zinc-200 rounded-full text-zinc-900 transition-colors z-50"
+//               aria-label="Close zoom"
+//             >
+//               <X className="w-3 h-3" />
+//             </button>
+//             <motion.div 
+//               initial={{ scale: 0.9, opacity: 0 }} 
+//               animate={{ scale: 1, opacity: 1 }} 
+//               exit={{ scale: 0.9, opacity: 0 }}
+//               transition={{ type: "spring", damping: 25, stiffness: 300 }}
+//               className="w-full h-full flex items-center justify-center overflow-auto"
+//             >
+//               <img 
+//                 src={displayImage} 
+//                 alt="Magnified view" 
+//                 className="max-w-none md:max-w-[90vw] md:max-h-[90vh] object-contain cursor-zoom-out"
+//                 onClick={() => setIsZoomed(false)}
+//               />
+//             </motion.div>
+//           </motion.div>
+//         )}
+//       </AnimatePresence>
+//     </div>
+//   );
+// }
+
+// "use client";
+
+// import { useState, useEffect, useRef } from "react";
+// import Link from "next/link";
+// import Image from "next/image";
+// import { usePathname } from "next/navigation";
+// import { motion, AnimatePresence, Variants } from "framer-motion";
+// import { 
+//   Search, 
+//   User, 
+//   ShoppingBag, 
+//   Menu, 
+//   X, 
+//   ChevronDown, 
+//   LogOut, 
+//   Settings 
+// } from "lucide-react";
+// import { cn } from "@/src/lib/utils"; // Ensure this path matches your project structure
+
+// // --- Data Structures ---
+// const COLLECTION_DATA = {
+//   "BODY PART": ["Ankle & Wrist", "Back, Torso & Chest Pieces", "Foot", "Hand", "Leg & Arm pieces", "Sleeve", "Spine"],
+//   "STYLES": ["Animal", "Celestial art", "Colored Art", "Couple art", "Fantasy", "Floral", "Insects", "Japanese art", "Nature", "Spiritual", "Symbols and quotes", "Tribal art"],
+//   "SIZES": ["Small", "Medium", "Large"],
+// };
+
+// const HOW_IT_WORKS_DATA = ["Help Center", "About us", "How it works", "Help & FAQ"];
+
+// export default function Header() {
+//   const pathname = usePathname();
+//   const [isScrolled, setIsScrolled] = useState(false);
+//   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+//   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+//   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+//   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  
+//   // Mock Auth State (Replace with your actual auth hook, e.g., NextAuth or Supabase)
+//   const [isLoggedIn, setIsLoggedIn] = useState(false); 
+//   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+//   // --- Timeout ref to prevent jittery menu closing ---
+//   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+//   const handleMouseEnter = (navItem: string) => {
+//     if (timeoutRef.current) clearTimeout(timeoutRef.current);
+//     setHoveredNav(navItem);
+//     setActiveDropdown(navItem);
+//   };
+
+//   const handleMouseLeave = () => {
+//     timeoutRef.current = setTimeout(() => {
+//       setHoveredNav(null);
+//       setActiveDropdown(null);
+//       setIsProfileMenuOpen(false);
+//     }, 150); // 150ms buffer for smooth mouse movement
+//   };
+
+//   // --- Scroll & Body Lock ---
+//   useEffect(() => {
+//     const handleScroll = () => setIsScrolled(window.scrollY > 20);
+//     window.addEventListener("scroll", handleScroll, { passive: true });
+//     return () => window.removeEventListener("scroll", handleScroll);
+//   }, []);
+
+//   useEffect(() => {
+//     if (isMobileDrawerOpen) document.body.style.overflow = "hidden";
+//     else document.body.style.overflow = "";
+//     return () => { document.body.style.overflow = ""; }; // Cleanup on unmount
+//   }, [isMobileDrawerOpen]);
+
+//   const isActive = (path: string) => pathname?.includes(path);
+
+//   // --- Animation Variants ---
+//   const dropdownVariants: Variants = {
+//     hidden: { opacity: 0, y: 10, scale: 0.98, filter: "blur(4px)" },
+//     visible: { 
+//       opacity: 1, y: 0, scale: 1, filter: "blur(0px)",
+//       transition: { type: "spring", stiffness: 400, damping: 30, mass: 0.8 }
+//     },
+//     exit: { 
+//       opacity: 0, y: 5, scale: 0.98, filter: "blur(4px)",
+//       transition: { duration: 0.15, ease: "easeOut" }
+//     }
+//   };
+
+//   const drawerVariants: Variants = {
+//     hidden: { x: "-100%" },
+//     visible: { 
+//       x: 0,
+//       transition: { type: "spring", stiffness: 300, damping: 35 }
+//     },
+//     exit: { 
+//       x: "-100%",
+//       transition: { type: "spring", stiffness: 300, damping: 35 }
+//     }
+//   };
+
+//   return (
+//     <>
+//       {/* ========================================== */}
+//       {/* 1. MAIN HEADER CONTAINER                   */}
+//       {/* ========================================== */}
+//       <header
+//         className={cn(
+//           "fixed top-0 w-full z-50 transition-all duration-300 ease-in-out",
+//           isScrolled 
+//             ? "h-16 md:h-20 bg-white/90 backdrop-blur-md shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] border-b border-gray-200" 
+//             : "h-20 md:h-24 bg-white border-b border-transparent"
+//         )}
+//       >
+//         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-full">
+          
+//           {/* ========================================== */}
+//           {/* 2. DESKTOP VIEW (Hidden on Mobile)         */}
+//           {/* ========================================== */}
+//           <div className="hidden md:flex items-center justify-between h-full">
+//             {/* Logo */}
+//             <Link 
+//               href="/" 
+//               className="relative z-50 flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-orange)] rounded-sm transition-transform hover:scale-[1.02]"
+//             >
+//               <Image
+//                 src="/assets/icons/DesktopLogo.svg"
+//                 alt="Just Tattoos"
+//                 width={140}
+//                 height={48}
+//                 className={cn("transition-all duration-300 w-auto", isScrolled ? "h-8" : "h-10")}
+//                 priority
+//               />
+//             </Link>
+
+//             {/* Desktop Navigation */}
+//             <nav className="flex h-full items-center gap-1" onMouseLeave={handleMouseLeave}>
+//               {/* Nav Item: New Arrival */}
+//               <div className="relative h-full flex items-center px-5 cursor-pointer" onMouseEnter={() => handleMouseEnter("new-arrivals")}>
+//                 {hoveredNav === "new-arrivals" && (
+//                   <motion.div layoutId="nav-pill" className="absolute inset-y-5 inset-x-0 bg-gray-100/80 rounded-full z-0" transition={{ type: "spring", stiffness: 400, damping: 30 }} />
+//                 )}
+//                 <Link href="/new-arrivals" className={cn(
+//                   "relative z-10 font-almarena font-bold text-[14px] tracking-wider transition-colors duration-300",
+//                   isActive("/new-arrivals") ? "text-[var(--color-brand-orange)]" : "text-gray-900"
+//                 )}>
+//                   NEW ARRIVAL
+//                 </Link>
+//               </div>
+
+//               {/* Nav Item: Collection (Mega Menu Trigger) */}
+//               <div className="relative h-full flex items-center px-5 cursor-pointer" onMouseEnter={() => handleMouseEnter("collection")}>
+//                 {hoveredNav === "collection" && (
+//                   <motion.div layoutId="nav-pill" className="absolute inset-y-5 inset-x-0 bg-gray-100/80 rounded-full z-0" transition={{ type: "spring", stiffness: 400, damping: 30 }} />
+//                 )}
+//                 <span className={cn(
+//                   "relative z-10 font-almarena font-bold text-[14px] tracking-wider transition-colors flex items-center gap-1.5",
+//                   activeDropdown === "collection" || isActive("/collection") ? "text-[var(--color-brand-orange)]" : "text-gray-900"
+//                 )}>
+//                   COLLECTION
+//                   <ChevronDown className={cn("w-4 h-4 transition-transform duration-300", activeDropdown === "collection" && "rotate-180")} />
+//                 </span>
+
+//                 {/* Mega Menu Dropdown */}
+//                 <AnimatePresence>
+//                   {activeDropdown === "collection" && (
+//                     <motion.div
+//                       variants={dropdownVariants}
+//                       initial="hidden"
+//                       animate="visible"
+//                       exit="exit"
+//                       className="absolute top-[calc(100%-8px)] left-1/2 -translate-x-1/2 w-[85vw] max-w-[1000px] bg-white rounded-2xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] border border-gray-100 p-10 z-50 origin-top cursor-default"
+//                     >
+//                       <div className="grid grid-cols-3 gap-12">
+//                         {Object.entries(COLLECTION_DATA).map(([category, items]) => (
+//                           <div key={category} className="flex flex-col gap-5">
+//                             <h3 className="font-almarena text-[var(--color-brand-orange)] text-[14px] font-bold tracking-widest uppercase border-b border-gray-100 pb-3">{category}</h3>
+//                             <ul className="flex flex-col gap-3">
+//                               {items.map((item) => (
+//                                 <li key={item}>
+//                                   <Link
+//                                     href={`/collections/${item.toLowerCase().replace(/ & /g, "-").replace(/, /g, "-").replace(/ /g, "-")}`}
+//                                     className="font-montserrat text-[14px] font-medium text-gray-600 hover:text-[var(--color-brand-orange)] hover:translate-x-1.5 transition-all duration-300 inline-block"
+//                                     onClick={() => setActiveDropdown(null)}
+//                                   >
+//                                     {item}
+//                                   </Link>
+//                                 </li>
+//                               ))}
+//                             </ul>
+//                           </div>
+//                         ))}
+//                       </div>
+//                     </motion.div>
+//                   )}
+//                 </AnimatePresence>
+//               </div>
+
+//               {/* Nav Item: Sale */}
+//               <div className="relative h-full flex items-center px-5 cursor-pointer" onMouseEnter={() => handleMouseEnter("sale")}>
+//                 {hoveredNav === "sale" && (
+//                   <motion.div layoutId="nav-pill" className="absolute inset-y-5 inset-x-0 bg-gray-100/80 rounded-full z-0" transition={{ type: "spring", stiffness: 400, damping: 30 }} />
+//                 )}
+//                 <Link href="/sale" className={cn(
+//                   "relative z-10 font-almarena font-bold text-[14px] tracking-wider transition-colors duration-300",
+//                   isActive("/sale") ? "text-red-600" : "text-red-500 hover:text-red-600"
+//                 )}>
+//                   SALE
+//                 </Link>
+//               </div>
+
+//               {/* Nav Item: How It Works */}
+//               <div className="relative h-full flex items-center px-5 cursor-pointer" onMouseEnter={() => handleMouseEnter("how-it-works")}>
+//                 {hoveredNav === "how-it-works" && (
+//                   <motion.div layoutId="nav-pill" className="absolute inset-y-5 inset-x-0 bg-gray-100/80 rounded-full z-0" transition={{ type: "spring", stiffness: 400, damping: 30 }} />
+//                 )}
+//                 <span className={cn(
+//                   "relative z-10 font-almarena font-bold text-[14px] tracking-wider transition-colors flex items-center gap-1.5",
+//                   activeDropdown === "how-it-works" || isActive("/how-it-works") ? "text-[var(--color-brand-orange)]" : "text-gray-900"
+//                 )}>
+//                   HOW IT WORKS
+//                   <ChevronDown className={cn("w-4 h-4 transition-transform duration-300", activeDropdown === "how-it-works" && "rotate-180")} />
+//                 </span>
+
+//                 <AnimatePresence>
+//                   {activeDropdown === "how-it-works" && (
+//                     <motion.div
+//                       variants={dropdownVariants}
+//                       initial="hidden"
+//                       animate="visible"
+//                       exit="exit"
+//                       className="absolute top-[calc(100%-8px)] left-1/2 -translate-x-1/2 w-[500px] bg-white rounded-2xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] border border-gray-100 p-6 z-50 origin-top"
+//                     >
+//                       <div className="grid grid-cols-2 gap-3 w-full">
+//                         {HOW_IT_WORKS_DATA.map((item) => (
+//                           <Link
+//                             key={item}
+//                             href={`/${item.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-")}`}
+//                             className="font-almarena text-[14px] font-bold text-gray-700 hover:text-[var(--color-brand-orange)] hover:bg-orange-50/50 p-4 rounded-xl transition-all duration-300 flex items-center justify-between group"
+//                             onClick={() => setActiveDropdown(null)}
+//                           >
+//                             {item}
+//                             <span className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 text-[var(--color-brand-orange)] transition-all">→</span>
+//                           </Link>
+//                         ))}
+//                       </div>
+//                     </motion.div>
+//                   )}
+//                 </AnimatePresence>
+//               </div>
+//             </nav>
+
+//             {/* Desktop Utility Icons & Auth */}
+//             <div className="flex items-center gap-5">
+//               <button aria-label="Search" className="text-gray-900 hover:text-[var(--color-brand-orange)] p-2 rounded-full hover:bg-gray-50 transition-all outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-orange)]">
+//                 <Search className="w-5 h-5" strokeWidth={1.8} />
+//               </button>
+              
+//               <button aria-label="Cart" className="text-gray-900 hover:text-[var(--color-brand-orange)] p-2 rounded-full hover:bg-gray-50 transition-all relative group outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-orange)]">
+//                 <ShoppingBag className="w-5 h-5" strokeWidth={1.8} />
+//                 <span className="absolute top-0 right-0 bg-[var(--color-brand-orange)] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full font-montserrat shadow-sm transform group-hover:scale-110 transition-transform">
+//                   2
+//                 </span>
+//               </button>
+
+//               {/* Auth Branching */}
+//               <div className="pl-5 border-l border-gray-200 flex items-center gap-4 h-8">
+//                 {!isLoggedIn ? (
+//                   <>
+//                     <Link href="/login" className="font-montserrat font-semibold text-[14px] text-gray-700 hover:text-[var(--color-brand-orange)] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-brand-orange)] rounded-sm">
+//                       Log in
+//                     </Link>
+//                     <Link href="/register" className="font-montserrat font-bold text-[13px] bg-gray-900 text-white px-6 py-2.5 rounded-full hover:bg-[var(--color-brand-orange)] hover:shadow-md transition-all outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-brand-orange)]">
+//                       Sign up
+//                     </Link>
+//                   </>
+//                 ) : (
+//                   <div className="relative" onMouseLeave={() => setIsProfileMenuOpen(false)}>
+//                     <button 
+//                       onMouseEnter={() => setIsProfileMenuOpen(true)}
+//                       className="flex items-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-brand-orange)] rounded-full transition-transform hover:scale-105"
+//                     >
+//                       <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-orange-400 to-[var(--color-brand-orange)] p-[2px] shadow-sm">
+//                         <div className="w-full h-full bg-white rounded-full border border-white flex items-center justify-center overflow-hidden">
+//                           <User className="w-5 h-5 text-gray-600" />
+//                         </div>
+//                       </div>
+//                     </button>
+
+//                     <AnimatePresence>
+//                       {isProfileMenuOpen && (
+//                         <motion.div
+//                           variants={dropdownVariants}
+//                           initial="hidden"
+//                           animate="visible"
+//                           exit="exit"
+//                           className="absolute top-[calc(100%+8px)] right-0 w-52 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-gray-100 py-2 z-50 origin-top-right"
+//                         >
+//                           <Link href="/account" className="flex items-center gap-3 px-5 py-3 text-[14px] text-gray-700 hover:bg-gray-50 hover:text-[var(--color-brand-orange)] font-montserrat transition-colors">
+//                             <Settings className="w-4 h-4" /> Account Settings
+//                           </Link>
+//                           <Link href="/orders" className="flex items-center gap-3 px-5 py-3 text-[14px] text-gray-700 hover:bg-gray-50 hover:text-[var(--color-brand-orange)] font-montserrat transition-colors">
+//                             <ShoppingBag className="w-4 h-4" /> My Orders
+//                           </Link>
+//                           <div className="h-px bg-gray-100 my-1"></div>
+//                           <button onClick={() => setIsLoggedIn(false)} className="w-full flex items-center gap-3 px-5 py-3 text-[14px] text-red-600 hover:bg-red-50 font-montserrat transition-colors">
+//                             <LogOut className="w-4 h-4" /> Sign Out
+//                           </button>
+//                         </motion.div>
+//                       )}
+//                     </AnimatePresence>
+//                   </div>
+//                 )}
+//               </div>
+//             </div>
+//           </div>
+
+//           {/* ========================================== */}
+//           {/* 3. MOBILE VIEW (Hidden on Desktop)         */}
+//           {/* ========================================== */}
+//           <div className="flex md:hidden items-center justify-between w-full h-full">
+            
+//             {/* Left: Hamburger Menu */}
+//             <div className="flex-1 flex justify-start">
+//               <button 
+//                 aria-label="Open Menu"
+//                 onClick={() => setIsMobileDrawerOpen(true)}
+//                 className="text-gray-900 p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-[var(--color-brand-orange)] outline-none"
+//               >
+//                 <Menu className="w-6 h-6" strokeWidth={1.5} />
+//               </button>
+//             </div>
+
+//             {/* Center: Logo */}
+//             <div className="flex-1 flex justify-center">
+//               <Link href="/" className="outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-orange)] rounded-sm">
+//                 <Image
+//                   src="/assets/icons/DesktopLogo.svg"
+//                   alt="Just Tattoos"
+//                   width={110}
+//                   height={32}
+//                   className="w-auto h-7 object-contain"
+//                   priority
+//                 />
+//               </Link>
+//             </div>
+
+//             {/* Right: Search & Cart Icons */}
+//             <div className="flex-1 flex justify-end items-center gap-2 sm:gap-4">
+//               <button aria-label="Search" className="text-gray-900 p-2 hover:bg-gray-100 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-orange)]">
+//                 <Search className="w-5 h-5" strokeWidth={1.5} />
+//               </button>
+//               <button aria-label="Cart" className="text-gray-900 p-2 hover:bg-gray-100 rounded-full transition-colors relative group outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-orange)]">
+//                 <ShoppingBag className="w-5 h-5" strokeWidth={1.5} />
+//                 <span className="absolute top-1 right-1 bg-[var(--color-brand-orange)] text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full shadow-sm">
+//                   2
+//                 </span>
+//               </button>
+//             </div>
+
+//           </div>
+//         </div>
+//       </header>
+
+//       {/* ========================================== */}
+//       {/* 4. MOBILE SLIDE-OUT DRAWER                 */}
+//       {/* ========================================== */}
+//       <AnimatePresence>
+//         {isMobileDrawerOpen && (
+//           <>
+//             {/* Dark Overlay */}
+//             <motion.div
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               onClick={() => setIsMobileDrawerOpen(false)}
+//               className="md:hidden fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm transition-opacity"
+//             />
+            
+//             {/* Drawer Panel */}
+//             <motion.div
+//               variants={drawerVariants}
+//               initial="hidden"
+//               animate="visible"
+//               exit="exit"
+//               className="md:hidden fixed top-0 left-0 w-[85vw] max-w-[360px] h-[100dvh] bg-white shadow-2xl z-[70] flex flex-col"
+//             >
+//               {/* Drawer Header */}
+//               <div className="p-5 flex justify-between items-center border-b border-gray-100 bg-gray-50/80">
+//                 <Image src="/assets/icons/DesktopLogo.svg" alt="Just Tattoos" width={100} height={28} className="w-auto h-6" />
+//                 <button 
+//                   onClick={() => setIsMobileDrawerOpen(false)} 
+//                   className="p-2 bg-white border border-gray-200 rounded-full text-gray-500 hover:bg-[var(--color-brand-orange)] hover:text-white hover:border-transparent transition-all active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-orange)]"
+//                 >
+//                   <X className="w-4 h-4" />
+//                 </button>
+//               </div>
+
+//               {/* Drawer Scrollable Content */}
+//               <div className="flex-1 overflow-y-auto py-6 px-6 flex flex-col gap-8">
+                
+//                 {/* Auth Block Mobile */}
+//                 {!isLoggedIn ? (
+//                   <div className="flex flex-col gap-3 pb-8 border-b border-gray-100">
+//                     <Link href="/login" onClick={() => setIsMobileDrawerOpen(false)} className="w-full py-3.5 text-center rounded-xl border-2 border-gray-100 font-montserrat font-bold text-[14px] hover:border-[var(--color-brand-orange)] hover:text-[var(--color-brand-orange)] transition-colors">
+//                       Log in
+//                     </Link>
+//                     <Link href="/register" onClick={() => setIsMobileDrawerOpen(false)} className="w-full py-3.5 text-center rounded-xl bg-gray-900 text-white font-montserrat font-bold text-[14px] hover:bg-[var(--color-brand-orange)] shadow-md transition-all">
+//                       Create Account
+//                     </Link>
+//                   </div>
+//                 ) : (
+//                   <div className="flex items-center gap-4 pb-8 border-b border-gray-100">
+//                     <div className="w-12 h-12 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center">
+//                       <User className="w-6 h-6 text-[var(--color-brand-orange)]" />
+//                     </div>
+//                     <div className="flex-1">
+//                       <p className="font-montserrat font-bold text-[15px] text-gray-900">My Account</p>
+//                       <button onClick={() => setIsLoggedIn(false)} className="text-[13px] text-gray-500 hover:text-red-500 font-medium mt-0.5 transition-colors">Sign out</button>
+//                     </div>
+//                   </div>
+//                 )}
+
+//                 {/* Mobile Links */}
+//                 <div className="flex flex-col gap-6">
+//                   <Link href="/new-arrivals" className="font-almarena text-[16px] font-bold text-gray-900 flex items-center justify-between group" onClick={() => setIsMobileDrawerOpen(false)}>
+//                     NEW ARRIVAL <span className="text-gray-300 group-hover:text-[var(--color-brand-orange)] group-hover:translate-x-1 transition-all">→</span>
+//                   </Link>
+
+//                   {/* Mobile Collection Accordion */}
+//                   <div className="flex flex-col gap-4">
+//                     <button 
+//                       className="flex justify-between items-center font-almarena text-[16px] font-bold text-gray-900 w-full text-left"
+//                       onClick={() => setMobileExpanded(mobileExpanded === "collection" ? null : "collection")}
+//                     >
+//                       COLLECTION
+//                       <ChevronDown className={cn("w-5 h-5 transition-transform duration-300 text-gray-400", mobileExpanded === "collection" && "rotate-180 text-[var(--color-brand-orange)]")} />
+//                     </button>
+                    
+//                     <AnimatePresence>
+//                       {mobileExpanded === "collection" && (
+//                         <motion.div 
+//                           initial={{ height: 0, opacity: 0 }}
+//                           animate={{ height: "auto", opacity: 1 }}
+//                           exit={{ height: 0, opacity: 0 }}
+//                           className="overflow-hidden flex flex-col gap-6 pl-4 border-l-2 border-[var(--color-brand-orange)]/20 ml-1"
+//                         >
+//                           {Object.entries(COLLECTION_DATA).map(([category, items]) => (
+//                               <div key={category} className="flex flex-col gap-3 py-1 mt-2">
+//                                 <h4 className="font-almarena text-[var(--color-brand-orange)] text-[13px] font-bold tracking-wider">{category}</h4>
+//                                 {items.map(item => (
+//                                   <Link 
+//                                     key={item} 
+//                                     href={`/collections/${item.toLowerCase().replace(/ & /g, "-").replace(/, /g, "-").replace(/ /g, "-")}`}
+//                                     className="font-montserrat text-gray-600 text-[14px] font-medium hover:text-[var(--color-brand-orange)] transition-colors py-1"
+//                                     onClick={() => setIsMobileDrawerOpen(false)}
+//                                   >
+//                                     {item}
+//                                   </Link>
+//                                 ))}
+//                               </div>
+//                           ))}
+//                         </motion.div>
+//                       )}
+//                     </AnimatePresence>
+//                   </div>
+
+//                   <Link href="/sale" className="font-almarena text-[16px] font-bold text-red-500 flex items-center justify-between group" onClick={() => setIsMobileDrawerOpen(false)}>
+//                     SALE <span className="text-red-200 group-hover:text-red-500 group-hover:translate-x-1 transition-all">→</span>
+//                   </Link>
+//                 </div>
+
+//               </div>
+//             </motion.div>
+//           </>
+//         )}
+//       </AnimatePresence>
+//     </>
+//   );
+// }
+
+
+// "use client";
+// import React, { useEffect, useState } from 'react';
+// import { motion, AnimatePresence } from 'framer-motion';
+
+// interface CardConfig {
+//   id: number;
+//   heroRotate: number;
+//   heroX: number;
+//   heroY: number;
+//   circRotate: number;
+//   circX: number;
+//   circY: number;
+//   zIndex: number;
+// }
+
+// const deckConfig: CardConfig[] = [
+//   // Cards 1-4: Fanned out in hero state
+//   { id: 1, heroRotate: -2,  heroX: 0,   heroY: 0,   circRotate: 0,   circX: 0,    circY: -220, zIndex: 40 }, 
+//   { id: 2, heroRotate: 6,   heroX: 45,  heroY: -5,  circRotate: 45,  circX: 156,  circY: -156, zIndex: 30 }, 
+//   { id: 3, heroRotate: 14,  heroX: 85,  heroY: -10, circRotate: 90,  circX: 220,  circY: 0,    zIndex: 20 }, 
+//   { id: 4, heroRotate: 22,  heroX: 125, heroY: -10, circRotate: 135, circX: 156,  circY: 156,  zIndex: 10 }, 
+//   // Cards 5-8: Hidden directly behind Card 1 during initial state
+//   { id: 5, heroRotate: -2,  heroX: 0,   heroY: 0,   circRotate: 180, circX: 0,    circY: 220,  zIndex: 5 },  
+//   { id: 6, heroRotate: -2,  heroX: 0,   heroY: 0,   circRotate: 225, circX: -156, circY: 156,  zIndex: 4 },  
+//   { id: 7, heroRotate: -2,  heroX: 0,   heroY: 0,   circRotate: 270, circX: -220, circY: 0,    zIndex: 3 },  
+//   { id: 8, heroRotate: -2,  heroX: 0,   heroY: 0,   circRotate: 315, circX: -156, circY: -156, zIndex: 2 },  
+// ];
+
+// const FACE_CARD_DROP_MS  = 2500;
+// const POST_SETTLE_GAP_MS = 500;
+// const EXPAND_DELAY_MS    = FACE_CARD_DROP_MS + POST_SETTLE_GAP_MS;
+
+// export default function Hero() {
+//   // 2. TypeScript automatically infers these as boolean, but you can explicitly type them if you prefer: useState<boolean>(true)
+//   const [showIntro,     setShowIntro]     = useState(true);
+//   const [topCardReady,  setTopCardReady]  = useState(false);
+//   const [isExpanded,    setIsExpanded]    = useState(false);
+//   const [cardIsFalling, setCardIsFalling] = useState(false);
+  
+//   const [isScrolled,    setIsScrolled]    = useState(false);
+//   const [isDesktop,     setIsDesktop]     = useState(true);
+
+//   useEffect(() => {
+//     // Check if splash has been seen. If yes, skip the 2800ms wait.
+//     const hasSeenSplash = sessionStorage.getItem('hasSeenSplash');
+//     const initialDelay = hasSeenSplash ? 100 : 2800;
+    
+//     const introTimer = setTimeout(() => {
+//       setShowIntro(false);
+//       setTimeout(() => {
+//         setTopCardReady(true);
+//         setCardIsFalling(true);
+//         setTimeout(() => setCardIsFalling(false), FACE_CARD_DROP_MS);
+//         setTimeout(() => setIsExpanded(true), EXPAND_DELAY_MS);
+//       }, 400);
+//     }, initialDelay); 
+
+//     return () => clearTimeout(introTimer);
+//   }, []);
+
+//   useEffect(() => {
+//     if (!isExpanded) {
+//       document.body.style.overflow = 'hidden'; // Block scroll during animation
+//     } else {
+//       document.body.style.overflow = '';       // Release scroll when cards expand
+//     }
+//     return () => { document.body.style.overflow = ''; };
+//   }, [isExpanded]);
+
+//   useEffect(() => {
+//     setIsDesktop(window.innerWidth >= 768);
+//     const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+//     window.addEventListener('resize', handleResize);
+
+//     const handleScroll = () => {
+//       if (!isExpanded) return;
+
+//       // Hysteresis: Require a deeper scroll to trigger, and a higher scroll to untrigger.
+//       if (window.scrollY > 80) {
+//         setIsScrolled(true);
+//       } else if (window.scrollY < 30) {
+//         setIsScrolled(false);
+//       }
+//     };
+//     window.addEventListener('scroll', handleScroll, { passive: true });
+    
+//     return () => {
+//       window.removeEventListener('resize', handleResize);
+//       window.removeEventListener('scroll', handleScroll);
+//     };
+//   }, [isExpanded]);
+
+//   // Adjust mobile explosion radius here. 0.9 pushes cards further out to make room for text.
+//   const getCircPos = (val: number) => isDesktop ? val : val * 0.9;
+
+//   // 3. Typed the Image error handler
+//   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+//     const target = e.currentTarget;
+//     target.style.display = 'none';
+//     if (target.nextElementSibling) {
+//       (target.nextElementSibling as HTMLElement).style.display = 'flex';
+//     }
+//   };
+
+//   return (
+//     <div className="relative w-full h-[150vh] bg-white">
+      
+//       {/* Sticky container uses exactly 100vh so the bottom bar isn't forced off-screen */}
+//       <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
+
+//         {/* PHASE 2 & 3 — HERO AND SCROLL STATE */}
+//         <AnimatePresence>
+//           <motion.div
+//             className="relative z-10 flex flex-col h-full w-full"
+//             initial={{ opacity: 0 }}
+//             animate={{ opacity: 1 }}
+//             transition={{ duration: 0.6 }}
+//           >
+//             <main className="max-w-[1300px] mx-auto px-6 lg:px-12 w-full flex-grow flex flex-col md:flex-row items-center justify-center pb-8 pt-2 md:pt-0 gap-8">
+              
+//               {/* Left Column: Text */}
+//               <motion.div 
+//                 className="w-full md:w-[55%] flex flex-col items-center md:items-start justify-center z-20 order-1"
+//                 animate={{ opacity: isScrolled ? 0 : 1, y: isScrolled ? -40 : 0, filter: isScrolled ? 'blur(10px)' : 'blur(0px)' }}
+//                 transition={{ duration: 0.6, ease: 'easeInOut' }}
+//                 style={{ pointerEvents: isScrolled ? 'none' : 'auto' }}
+//               >
+//                 <motion.div 
+//                   initial={{ x: -30, opacity: 0 }} 
+//                   animate={{ x: 0, opacity: 1 }} 
+//                   transition={{ duration: 0.8, ease: 'easeOut', delay: 0 }} 
+//                   className="w-max flex flex-col text-left relative z-30"
+//                 >
+//                   <div 
+//                     className="text-black text-[15vw] md:text-[72px] lg:text-[86px] xl:text-[100px] leading-[0.85] tracking-[-0.03em] uppercase whitespace-nowrap" 
+//                     style={{ fontFamily: 'Almarena, sans-serif', fontWeight: '800' }}
+//                   >
+//                     REAL INK
+//                   </div>
+                  
+//                   <div 
+//                     className="text-[#FE8204] text-[15vw] md:text-[72px] lg:text-[86px] xl:text-[100px] leading-[0.85] tracking-[-0.03em] uppercase whitespace-nowrap mt-1 lg:mt-2 ml-[10vw] md:ml-[60px] lg:ml-[70px] xl:ml-[85px]" 
+//                     style={{ fontFamily: 'Almarena, sans-serif', fontWeight: '800' }}
+//                   >
+//                     YOUR WAY
+//                   </div>
+//                 </motion.div>
+
+//                 <motion.p 
+//                   className="mt-6 md:mt-8 text-left hidden md:block text-[#111]" 
+//                   style={{ maxWidth: '520px', fontFamily: 'Montserrat, sans-serif', fontWeight: '500' }} 
+//                   initial={{ y: 20, opacity: 0 }} 
+//                   animate={{ y: 0, opacity: 1 }} 
+//                   transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
+//                 >
+//                   <span className="text-[14px] lg:text-[16px] leading-[1.6]">
+//                     Get the authentic tattoo look without the needle or the lifelong commitment. Our clinically tested, permanent ink sinks into the top layer of your skin, fully developing into a bold, 
+//                   </span>
+//                   <span className="text-[#FE8204] text-[14px] lg:text-[16px] leading-[1.6] font-semibold">
+//                     {" "}realistic design within 24 hours.
+//                   </span>
+//                 </motion.p>
+
+//                 <motion.button 
+//                   className="mt-8 bg-black text-white rounded-full px-7 py-3.5 lg:px-8 lg:py-4 hidden md:flex items-center gap-4 font-bold uppercase tracking-widest text-[12px] lg:text-[14px] hover:bg-gray-800 transition-colors group" 
+//                   initial={{ y: 20, opacity: 0 }} 
+//                   animate={{ y: 0, opacity: 1 }} 
+//                   transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
+//                 >
+//                   SHOP COLLECTIONS
+//                   <span className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+//                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+//                       <path d="M5 12h14"></path>
+//                       <path d="m12 5 7 7-7 7"></path>
+//                     </svg>
+//                   </span>
+//                 </motion.button>
+//               </motion.div>
+
+//               {/* Right Column: Scaled-down Card Deck */}
+//               <motion.div 
+//                 className="w-full md:w-[45%] h-[250px] md:h-[380px] lg:h-[420px] relative flex justify-center items-center order-2"
+//                 animate={{ 
+//                   x: isScrolled && isDesktop ? '-61%' : '0%', 
+//                   y: isScrolled ? 80 : 0
+//                 }}
+//                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+//               >
+//                 {/* Center "Real Tattoo Look" Logo */}
+//                 <motion.div
+//                   className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-[60]"
+//                   initial={{ opacity: 0, scale: 0.5 }}
+//                   animate={{ opacity: isScrolled ? 1 : 0, scale: isScrolled ? 1 : 0.5 }}
+//                   transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: isScrolled ? 0.15 : 0 }}
+//                 >
+//                   <span className="text-[24px] md:text-[32px] leading-[1.1] tracking-widest text-black uppercase text-center" style={{ fontFamily: 'Almarena, sans-serif', fontWeight: '800' }}>
+//                     REAL
+//                   </span>
+//                   <svg className="my-1.5" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#FE8204" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+//                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+//                   </svg>
+//                   <span className="text-[24px] md:text-[32px] leading-[1.1] tracking-widest text-black uppercase text-center" style={{ fontFamily: 'Almarena, sans-serif', fontWeight: '800' }}>
+//                     TATTOO<br/>LOOK
+//                   </span>
+//                 </motion.div>
+
+//                 <div className="relative w-[180px] h-[250px] md:w-[260px] md:h-[360px] lg:w-[320px] lg:h-[440px] flex justify-center items-center">
+//                   {deckConfig.map((card, index) => {
+//                     const isTopCard = index === 0;
+//                     const isVisibleInHero = card.id <= 4;
+
+//                     return (
+//                       <motion.div
+//                         key={card.id}
+//                         className="absolute inset-0 rounded-2xl md:rounded-[24px] overflow-hidden flex flex-col items-center justify-center"
+//                         style={{
+//                           zIndex: isTopCard && cardIsFalling ? 9999 : card.zIndex,
+//                           transformOrigin: 'center', 
+//                           border: '2px solid #111',
+//                           boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+//                           backgroundColor: '#fff',
+//                         }}
+//                         initial={isTopCard ? { x: 0, y: -800, opacity: 0, rotate: -20 } : { x: 0, y: 0, opacity: 0, rotate: 0 }}
+//                         animate={
+//                           isScrolled 
+//                             ? {
+//                                 x: getCircPos(card.circX ),
+//                                 y: getCircPos(card.circY),
+//                                 rotate: card.circRotate,
+//                                 opacity: 1,
+//                                 scale: isDesktop ? 0.5 : 0.95 
+//                               }
+//                             : isExpanded
+//                             ? {
+//                                 x: isDesktop ? card.heroX : card.heroX * 0.5, 
+//                                 y: isDesktop ? card.heroY : card.heroY * 0.5, 
+//                                 rotate: card.heroRotate,
+//                                 opacity: isVisibleInHero ? 1 : 0, 
+//                                 scale: 1
+//                               }
+//                             : isTopCard && topCardReady
+//                             ? {
+//                                 x: 0,          
+//                                 y: [-800, 0],   
+//                                 rotate: [-30, -2], 
+//                                 opacity: [0, 1],
+//                                 scale: 1
+//                               }
+//                             : {
+//                                 x: 0,
+//                                 y: isTopCard ? -800 : 0,
+//                                 opacity: 0,
+//                                 rotate: isTopCard ? -20 : 0,
+//                                 scale: 1
+//                               }
+//                         }
+//                         transition={
+//                           isScrolled
+//                           ? { type: 'spring', damping: 20, stiffness: 70, mass: 1 }
+//                             : isExpanded
+//                             ? { type: 'spring', damping: 18, stiffness: 90, delay: isTopCard ? 0 : index * 0.08 }
+//                             : isTopCard && topCardReady
+//                             ? { duration: 2.5, ease: [0.25, 0.1, 0.25, 1] } 
+//                             : { duration: 0 }
+//                         }
+//                       >
+//                         <img 
+//                           src={`/assets/images/Card${card.id}.png`} 
+//                           alt={`Tattoo Card ${card.id}`} 
+//                           className="w-full h-full object-cover" 
+//                           onError={handleImageError} 
+//                         />
+//                         <div className="hidden w-full h-full bg-gray-100 items-center justify-center text-center px-4">
+//                           <span className="font-bold text-xl text-gray-400">Card {card.id}</span>
+//                         </div>
+//                       </motion.div>
+//                     );
+//                   })}
+//                 </div>
+//               </motion.div>
+
+//               {/* Mobile-only Body Copy */}
+//               <motion.div 
+//                 className="w-full order-3 md:hidden flex flex-col items-center text-center px-4 pb-12 mt-4"
+//                 animate={{ opacity: isScrolled ? 0 : 1, y: isScrolled ? 40 : 0 }}
+//                 transition={{ duration: 0.6 }}
+//                 style={{ pointerEvents: isScrolled ? 'none' : 'auto' }}
+//               >
+//                 <motion.p className="text-[#111]" style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: '500' }} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}>
+//                   <span className="text-[14px] leading-[1.6]">Get the authentic tattoo look without the needle or the lifelong commitment. 
+//                   Our clinically tested, permanent ink sinks into the top layer of your skin, fully developing into a bold, </span>
+//                   <span className="text-[#FE8204] text-[14px] leading-[1.6]">realistic design within 24 hours.</span>
+//                 </motion.p>
+//                 <motion.button className="mt-8 bg-black text-white rounded-full px-8 py-4 flex items-center gap-4 font-bold uppercase tracking-widest text-[13px] hover:bg-gray-800 transition-colors group" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}>
+//                   SHOP COLLECTIONS
+//                   <span className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+//                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+//                   </span>
+//                 </motion.button>
+//               </motion.div>
+              
+//             </main>
+
+//             {/* Infinity Scroll Bar */}
+//             {isDesktop && (
+//               <motion.div
+//                 className="fixed bottom-0 left-0 z-50 w-full h-14 md:h-16 bg-black flex-shrink-0 flex items-center overflow-hidden"
+//                 initial={{ y: 50, opacity: 0 }}
+//                 animate={{
+//                   y: isExpanded ? 0 : 50,
+//                   opacity: isScrolled ? 0 : (isExpanded ? 1 : 0),
+//                   x: isScrolled ? '100%' : '0%' 
+//                 }}
+//                 transition={{ duration: 0.8, ease: 'easeInOut' }}
+//               >
+//                 <motion.div className="flex whitespace-nowrap items-center h-full" animate={{ x: ['0%', '-50%'] }} transition={{ duration: 18, ease: 'linear', repeat: Infinity, repeatType: 'loop' }}>
+//                   {[0, 1].map((i) => (
+//                     <span key={i} className="flex items-center h-full shrink-0">
+//                       {Array.from({ length: 10 }).map((_, j) => (
+//                         <span key={j} className="flex items-center justify-center px-4 h-full shrink-0">
+//                           <img 
+//                             src="/assets/icons/InfinityBar.svg" 
+//                             alt="Infinity Logo" 
+//                             className="h-5 md:h-6 w-auto object-contain" 
+//                           />
+//                         </span>
+//                       ))}
+//                     </span>
+//                   ))}
+//                 </motion.div>
+//               </motion.div>
+//             )}
+
+//           </motion.div>
+//         </AnimatePresence>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+// "use client";
+// import React, { useEffect, useState } from 'react';
+// import { motion, AnimatePresence } from 'framer-motion';
+
+// interface CardConfig {
+//   id: number;
+//   heroRotate: number;
+//   heroX: number;
+//   heroY: number;
+//   circRotate: number;
+//   circX: number;
+//   circY: number;
+//   zIndex: number;
+// }
+
+// const deckConfig: CardConfig[] = [
+//   // Cards 1-4: Fanned out in hero state
+//   { id: 1, heroRotate: -2,  heroX: 0,   heroY: 0,   circRotate: 0,   circX: 0,    circY: -220, zIndex: 40 }, 
+//   { id: 2, heroRotate: 6,   heroX: 45,  heroY: -5,  circRotate: 45,  circX: 156,  circY: -156, zIndex: 30 }, 
+//   { id: 3, heroRotate: 14,  heroX: 85,  heroY: -10, circRotate: 90,  circX: 220,  circY: 0,    zIndex: 20 }, 
+//   { id: 4, heroRotate: 22,  heroX: 125, heroY: -10, circRotate: 135, circX: 156,  circY: 156,  zIndex: 10 }, 
+//   // Cards 5-8: Hidden directly behind Card 1 during initial state
+//   { id: 5, heroRotate: -2,  heroX: 0,   heroY: 0,   circRotate: 180, circX: 0,    circY: 220,  zIndex: 5 },  
+//   { id: 6, heroRotate: -2,  heroX: 0,   heroY: 0,   circRotate: 225, circX: -156, circY: 156,  zIndex: 4 },  
+//   { id: 7, heroRotate: -2,  heroX: 0,   heroY: 0,   circRotate: 270, circX: -220, circY: 0,    zIndex: 3 },  
+//   { id: 8, heroRotate: -2,  heroX: 0,   heroY: 0,   circRotate: 315, circX: -156, circY: -156, zIndex: 2 },  
+// ];
+
+// const FACE_CARD_DROP_MS  = 2500;
+// const POST_SETTLE_GAP_MS = 500;
+// const EXPAND_DELAY_MS    = FACE_CARD_DROP_MS + POST_SETTLE_GAP_MS;
+
+// export default function Hero() {
+//   // 2. TypeScript automatically infers these as boolean, but you can explicitly type them if you prefer: useState<boolean>(true)
+//   const [showIntro,     setShowIntro]     = useState(true);
+//   const [topCardReady,  setTopCardReady]  = useState(false);
+//   const [isExpanded,    setIsExpanded]    = useState(false);
+//   const [cardIsFalling, setCardIsFalling] = useState(false);
+  
+//   const [isScrolled,    setIsScrolled]    = useState(false);
+//   const [isDesktop,     setIsDesktop]     = useState(true);
+
+//   useEffect(() => {
+//     // Check if splash has been seen. If yes, skip the 2800ms wait.
+//     const hasSeenSplash = sessionStorage.getItem('hasSeenSplash');
+//     const initialDelay = hasSeenSplash ? 100 : 2800;
+    
+//     const introTimer = setTimeout(() => {
+//       setShowIntro(false);
+//       setTimeout(() => {
+//         setTopCardReady(true);
+//         setCardIsFalling(true);
+//         setTimeout(() => setCardIsFalling(false), FACE_CARD_DROP_MS);
+//         setTimeout(() => setIsExpanded(true), EXPAND_DELAY_MS);
+//       }, 400);
+//     }, initialDelay); 
+
+//     return () => clearTimeout(introTimer);
+//   }, []);
+
+//   useEffect(() => {
+//     if (!isExpanded) {
+//       document.body.style.overflow = 'hidden'; // Block scroll during animation
+//     } else {
+//       document.body.style.overflow = '';       // Release scroll when cards expand
+//     }
+//     return () => { document.body.style.overflow = ''; };
+//   }, [isExpanded]);
+
+//   useEffect(() => {
+//     setIsDesktop(window.innerWidth >= 768);
+//     const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+//     window.addEventListener('resize', handleResize);
+
+//     const handleScroll = () => {
+//       if (!isExpanded) return;
+
+//       // Hysteresis: Require a deeper scroll to trigger, and a higher scroll to untrigger.
+//       if (window.scrollY > 80) {
+//         setIsScrolled(true);
+//       } else if (window.scrollY < 30) {
+//         setIsScrolled(false);
+//       }
+//     };
+//     window.addEventListener('scroll', handleScroll, { passive: true });
+    
+//     return () => {
+//       window.removeEventListener('resize', handleResize);
+//       window.removeEventListener('scroll', handleScroll);
+//     };
+//   }, [isExpanded]);
+
+//   // Adjust mobile explosion radius here. 0.9 pushes cards further out to make room for text.
+//   const getCircPos = (val: number) => isDesktop ? val : val * 0.9;
+
+//   // 3. Typed the Image error handler
+//   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+//     const target = e.currentTarget;
+//     target.style.display = 'none';
+//     if (target.nextElementSibling) {
+//       (target.nextElementSibling as HTMLElement).style.display = 'flex';
+//     }
+//   };
+
+//   return (
+//     <div className="relative w-full h-[150vh] bg-white">
+      
+//       {/* Sticky container uses exactly 100vh so the bottom bar isn't forced off-screen */}
+//       <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
+
+//         {/* PHASE 2 & 3 — HERO AND SCROLL STATE */}
+//         <AnimatePresence>
+//           <motion.div
+//             className="relative z-10 flex flex-col h-full w-full"
+//             initial={{ opacity: 0 }}
+//             animate={{ opacity: 1 }}
+//             transition={{ duration: 0.6 }}
+//           >
+//             <main className="max-w-[1300px] mx-auto px-6 lg:px-12 w-full flex-grow flex flex-col md:flex-row items-center justify-center pb-8 pt-2 md:pt-0 gap-8">
+              
+//               {/* Left Column: Text */}
+//               <motion.div 
+//                 className="w-full md:w-[55%] flex flex-col items-center md:items-start justify-center z-20 order-1"
+//                 animate={{ opacity: isScrolled ? 0 : 1, y: isScrolled ? -40 : 0, filter: isScrolled ? 'blur(10px)' : 'blur(0px)' }}
+//                 transition={{ duration: 0.6, ease: 'easeInOut' }}
+//                 style={{ pointerEvents: isScrolled ? 'none' : 'auto' }}
+//               >
+//                 <motion.div 
+//                   initial={{ x: -30, opacity: 0 }} 
+//                   animate={{ x: 0, opacity: 1 }} 
+//                   transition={{ duration: 0.8, ease: 'easeOut', delay: 0 }} 
+//                   className="w-max flex flex-col text-left relative z-30"
+//                 >
+//                   <div 
+//                     className="text-black text-[15vw] md:text-[72px] lg:text-[86px] xl:text-[100px] leading-[0.85] tracking-[-0.03em] uppercase whitespace-nowrap" 
+//                     style={{ fontFamily: 'Almarena, sans-serif', fontWeight: '800' }}
+//                   >
+//                     REAL INK
+//                   </div>
+                  
+//                   <div 
+//                     className="text-[#FE8204] text-[15vw] md:text-[72px] lg:text-[86px] xl:text-[100px] leading-[0.85] tracking-[-0.03em] uppercase whitespace-nowrap mt-1 lg:mt-2 ml-[10vw] md:ml-[60px] lg:ml-[70px] xl:ml-[85px]" 
+//                     style={{ fontFamily: 'Almarena, sans-serif', fontWeight: '800' }}
+//                   >
+//                     YOUR WAY
+//                   </div>
+//                 </motion.div>
+
+//                 <motion.p 
+//                   className="mt-6 md:mt-8 text-left hidden md:block text-[#111]" 
+//                   style={{ maxWidth: '520px', fontFamily: 'Montserrat, sans-serif', fontWeight: '500' }} 
+//                   initial={{ y: 20, opacity: 0 }} 
+//                   animate={{ y: 0, opacity: 1 }} 
+//                   transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
+//                 >
+//                   <span className="text-[14px] lg:text-[16px] leading-[1.6]">
+//                     Get the authentic tattoo look without the needle or the lifelong commitment. Our clinically tested, permanent ink sinks into the top layer of your skin, fully developing into a bold, 
+//                   </span>
+//                   <span className="text-[#FE8204] text-[14px] lg:text-[16px] leading-[1.6] font-semibold">
+//                     {" "}realistic design within 24 hours.
+//                   </span>
+//                 </motion.p>
+
+//                 <motion.button 
+//                   className="mt-8 bg-black text-white rounded-full px-7 py-3.5 lg:px-8 lg:py-4 hidden md:flex items-center gap-4 font-bold uppercase tracking-widest text-[12px] lg:text-[14px] hover:bg-gray-800 transition-colors group" 
+//                   initial={{ y: 20, opacity: 0 }} 
+//                   animate={{ y: 0, opacity: 1 }} 
+//                   transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
+//                 >
+//                   SHOP COLLECTIONS
+//                   <span className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+//                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+//                       <path d="M5 12h14"></path>
+//                       <path d="m12 5 7 7-7 7"></path>
+//                     </svg>
+//                   </span>
+//                 </motion.button>
+//               </motion.div>
+
+//               {/* Right Column: Scaled-down Card Deck */}
+//               <motion.div 
+//                 className="w-full md:w-[45%] h-[250px] md:h-[380px] lg:h-[420px] relative flex justify-center items-center order-2"
+//                 animate={{ 
+//                   x: isScrolled && isDesktop ? '-61%' : '0%', 
+//                   y: isScrolled ? 80 : 0
+//                 }}
+//                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+//               >
+//                 {/* Center "Real Tattoo Look" Logo */}
+//                 <motion.div
+//                   className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-[60]"
+//                   initial={{ opacity: 0, scale: 0.5 }}
+//                   animate={{ opacity: isScrolled ? 1 : 0, scale: isScrolled ? 1 : 0.5 }}
+//                   transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: isScrolled ? 0.15 : 0 }}
+//                 >
+//                   <span className="text-[24px] md:text-[32px] leading-[1.1] tracking-widest text-black uppercase text-center" style={{ fontFamily: 'Almarena, sans-serif', fontWeight: '800' }}>
+//                     REAL
+//                   </span>
+//                   <svg className="my-1.5" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#FE8204" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+//                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+//                   </svg>
+//                   <span className="text-[24px] md:text-[32px] leading-[1.1] tracking-widest text-black uppercase text-center" style={{ fontFamily: 'Almarena, sans-serif', fontWeight: '800' }}>
+//                     TATTOO<br/>LOOK
+//                   </span>
+//                 </motion.div>
+
+//                 <div className="relative w-[180px] h-[250px] md:w-[260px] md:h-[360px] lg:w-[320px] lg:h-[440px] flex justify-center items-center">
+//                   {deckConfig.map((card, index) => {
+//                     const isTopCard = index === 0;
+//                     const isVisibleInHero = card.id <= 4;
+
+//                     return (
+//                       <motion.div
+//                         key={card.id}
+//                         className="absolute inset-0 rounded-2xl md:rounded-[24px] overflow-hidden flex flex-col items-center justify-center"
+//                         style={{
+//                           zIndex: isTopCard && cardIsFalling ? 9999 : card.zIndex,
+//                           transformOrigin: 'center', 
+//                           border: '2px solid #111',
+//                           boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+//                           backgroundColor: '#fff',
+//                         }}
+//                         initial={isTopCard ? { x: 0, y: -800, opacity: 0, rotate: -20 } : { x: 0, y: 0, opacity: 0, rotate: 0 }}
+//                         animate={
+//                           isScrolled 
+//                             ? {
+//                                 x: getCircPos(card.circX ),
+//                                 y: getCircPos(card.circY),
+//                                 rotate: card.circRotate,
+//                                 opacity: 1,
+//                                 scale: isDesktop ? 0.5 : 0.95 
+//                               }
+//                             : isExpanded
+//                             ? {
+//                                 x: isDesktop ? card.heroX : card.heroX * 0.5, 
+//                                 y: isDesktop ? card.heroY : card.heroY * 0.5, 
+//                                 rotate: card.heroRotate,
+//                                 opacity: isVisibleInHero ? 1 : 0, 
+//                                 scale: 1
+//                               }
+//                             : isTopCard && topCardReady
+//                             ? {
+//                                 x: 0,          
+//                                 y: [-800, 0],   
+//                                 rotate: [-30, -2], 
+//                                 opacity: [0, 1],
+//                                 scale: 1
+//                               }
+//                             : {
+//                                 x: 0,
+//                                 y: isTopCard ? -800 : 0,
+//                                 opacity: 0,
+//                                 rotate: isTopCard ? -20 : 0,
+//                                 scale: 1
+//                               }
+//                         }
+//                         transition={
+//                           isScrolled
+//                           ? { type: 'spring', damping: 20, stiffness: 70, mass: 1 }
+//                             : isExpanded
+//                             ? { type: 'spring', damping: 18, stiffness: 90, delay: isTopCard ? 0 : index * 0.08 }
+//                             : isTopCard && topCardReady
+//                             ? { duration: 2.5, ease: [0.25, 0.1, 0.25, 1] } 
+//                             : { duration: 0 }
+//                         }
+//                       >
+//                         <img 
+//                           src={`/assets/images/Card${card.id}.png`} 
+//                           alt={`Tattoo Card ${card.id}`} 
+//                           className="w-full h-full object-cover" 
+//                           onError={handleImageError} 
+//                         />
+//                         <div className="hidden w-full h-full bg-gray-100 items-center justify-center text-center px-4">
+//                           <span className="font-bold text-xl text-gray-400">Card {card.id}</span>
+//                         </div>
+//                       </motion.div>
+//                     );
+//                   })}
+//                 </div>
+//               </motion.div>
+
+//               {/* Mobile-only Body Copy */}
+//               <motion.div 
+//                 className="w-full order-3 md:hidden flex flex-col items-center text-center px-4 pb-12 mt-4"
+//                 animate={{ opacity: isScrolled ? 0 : 1, y: isScrolled ? 40 : 0 }}
+//                 transition={{ duration: 0.6 }}
+//                 style={{ pointerEvents: isScrolled ? 'none' : 'auto' }}
+//               >
+//                 <motion.p className="text-[#111]" style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: '500' }} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}>
+//                   <span className="text-[14px] leading-[1.6]">Get the authentic tattoo look without the needle or the lifelong commitment. 
+//                   Our clinically tested, permanent ink sinks into the top layer of your skin, fully developing into a bold, </span>
+//                   <span className="text-[#FE8204] text-[14px] leading-[1.6]">realistic design within 24 hours.</span>
+//                 </motion.p>
+//                 <motion.button className="mt-8 bg-black text-white rounded-full px-8 py-4 flex items-center gap-4 font-bold uppercase tracking-widest text-[13px] hover:bg-gray-800 transition-colors group" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}>
+//                   SHOP COLLECTIONS
+//                   <span className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+//                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+//                   </span>
+//                 </motion.button>
+//               </motion.div>
+              
+//             </main>
+
+//             {/* Infinity Scroll Bar */}
+//             {isDesktop && (
+//               <motion.div
+//                 className="fixed bottom-0 left-0 z-50 w-full h-14 md:h-16 bg-black flex-shrink-0 flex items-center overflow-hidden"
+//                 initial={{ y: 50, opacity: 0 }}
+//                 animate={{
+//                   y: isExpanded ? 0 : 50,
+//                   opacity: isScrolled ? 0 : (isExpanded ? 1 : 0),
+//                   x: isScrolled ? '100%' : '0%' 
+//                 }}
+//                 transition={{ duration: 0.8, ease: 'easeInOut' }}
+//               >
+//                 <motion.div className="flex whitespace-nowrap items-center h-full" animate={{ x: ['0%', '-50%'] }} transition={{ duration: 18, ease: 'linear', repeat: Infinity, repeatType: 'loop' }}>
+//                   {[0, 1].map((i) => (
+//                     <span key={i} className="flex items-center h-full shrink-0">
+//                       {Array.from({ length: 10 }).map((_, j) => (
+//                         <span key={j} className="flex items-center justify-center px-4 h-full shrink-0">
+//                           <img 
+//                             src="/assets/icons/InfinityBar.svg" 
+//                             alt="Infinity Logo" 
+//                             className="h-5 md:h-6 w-auto object-contain" 
+//                           />
+//                         </span>
+//                       ))}
+//                     </span>
+//                   ))}
+//                 </motion.div>
+//               </motion.div>
+//             )}
+
+//           </motion.div>
+//         </AnimatePresence>
+//       </div>
+//     </div>
+//   );
+// }
+

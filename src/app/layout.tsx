@@ -10,7 +10,8 @@ import SplashScreen from "../components/layout/SplashScreen";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import { Toaster } from "sonner";
-
+import { CartProvider } from "../context/CartContext";
+import { CartDrawer } from "../components/cart/CartDrawer";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -41,7 +42,7 @@ export default function RootLayout({
     <html lang="en" className={`${montserrat.variable} ${almarena.variable}`}>
       {/* Set the background and text color to the exact client variables */}
       <body className="font-montserrat bg-[var(--color-white)] text-[var(--color-black)] antialiased flex flex-col min-h-screen">
-        
+        <CartProvider>
         {/* The client-side Splash Screen (prevents homepage flash) */}
         <SplashScreen />
 
@@ -53,8 +54,9 @@ export default function RootLayout({
         </main>
         
         <Footer />
+        <CartDrawer />
         <Toaster position="bottom-right" richColors />
-        
+        </CartProvider>
       </body>
     </html>
   );

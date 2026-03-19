@@ -1,5 +1,14 @@
 import { notFound } from 'next/navigation';
+// 1. Double check your imports!
+// import { tattooProducts } from '@/data/tattooProducts'; // Adjust path as needed
+// import TattooProductDetail from '@/components/TattooProductDetail'; // Adjust path as needed
 import TattooProductDetail from '@/src/components/sections/TattooProductDetail';
+
+// 2. Define params as a Promise for Next.js 15 compatibility
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
 interface Combination {
   id: string;
   price: number | string;
@@ -332,22 +341,15 @@ export const tattooProducts: Product[] = [
   }
 ];
 
-type Props = {
-  params: Promise<{ slug: string }>;
-};
-
+// 3. Generate SEO Metadata dynamically
 export async function generateMetadata({ params }: Props) {
-  // 3. Await the params (Required in Next.js 15+)
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  // 4. Safe check: Prevent "find is not a function" if import fails
   if (!Array.isArray(tattooProducts)) {
-    console.error("Error: tattooProducts is not an array. Check your import statement!");
     return { title: 'Product Not Found' };
   }
 
-  // 5. Safe find: Use optional chaining (p?.handle) to prevent "handle is undefined"
   const product = tattooProducts.find(
     (p) => p?.handle && (p.handle === slug || slug.includes(p.handle))
   );
@@ -360,56 +362,32 @@ export async function generateMetadata({ params }: Props) {
   }
 
   return {
-    title: `${product.name} | My Tattoo Store`,
-    description: `Shop our premium ${product.style} temporary tattoo: ${product.name}.`,
+    title: `${product.name} | New Arrivals | My Tattoo Store`,
+    description: `Shop our newest ${product.style} temporary tattoo: ${product.name}.`,
     openGraph: {
       images: [product.image],
     },
   };
 }
 
-// 2. The Server Component Page
-// export default function ProductDetailPage({ params }: { params: { slug: string } }) {
-//   // Extract the product based on the slug from the URL
-//   const product = tattooProducts.find(
-//     (p) => p.handle === params.slug || params.slug.includes(p.handle)
-//   );
-
-//   // If someone types a random URL, show the 404 page
-//   if (!product) {
-//     notFound();
-//   }
-
-//   // Pass the found product into the Client Component we built earlier
-//   return (
-//     <div className="bg-white min-h-screen">
-//       <TattooProductDetail product={product} />
-//     </div>
-//   );
-// }
-// 3. Make the default export an 'async' function
-export default async function ProductDetailPage({ params }: Props) {
-  // 4. Await the params before trying to read the slug
+// 4. The Server Component Page
+export default async function NewArrivalsDetailPage({ params }: Props) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  // 5. Safe check: Ensure tattooProducts actually loaded as an array
   if (!Array.isArray(tattooProducts)) {
     console.error("Error: tattooProducts is not an array. Check your import!");
     notFound(); 
   }
 
-  // 6. Safe extract: Use optional chaining (?.) so it doesn't crash on a bad item
   const product = tattooProducts.find(
     (p) => p?.handle && (p.handle === slug || slug.includes(p.handle))
   );
 
-  // If someone types a random URL, show the 404 page
   if (!product) {
     notFound();
   }
 
-  // Pass the found product into the Client Component we built earlier
   return (
     <div className="bg-white mt-10 min-h-screen">
       <TattooProductDetail product={product} />
