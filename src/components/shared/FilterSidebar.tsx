@@ -6,38 +6,39 @@ import React from 'react';
 import clsx from 'clsx';
 import { Check } from 'lucide-react';
 
-// --- Types ---
-
-interface Filters {
-  styles?: string[];
-  sizes?: string[];
-  placements?: string[];
+export interface FilterOptions {
+  collections: string[];
+  styles: string[];
+  sizes: string[];
+  placements: string[];
 }
 
-interface ActiveFilters {
+export interface ActiveFilters {
+  collections: string[];
   styles: string[];
   sizes: string[];
   placements: string[];
 }
 
 interface FilterSidebarProps {
-  filters: Filters;
+  filters: FilterOptions;
   activeFilters: ActiveFilters;
-  onToggle: (category: keyof Filters | 'RESET', value?: string) => void;
+  onToggle: (category: keyof FilterOptions | 'RESET', value?: string) => void;
 }
-
-interface FilterGroupProps {
-  title: string;
-  items: string[];
-  activeItems: string[];
-  onToggle: (value: string) => void;
-}
-
-// --- Components ---
 
 export function FilterSidebar({ filters, activeFilters, onToggle }: FilterSidebarProps) {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-700">
+      
+      {filters.collections && filters.collections.length > 0 && (
+        <FilterGroup 
+          title="Categories" 
+          items={filters.collections} 
+          activeItems={activeFilters.collections} 
+          onToggle={(v) => onToggle('collections', v)} 
+        />
+      )}
+
       {filters.styles && filters.styles.length > 0 && (
         <FilterGroup 
           title="Style" 
@@ -77,7 +78,7 @@ export function FilterSidebar({ filters, activeFilters, onToggle }: FilterSideba
   );
 }
 
-function FilterGroup({ title, items, activeItems, onToggle }: FilterGroupProps) {
+function FilterGroup({ title, items, activeItems, onToggle }: { title: string, items: string[], activeItems: string[], onToggle: (val: string) => void }) {
   return (
     <div className="space-y-4">
       <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] border-b border-slate-200 pb-2">
@@ -103,7 +104,7 @@ function FilterGroup({ title, items, activeItems, onToggle }: FilterGroupProps) 
                 {isActive && <Check className="w-3 h-3" strokeWidth={4} />}
               </div>
               <span className={clsx(
-                "text-xs font-bold transition-colors uppercase tracking-widest", 
+                "text-xs font-bold transition-colors uppercase tracking-widest line-clamp-1", 
                 isActive ? "text-slate-950" : "text-slate-500 group-hover:text-slate-800"
               )}>
                 {item}

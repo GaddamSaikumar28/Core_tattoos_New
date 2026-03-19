@@ -1,101 +1,104 @@
 @import "tailwindcss";
 
 @theme {
-  /* --- Color Palette (Kept Exactly the Same) --- */
+  /* --- Color Palette --- */
   --color-primary: #ea0422;
   --color-brand-orange: #fe8204;
   --color-secondary: #121212;
   --color-white: #ffffff;
   --color-black: #000000;
 
-  /* --- Font Families (Mapped to Next.js variables) --- */
-  --font-almarena: var(--font-almarena), sans-serif;
+  /* --- Font Families --- */
+  /* By assigning Montserrat to --font-sans, it becomes the default for the whole app */
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui;
   --font-montserrat: var(--font-montserrat), sans-serif;
+  --font-almarena: var(--font-almarena), serif;
 
   /* --- Shadows --- */
   --shadow-card: -10px 10px 30px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
 }
 
 @layer base {
-  /* --- Global Resets --- */
   :root {
     background-color: var(--color-white);
     color: var(--color-black);
+    /* This ensures Montserrat is inherited by everything by default */
+    font-family: var(--font-montserrat);
   }
 
-  /* --- Fluid Typography --- */
-  /* clamp(MIN, SCALABLE_VW, MAX) creates a buttery smooth transition between mobile and desktop sizes */
+  /* --- Professional Global Typography --- */
+  
+  body {
+    @apply antialiased;
+    line-height: 1.6;
+  }
 
-  /* Body Text: 14px on mobile -> 16px on desktop */
+  /* Body Text: 400 Weight (Regular) */
   p, .text-body {
-    font-family: var(--font-montserrat);
     font-weight: 400;
     font-size: clamp(0.875rem, 0.5vw + 0.75rem, 1rem); 
-    line-height: 1.6; /* Slightly increased for better readability */
+    margin-bottom: 1.25rem; /* Better vertical rhythm */
   }
 
-  /* Lead Text: 16px on mobile -> 24px on desktop */
+  /* Lead/Intro Text: 500 Weight (Medium) */
   .text-lead {
-    font-family: var(--font-montserrat);
     font-weight: 500;
-    font-size: clamp(1rem, 1.5vw + 0.5rem, 1.5rem);
+    font-size: clamp(1.125rem, 1.5vw + 0.5rem, 1.5rem);
     line-height: 1.4;
+    @apply tracking-tight;
   }
 
-  /* Small Text: 12px on mobile -> 14px on desktop */
+  /* Small Text: 400 Weight */
   small, .text-small {
-    font-family: var(--font-montserrat);
     font-size: clamp(0.75rem, 0.5vw + 0.6rem, 0.875rem);
+    @apply opacity-80; /* Slightly softer for secondary info */
   }
 
-  /* --- Headings (Almarena) --- */
+  /* --- Headings (Now using Montserrat for Professionalism) --- */
+  /* If you still want the 'Tattoo' feel for H1s only, you can swap back to Almarena */
   h1, h2, h3, h4, h5, h6, .font-heading {
-    font-family: var(--font-almarena);
-    font-weight: 700;
-    text-transform: uppercase;
-    line-height: 1.1;
+    font-family: var(--font-montserrat); /* Changed from Almarena to Montserrat */
+    font-weight: 700; /* Bold */
+    @apply tracking-tight uppercase;
+    line-height: 1.2;
+    margin-bottom: 1rem;
   }
 
-  /* Hero Huge Text: 64px on mobile -> 140px on desktop */
+  /* Hero Huge Text: For high-impact branding */
   .text-hero { 
-    font-size: clamp(4rem, 8vw + 2rem, 8.75rem); 
-    line-height: 1;
+    font-size: clamp(3rem, 10vw + 1rem, 8rem); 
+    font-weight: 800; /* Extra Bold for Hero */
+    line-height: 0.9;
+    @apply tracking-tighter;
   }
 
-  /* H2 / Section Titles: 36px on mobile -> 64px on desktop */
+  /* Section Titles */
   h2, .text-h2 { 
-    font-size: clamp(2.25rem, 4vw + 1rem, 4rem); 
+    font-size: clamp(2rem, 5vw + 1rem, 3.5rem); 
   }
 
-  /* H3 / Feature Titles: 20px on mobile -> 24px on desktop */
-  h3, .text-h3 { 
-    font-size: clamp(1.25rem, 1vw + 1rem, 1.5rem); 
-  }
-
-  /* Buttons: 18px on mobile -> 20px on desktop */
-  .text-btn {
-    font-family: var(--font-almarena);
-    font-weight: 700;
+  /* UI & Buttons: 500/600 Weight (Medium/SemiBold) */
+  button, .text-btn, nav a {
+    font-family: var(--font-montserrat);
+    font-weight: 600; 
     text-transform: uppercase;
-    font-size: clamp(1.125rem, 0.5vw + 1rem, 1.25rem);
-    letter-spacing: 0.05em; /* Added slight letter spacing for button legibility */
+    font-size: clamp(0.875rem, 0.5vw + 0.75rem, 1rem);
+    letter-spacing: 0.05em;
   }
 
-  /* FAQ Titles: 16px on mobile -> 18px on desktop */
-  .text-faq-title {
-    font-family: var(--font-almarena);
-    font-weight: 700;
-    font-size: clamp(1rem, 0.5vw + 0.875rem, 1.125rem);
+  /* Form Elements */
+  input, select, textarea {
+    font-family: var(--font-montserrat);
+    @apply text-base;
   }
 
+  /* Specific fix for Chrome Autofill */
   input:-webkit-autofill,
   input:-webkit-autofill:hover, 
   input:-webkit-autofill:focus, 
   input:-webkit-autofill:active{
-      -webkit-box-shadow: 0 0 0 30px var(--color-secondary) inset !important;
-      -webkit-text-fill-color: white !important;
+      -webkit-box-shadow: 0 0 0 30px var(--color-white) inset !important;
+      -webkit-text-fill-color: var(--color-black) !important;
       transition: background-color 5000s ease-in-out 0s;
   }
-
-  
 }

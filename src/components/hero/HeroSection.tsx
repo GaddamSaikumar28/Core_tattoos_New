@@ -378,7 +378,7 @@ export default function HeroSection() {
               custom={0} variants={contentVariants} initial="hidden" animate={cardSettled ? "visible" : "hidden"}
               className="absolute -top-28 md:-top-24 left-1/2 -translate-x-1/2 w-[90vw] md:w-max text-center z-10"
             >
-              <h3 className="text-4xl md:text-5xl font-[cursive] text-[#2d1b54] leading-snug drop-shadow-sm">
+              <h3 className="text-4xl md:text-5xl text-[#2d1b54] leading-snug drop-shadow-sm">
                 {currentProduct.title}
               </h3>
             </motion.div>
@@ -407,7 +407,7 @@ export default function HeroSection() {
               className="absolute -left-2 md:left-[10%] top-[10%] md:top-[25%] z-20 hover:scale-105 transition-transform cursor-default"
             >
               <div className="bg-white/80 backdrop-blur-md px-3 py-2 md:px-6 md:py-4 rounded-xl shadow-xl border border-white">
-                <p className="text-[#4b2787] font-[cursive] text-base md:text-2xl">SALE</p>
+                <p className="text-[#4b2787] text-base md:text-2xl">SALE</p>
                 <p className="font-bold text-lg md:text-3xl text-[#2d1b54]">
                   {currentProduct.price} <span className="text-[10px] md:text-sm line-through text-gray-400">{currentProduct.oldPrice}</span>
                 </p>

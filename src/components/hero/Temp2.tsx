@@ -1456,7 +1456,7 @@
 //               <div className="mb-6 p-4 rounded-full bg-[var(--primary)]/5 text-[var(--primary)] group-hover:scale-110 transition-transform duration-500">
 //                 {item.icon}
 //               </div>
-//               <span className="italic font-serif text-[var(--secondary)] mb-1 opacity-80">{item.subtitle}</span>
+//               <span className=" font-serif text-[var(--secondary)] mb-1 opacity-80">{item.subtitle}</span>
 //               <h3 className="text-xl font-bold tracking-wider mb-4 text-[var(--foreground)] uppercase">
 //                 {item.title}
 //               </h3>
@@ -1509,7 +1509,7 @@
 //             transition={{ delay: 0.3 }}
 //             className="lg:col-span-6 flex flex-col items-start lg:pl-12"
 //           >
-//             <h3 className="text-4xl font-serif italic text-[var(--foreground)] mb-6">About Us</h3>
+//             <h3 className="text-4xl font-serif  text-[var(--foreground)] mb-6">About Us</h3>
 //             <p className="text-lg text-[var(--foreground-muted)] leading-relaxed mb-8 max-w-lg">
 //               There is an easy reflection of peace of London town normally, but the majority here collect devotion to some by inspired fragments or going for less a concept of outer version yet used to be one there sent omitting embracing within in the cattle of rock, till.
 //             </p>

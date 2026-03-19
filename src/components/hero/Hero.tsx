@@ -196,17 +196,38 @@ const TattooCard = ({
     </motion.div>
   );
 };
-
+import { getProducts } from "@/src/lib/shopify";
+export async function fetchProducts() {
+    const newArrivals = await getProducts({ sortKey: 'CREATED_AT', reverse: true });
+    console.log("shopify api is hit");
+    console.log(newArrivals);
+    return newArrivals;
+}
 export default function Hero() {
   const [showIntro, setShowIntro] = useState(true);
   const [topCardReady, setTopCardReady] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [cardIsFalling, setCardIsFalling] = useState(false);
-
+ const [allProducts, setAllProducts] = useState([]);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
 
+  
+
   useEffect(() => {
+
+
+    const loadProducts = async () => {
+      try {
+        const data = await fetchProducts();
+        setAllProducts(data); 
+      } catch (error) {
+        console.error("Failed to load products:", error);
+      }
+    };
+
+
+    const setAllproducts = fetchProducts();
     const hasSeenSplash =
       typeof window !== "undefined"
         ? sessionStorage.getItem("hasSeenSplash")

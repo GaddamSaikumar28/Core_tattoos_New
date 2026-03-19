@@ -81,7 +81,7 @@
 //               <div className="mb-6 text-[var(--color-brand-orange)] transition-transform duration-500 ease-out group-hover:scale-110">
 //                 {item.icon}
 //               </div>
-//               <span className="font-serif italic text-xl text-[var(--color-secondary)] opacity-80 mb-2 capitalize tracking-wide">
+//               <span className="font-serif  text-xl text-[var(--color-secondary)] opacity-80 mb-2 capitalize tracking-wide">
 //                 {item.subtitle}
 //               </span>
 //               <h3 className="text-h3 font-heading mb-4 text-[var(--color-black)] group-hover:text-[var(--color-primary)] transition-colors duration-300">
@@ -143,7 +143,7 @@
 //             viewport={{ once: true }}
 //             className="lg:col-span-5 flex flex-col items-center text-center lg:items-start lg:text-left lg:pl-10"
 //           >
-//             <h3 className="font-serif italic text-3xl md:text-4xl text-[var(--color-black)] mb-6 tracking-wide">
+//             <h3 className="font-serif  text-3xl md:text-4xl text-[var(--color-black)] mb-6 tracking-wide">
 //               About Us
 //             </h3>
 //             <p className="text-body text-gray-600 mb-10 leading-relaxed max-w-lg">
@@ -248,7 +248,7 @@ export default function WhatWeDoSection() {
               <div className="mb-4 text-[var(--color-brand-orange)] transition-transform duration-500 ease-out group-hover:scale-110">
                 {item.icon}
               </div>
-              <span className="font-serif italic text-lg text-[var(--color-secondary)] opacity-80 mb-1 capitalize tracking-wide">
+              <span className=" text-lg text-[var(--color-secondary)] opacity-80 mb-1 capitalize tracking-wide">
                 {item.subtitle}
               </span>
               <h3 className="text-xl font-heading mb-3 text-[var(--color-black)] group-hover:text-[var(--color-primary)] transition-colors duration-300">
@@ -309,7 +309,7 @@ export default function WhatWeDoSection() {
             viewport={{ once: true }}
             className="lg:col-span-6 flex flex-col items-center text-center lg:items-start lg:text-left lg:pl-8"
           >
-            <h3 className="font-serif italic text-2xl md:text-3xl text-[var(--color-black)] mb-4 tracking-wide">
+            <h3 className=" text-2xl md:text-3xl text-[var(--color-black)] mb-4 tracking-wide">
               Our Story
             </h3>
             <p className="text-sm md:text-base text-gray-600 mb-8 leading-relaxed max-w-lg">

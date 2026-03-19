@@ -2,433 +2,372 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { 
-  ShoppingCart, Plus, Minus, Share2, ZoomIn, 
-  CheckCircle2, Droplets, ArrowLeft, X, Zap
+  Plus, Minus, ZoomIn, 
+  Droplets, X, Star, ChevronDown, ChevronUp, ShieldCheck, Loader2,
+  Clock, Flame
 } from 'lucide-react';
 import clsx from 'clsx';
-import { useCart } from '@/src/context/CartContext';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation'; // <-- ADDED
-
-interface Combination {
-  id: string;
-  price: number | string;
-  image: string;
-  size: string;
-  stock: number;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  style?: string;
-  price: number | string;
-  image: string;
-  combinations?: Combination[];
-  placements?: string[];
-  productColor?: string;
-  badge?: string | null;
-}
+import { useCart } from '@/src/context/CartContext';
+import { FormattedProduct, Variant } from '@/src/lib/shopify';
 
 interface TattooProductDetailProps {
-  product: Product;
-  onAddToCart?: (variantId: string, quantity: number) => void;
-  onBuyNow?: (variantId: string, quantity: number) => void;
-  onBack?: () => void;
+  product: FormattedProduct;
 }
 
-export default function TattooProductDetail({ 
-  product, 
-  onAddToCart, 
-  onBuyNow, 
-  onBack 
-}: TattooProductDetailProps) {
-  const router = useRouter();
-  const combinations = product?.combinations || [];
-  const [activeVariant, setActiveVariant] = useState<Combination | null>(combinations[0] || null);
-  const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<'details' | 'care'>('details');
+export default function TattooProductDetail({ product }: TattooProductDetailProps) {
+  const { addToCart } = useCart();
+  
+  // UI States
   const [isZoomed, setIsZoomed] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [activeAccordion, setActiveAccordion] = useState<string | null>('description');
+  
+  // Cart States
+  const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
-  const [isBuying, setIsBuying] = useState(false);
-  const { addToCart, setCartOpen } = useCart();
-  const themeColor = product?.productColor || '#171717';
-  const displayImage = activeVariant?.image || product?.image;
-  const currentPrice = activeVariant?.price || product?.price;
-  const currentStock = activeVariant?.stock || 0;
 
-  const handleShare = async () => {
-    const shareData = {
-      title: `${product?.name} | Tattoo`,
-      text: `Check out this awesome tattoo: ${product?.name}`,
-      url: typeof window !== 'undefined' ? window.location.href : '',
-    };
-    
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.log('Error sharing', err);
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!'); 
+  // Variant State
+  const variants = product.allVariants || [];
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
+    variants.find(v => v.availableForSale) || variants[0] || null
+  );
+
+  // Derived Values
+  const price = selectedVariant ? Number(selectedVariant.price) : Number(product.checkout.price);
+  const compareAtPrice = selectedVariant?.compareAtPrice ? Number(selectedVariant.compareAtPrice) : Number(product.checkout.compareAtPrice);
+  const hasDiscount = compareAtPrice > price;
+  
+  const gallery = product.media.gallery.length > 0 ? product.media.gallery : [{ url: product.media.featuredImage || '/placeholder.png', altText: product.title }];
+  const activeImage = gallery[activeImageIndex]?.url || '/placeholder.png';
+
+  // Extract rich attributes from the mapped Shopify data
+  const { tattooColorType } = product.styling;
+  const { themes, placements, tags } = product.attributes;
+  const stockLevel = product.inventory.stockLevel;
+  const isLowStock = product.inventory.inStock && stockLevel > 0 && stockLevel <= 10;
+
+  // =========================================================
+  // ADD TO CART HANDLER
+  // =========================================================
+  const handleAddToCart = async () => {
+    if (!selectedVariant?.variantId) {
+      toast.error("Please select a variant.");
+      return;
     }
-  };
 
-//   const handleAddToCart = async () => {
-//     if (!activeVariant || currentStock === 0) return;
-//     setIsAdding(true);
-//     if (onAddToCart) {
-//       await onAddToCart(activeVariant.id, quantity);
-//     } else {
-//       await new Promise(res => setTimeout(res, 800)); 
-//     }
-//     setIsAdding(false);
-//   };
-
-const handleAddToCart = async () => {
-    if (!activeVariant || currentStock === 0) return;
+    const safeQuantity = quantity > 0 ? quantity : 1;
     setIsAdding(true);
+    
     try {
-      await addToCart({
-        variantId: activeVariant.id,
-        productId: product.id,
-        name: product.name,
-        variantName: activeVariant.size,
-        price: Number(activeVariant.price),
-        image: activeVariant.image,
-        quantity: quantity
-      });
-      // Reset quantity after adding
-      setQuantity(1);
+      await addToCart(selectedVariant.variantId, safeQuantity);
+      toast.success(`${product.title} added to cart!`);
     } catch (error) {
-      toast.error('Failed to add item to cart.');
+      console.error("Detail page cart error", error);
+      toast.error("Failed to add to cart. Please try again.");
     } finally {
       setIsAdding(false);
     }
   };
 
-//   const handleBuyNow = async () => {
-//     if (!activeVariant || currentStock === 0) return;
-//     setIsBuying(true);
-//     if (onBuyNow) {
-//       await onBuyNow(activeVariant.id, quantity);
-//     } else {
-//       await new Promise(res => setTimeout(res, 800)); 
-//       // Typically redirects to checkout here
-//     }
-//     setIsBuying(false);
-//   };
-
-const handleBuyNow = async () => {
-    if (!activeVariant || currentStock === 0) return;
-    setIsBuying(true);
-    try {
-      // 1. Add the item to the cart
-      await addToCart({
-        variantId: activeVariant.id,
-        productId: product.id,
-        name: product.name,
-        variantName: activeVariant.size,
-        price: Number(activeVariant.price),
-        image: activeVariant.image,
-        quantity: quantity
-      });
-      
-      // 2. Once Shopify API is integrated, you will generate a checkoutURL here
-      // const checkoutUrl = await createShopifyCheckout(cartId);
-      // window.location.href = checkoutUrl;
-      
-      // For now, redirect to the local cart/checkout page or open cart drawer
-      toast.loading('Redirecting to checkout...', { duration: 1500 });
-      setTimeout(() => {
-        router.push('/checkout'); // Adjust this to your checkout route
-      }, 1000);
-      
-    } catch (error) {
-      toast.error('Failed to process Buy Now.');
-      setIsBuying(false);
-    }
-  };
-
-  if (!product) return null; 
-
   return (
-    <div className="bg-white min-h-screen text-zinc-900 font-sans selection:bg-zinc-200">
-      
-      {/* Top Navigation Bar */}
-      <header className="w-full border-b border-zinc-100 bg-white sticky top-0 z-30">
-        <div className="container max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
-          <button 
-            onClick={onBack} 
-            className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to shop</span>
-          </button>
-        </div>
-      </header>
+    <div className="bg-white min-h-screen pb-20 pt-24 selection:bg-[var(--color-brand-orange)] selection:text-white">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Breadcrumb */}
+        <nav className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-8 flex items-center gap-2 overflow-x-auto whitespace-nowrap no-scrollbar">
+          <a href="/" className="hover:text-gray-900 transition-colors">Home</a>
+          <span>/</span>
+          <a href="/collections" className="hover:text-gray-900 transition-colors">Shop</a>
+          {product.vendor && (
+            <>
+              <span>/</span>
+              <span className="hover:text-gray-900 transition-colors cursor-pointer">{product.vendor}</span>
+            </>
+          )}
+          <span>/</span>
+          <span className="text-gray-900">{product.title}</span>
+        </nav>
 
-      <main className="container max-w-7xl mx-auto px-5 py-8 lg:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
           
-          {/* LEFT: IMAGE GALLERY & MAGNIFIER */}
-          <div className="lg:col-span-6 xl:col-span-7 relative lg:sticky lg:top-24">
-            <div 
-              className="relative aspect-[4/5] md:aspect-square w-full rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-6 overflow-hidden group cursor-zoom-in transition-colors duration-300"
-              onClick={() => setIsZoomed(true)}
-              style={{ borderColor: `${themeColor}20` }}
-            >
-              <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundColor: themeColor }} />
-              
+          {/* ===================================== */}
+          {/* LEFT: IMAGE GALLERY (Matching UI Ref) */}
+          {/* ===================================== */}
+          <div className="lg:col-span-7 flex flex-col md:flex-row gap-4 lg:sticky lg:top-28 lg:h-[calc(100vh-120px)]">
+            
+            {/* Vertical Thumbnails (Left side on Desktop, Top horizontal on Mobile) */}
+            <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto no-scrollbar md:w-[88px] shrink-0 py-1">
+              {gallery.map((img, idx) => (
+                <button 
+                  key={idx}
+                  onClick={() => setActiveImageIndex(idx)}
+                  className={clsx(
+                    "relative w-20 h-24 md:w-[88px] md:h-[110px] shrink-0 rounded-2xl overflow-hidden transition-all duration-300",
+                    activeImageIndex === idx 
+                      ? "ring-2 ring-offset-2 ring-[var(--color-brand-orange)] opacity-100" 
+                      : "ring-1 ring-gray-200 opacity-60 hover:opacity-100 hover:ring-gray-300 bg-gray-50"
+                  )}
+                >
+                  <Image src={img.url} alt={img.altText || `Thumbnail ${idx}`} fill className="object-cover" />
+                </button>
+              ))}
+            </div>
+
+            {/* Main Image Viewport */}
+            <div className="relative flex-1 aspect-[4/5] md:aspect-auto md:h-full bg-[#F9F9F9] rounded-[32px] overflow-hidden group cursor-zoom-in border border-gray-100 shadow-inner">
               <AnimatePresence mode="wait">
-                <motion.img 
-                  key={displayImage}
-                  initial={{ opacity: 0, scale: 0.95 }}
+                <motion.div
+                  key={activeImage}
+                  initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
-                  src={displayImage} 
-                  alt={product.name}
-                  className="w-full h-full object-contain relative z-10 transition-transform duration-500 group-hover:scale-105"
-                />
+                  className="absolute inset-0 p-4 md:p-10"
+                  onClick={() => setIsZoomed(true)}
+                >
+                  <Image 
+                    src={activeImage} 
+                    alt={product.title} 
+                    fill 
+                    priority
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-contain transition-transform duration-700 group-hover:scale-105"
+                  />
+                </motion.div>
               </AnimatePresence>
 
-              <div className="absolute bottom-4 right-4 z-20 bg-white/90 backdrop-blur px-3 py-2 rounded-full shadow-sm flex items-center gap-2 text-xs font-semibold text-zinc-600 border border-zinc-200 pointer-events-none">
-                <ZoomIn className="w-4 h-4" />
-                <span className="hidden sm:inline">Magnify</span>
-              </div>
-
-              {product.badge && (
-                <div 
-                  className="absolute top-4 left-4 z-20 px-3 py-1 rounded-full text-white text-[10px] font-bold uppercase tracking-widest shadow-md" 
-                  style={{ backgroundColor: themeColor }}
-                >
-                  {product.badge}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* RIGHT: PRODUCT INFO */}
-          <div className="lg:col-span-6 xl:col-span-5 flex flex-col">
-            
-            <div className="flex items-center justify-between mb-4">
-              <span style={{ color: themeColor }} className="text-xs font-bold uppercase tracking-wider bg-zinc-50 px-3 py-1 rounded-full border border-zinc-100">
-                {product.category}
-              </span>
-              <button onClick={handleShare} className="p-2 hover:bg-zinc-100 rounded-full transition-colors group">
-                <Share2 className="w-5 h-5 text-zinc-400 group-hover:text-zinc-900 transition-colors" />
-              </button>
-            </div>
-
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-zinc-900 tracking-tight leading-tight mb-4">
-              {product.name}
-            </h1>
-
-            <p className="text-zinc-500 font-medium text-base md:text-lg mb-8 leading-relaxed">
-              Premium {product.style || 'custom'} style temporary tattoo. Looks authentic and lasts up to 2 weeks.
-            </p>
-
-            <div className="space-y-8 mb-10">
-              {/* VARIANTS (SIZE) */}
-              {combinations.length > 0 && (
-                <div>
-                  <div className="flex justify-between items-end mb-3">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Select Size</label>
-                    <span className={clsx("text-xs font-medium", currentStock > 5 ? "text-zinc-500" : "text-red-500")}>
-                      {currentStock > 0 ? `${currentStock} in stock` : 'Out of stock'}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {combinations.map((combo) => {
-                      const isSelected = activeVariant?.id === combo.id;
-                      return (
-                        <button
-                          key={combo.id}
-                          onClick={() => {
-                            setActiveVariant(combo);
-                            setQuantity(1); 
-                          }}
-                          style={{ 
-                            borderColor: isSelected ? themeColor : '',
-                            backgroundColor: isSelected ? `${themeColor}05` : 'white',
-                            color: isSelected ? themeColor : ''
-                          }}
-                          className={clsx(
-                            "px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 flex flex-col items-center justify-center gap-1",
-                            !isSelected && "border-zinc-200 text-zinc-600 hover:border-zinc-300",
-                            combo.stock === 0 && "opacity-50 cursor-not-allowed"
-                          )}
-                        >
-                          <span>{combo.size}</span>
-                          <span className="text-xs font-medium opacity-80">${Number(combo.price).toFixed(2)}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* PRICE & QUANTITY */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-zinc-50 rounded-2xl border border-zinc-100 gap-4">
-                <div className="flex flex-col">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1">Total Price</span>
-                  <span className="text-3xl font-extrabold text-zinc-900">
-                    ${(parseFloat(currentPrice as string) * quantity).toFixed(2)}
+              {/* Dynamic Badges Overlay */}
+              <div className="absolute top-6 left-6 flex flex-col gap-2 z-10">
+                {product.styling.badges?.map((badge, idx) => (
+                  <span 
+                    key={idx} 
+                    className="px-3.5 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm text-white backdrop-blur-md" 
+                    style={{ backgroundColor: badge.color || '#000' }}
+                  >
+                    {badge.label}
                   </span>
-                </div>
-                
-                <div className="flex items-center bg-white border border-zinc-200 rounded-xl p-1 shadow-sm w-full sm:w-auto justify-between sm:justify-center">
-                  <button 
-                    onClick={() => setQuantity(q => Math.max(1, q - 1))} 
-                    disabled={quantity <= 1}
-                    className="p-3 hover:bg-zinc-50 rounded-lg text-zinc-600 disabled:opacity-50"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="w-12 text-center font-bold text-base">{quantity}</span>
-                  <button 
-                    onClick={() => setQuantity(q => Math.min(currentStock, q + 1))} 
-                    disabled={quantity >= currentStock}
-                    className="p-3 hover:bg-zinc-50 rounded-lg text-zinc-600 disabled:opacity-50"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* ACTION BUTTONS: ADD TO CART & BUY NOW */}
-            {/* <div className="flex flex-col sm:flex-row gap-3 mb-10">
-         
-              <button 
-                onClick={handleAddToCart}
-                disabled={isAdding || isBuying || currentStock === 0}
-                style={{ 
-                  borderColor: currentStock > 0 ? themeColor : '#e4e4e7',
-                  color: currentStock > 0 ? themeColor : '#a1a1aa'
-                }}
-                className={clsx(
-                  "flex-1 py-4 rounded-xl font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 border-2 transition-all duration-200 bg-white",
-                  currentStock > 0 ? "hover:bg-zinc-50 active:scale-[0.99]" : "cursor-not-allowed"
-                )}
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {currentStock === 0 ? 'Out of Stock' : isAdding ? 'Adding...' : 'Add To Cart'}
-              </button>
-
-            
-              <button 
-                onClick={handleBuyNow}
-                disabled={isAdding || isBuying || currentStock === 0}
-                style={{ backgroundColor: currentStock > 0 ? themeColor : '#e4e4e7' }}
-                className={clsx(
-                  "flex-1 py-4 rounded-xl text-white font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 shadow-lg transition-all duration-200",
-                  currentStock > 0 ? "hover:opacity-90 active:scale-[0.99]" : "text-zinc-400 cursor-not-allowed shadow-none"
-                )}
-              >
-               
-                {isBuying ? 'Processing...' : 'Buy Now'}
-              </button>
-            </div> */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-10">
-              {/* Add to Cart */}
-              <button 
-                onClick={handleAddToCart}
-                disabled={isAdding || isBuying || currentStock === 0}
-                style={{ 
-                  borderColor: currentStock > 0 ? themeColor : '#e4e4e7',
-                  color: currentStock > 0 ? themeColor : '#a1a1aa'
-                }}
-                className={clsx(
-                  "flex-1 py-4 rounded-xl font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 border-2 transition-all duration-200 bg-white",
-                  currentStock > 0 ? "hover:bg-zinc-50 active:scale-[0.99]" : "cursor-not-allowed"
-                )}
-              >
-                {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingCart className="w-5 h-5" />}
-                {currentStock === 0 ? 'Out of Stock' : isAdding ? 'Adding...' : 'Add To Cart'}
-              </button>
-
-              {/* Buy Now */}
-              <button 
-                onClick={handleBuyNow}
-                disabled={isAdding || isBuying || currentStock === 0}
-                style={{ backgroundColor: currentStock > 0 ? themeColor : '#e4e4e7' }}
-                className={clsx(
-                  "flex-1 py-4 rounded-xl text-white font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 shadow-lg transition-all duration-200",
-                  currentStock > 0 ? "hover:opacity-90 active:scale-[0.99]" : "text-zinc-400 cursor-not-allowed shadow-none"
-                )}
-              >
-                {isBuying ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                {isBuying ? 'Processing...' : 'Buy Now'}
-              </button>
-            </div>
-
-            {/* CONTENT TABS */}
-            <div className="border-t border-zinc-100 pt-8">
-              <div className="flex gap-8 border-b border-zinc-100 mb-6">
-                {(['details', 'care'] as const).map(tab => (
-                  <button 
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={clsx(
-                      "pb-3 text-xs font-semibold uppercase tracking-wider transition-colors relative",
-                      activeTab === tab ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-600"
-                    )}
-                  >
-                    {tab}
-                    {activeTab === tab && (
-                      <motion.div layoutId="tab-indicator" className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ backgroundColor: themeColor }} />
-                    )}
-                  </button>
                 ))}
               </div>
 
-              <div className="min-h-[160px]">
-                {activeTab === 'details' && (
-                  <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-                    <p className="text-sm text-zinc-600 leading-relaxed">
-                      Designed by professional artists, our tattoos look incredibly authentic. They are waterproof, non-toxic, and rigorously tested for skin safety.
-                    </p>
-                    
-                    {product?.placements && product.placements.length > 0 && (
-                      <div className="flex flex-col gap-3">
-                        <span className="text-xs font-semibold uppercase text-zinc-500 tracking-wider">Recommended Placement:</span>
-                        <div className="flex flex-wrap gap-2">
-                          {product.placements.map(place => (
-                            <span key={place} className="px-3 py-1.5 bg-zinc-100 text-zinc-700 text-xs font-medium rounded-md">
-                              {place}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-                
-                {activeTab === 'care' && (
-                  <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                    <div className="flex gap-4 items-start p-4 rounded-xl bg-zinc-50">
-                      <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
-                      <p className="text-sm text-zinc-600 leading-relaxed"><strong className="text-zinc-900 block font-semibold mb-1">Application</strong> Peel off clear film, place face down on clean skin, and hold a wet cloth firmly against it for 30 seconds before peeling the paper backing.</p>
-                    </div>
-                    <div className="flex gap-4 items-start p-4 rounded-xl bg-zinc-50">
-                      <Droplets className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                      <p className="text-sm text-zinc-600 leading-relaxed"><strong className="text-zinc-900 block font-semibold mb-1">Aftercare</strong> Avoid scrubbing in the shower. Pat dry gently. Lasts significantly longer on areas with minimal friction and hair.</p>
-                    </div>
-                  </motion.div>
-                )}
+              {/* Zoom Indicator */}
+              <button 
+                onClick={() => setIsZoomed(true)}
+                className="absolute bottom-6 right-6 p-3.5 bg-white/90 backdrop-blur-md shadow-lg rounded-full text-gray-900 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0 hover:bg-gray-900 hover:text-white"
+              >
+                <ZoomIn className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* ===================================== */}
+          {/* RIGHT: PRODUCT DETAILS                */}
+          {/* ===================================== */}
+          <div className="lg:col-span-5 flex flex-col pt-4 md:pt-0">
+            
+            {/* Vendor & Rating */}
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-[12px] font-black text-[var(--color-brand-orange)] uppercase tracking-[0.2em]">
+                {product.vendor}
+              </span>
+              <div className="flex items-center gap-1.5 cursor-pointer group">
+                <div className="flex text-yellow-400">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+                </div>
+                <span className="text-xs font-bold text-gray-500 underline group-hover:text-gray-900 transition-colors">Write a review</span>
               </div>
             </div>
 
+            {/* Title */}
+            <h1 className="text-4xl lg:text-[44px] font-black text-gray-900 leading-[1.05] mb-4 uppercase tracking-tighter">
+              {product.title}
+            </h1>
+
+            {/* Rich Attributes (Color, Theme, Placement) */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-[10px] font-bold uppercase tracking-widest rounded-md">
+                {tattooColorType}
+              </span>
+              {themes.slice(0, 2).map(theme => (
+                <span key={theme} className="px-2.5 py-1 bg-gray-100 text-gray-700 text-[10px] font-bold uppercase tracking-widest rounded-md">
+                  {theme}
+                </span>
+              ))}
+              {placements.slice(0, 2).map(placement => (
+                <span key={placement} className="px-2.5 py-1 bg-gray-100 text-gray-700 text-[10px] font-bold uppercase tracking-widest rounded-md border border-gray-200">
+                  Fits: {placement}
+                </span>
+              ))}
+            </div>
+
+            {/* Pricing Area */}
+            <div className="flex items-center gap-4 mb-8 pb-8 border-b border-gray-100">
+              <span className="text-4xl font-black text-gray-900 tracking-tight">${price.toFixed(2)}</span>
+              {hasDiscount && (
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-gray-400 line-through">${compareAtPrice.toFixed(2)}</span>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-red-500">
+                    You Save {product.checkout.discountPercentage}%
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Variant Selector */}
+            {variants.length > 1 && (
+              <div className="mb-8">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-900">Select Size</span>
+                  <button className="text-[11px] font-bold text-gray-400 underline hover:text-gray-900 transition-colors">Size Guide</button>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {variants.map((variant) => {
+                    const isSelected = selectedVariant?.variantId === variant.variantId;
+                    const sizeLabel = variant.selectedOptions?.find(o => o.name === 'Size')?.value || variant.title;
+                    
+                    return (
+                      <button
+                        key={variant.variantId}
+                        disabled={!variant.availableForSale}
+                        onClick={() => setSelectedVariant(variant)}
+                        className={clsx(
+                          "py-3 px-6 rounded-2xl text-[13px] font-black uppercase tracking-wider transition-all border-2",
+                          isSelected 
+                            ? "border-gray-900 bg-gray-900 text-white shadow-lg" 
+                            : !variant.availableForSale
+                              ? "border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed"
+                              : "border-gray-200 bg-white text-gray-600 hover:border-gray-900 hover:text-gray-900"
+                        )}
+                      >
+                        {sizeLabel}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Dynamic Low Stock Warning */}
+            <AnimatePresence>
+              {isLowStock && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                  className="flex items-center gap-2 mb-4 text-orange-600 bg-orange-50 px-4 py-3 rounded-xl border border-orange-100"
+                >
+                  <Flame className="w-4 h-4 fill-current animate-pulse" />
+                  <span className="text-xs font-bold uppercase tracking-widest">Selling Fast — Only {stockLevel} left!</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Add to Cart Layout */}
+            <div className="flex items-center gap-3 mb-8">
+              {/* Quantity Selector */}
+              <div className="flex items-center bg-gray-50 border-2 border-gray-100 rounded-2xl p-1 h-[60px]">
+                <button 
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="w-12 h-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-white rounded-xl transition-all active:scale-95"
+                >
+                  <Minus className="w-4 h-4" strokeWidth={3} />
+                </button>
+                <span className="w-8 text-center text-sm font-black text-gray-900">{quantity}</span>
+                <button 
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-12 h-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-white rounded-xl transition-all active:scale-95"
+                >
+                  <Plus className="w-4 h-4" strokeWidth={3} />
+                </button>
+              </div>
+
+              {/* Add Button */}
+              <button 
+                onClick={handleAddToCart}
+                disabled={!selectedVariant?.availableForSale || isAdding}
+                className={clsx(
+                  "flex-1 h-[60px] rounded-2xl flex items-center justify-center gap-2 text-[14px] font-black uppercase tracking-[0.15em] transition-all active:scale-[0.98]",
+                  !selectedVariant?.availableForSale 
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-100" 
+                    : "bg-[#fe8204] text-white hover:bg-[#e07300] shadow-[0_12px_24px_rgba(254,130,4,0.25)] hover:shadow-[0_12px_24px_rgba(254,130,4,0.4)]"
+                )}
+              >
+                {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : !selectedVariant?.availableForSale ? 'Out of Stock' : 'Add to Cart'}
+              </button>
+            </div>
+
+            {/* Value Propositions */}
+            <div className="grid grid-cols-2 gap-3 mb-10">
+              <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-2xl border border-gray-100">
+                <Droplets className="w-5 h-5 text-[var(--color-brand-orange)]" />
+                <div>
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-gray-900">Waterproof</h4>
+                  <p className="text-[10px] text-gray-500 font-bold mt-0.5 uppercase tracking-wider">Lasts 1-2 weeks</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-[#F9F9F9] rounded-2xl border border-gray-100">
+                <ShieldCheck className="w-5 h-5 text-[var(--color-brand-orange)]" />
+                <div>
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-gray-900">Skin Safe</h4>
+                  <p className="text-[10px] text-gray-500 font-bold mt-0.5 uppercase tracking-wider">Plant-based ink</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Accordions */}
+            <div className="border-t border-gray-200">
+              <AccordionItem 
+                title="Design Details" 
+                isOpen={activeAccordion === 'description'} 
+                onToggle={() => setActiveAccordion(activeAccordion === 'description' ? null : 'description')}
+              >
+                <div 
+                  className="prose prose-sm max-w-none text-gray-600 font-medium leading-relaxed pb-6"
+                  dangerouslySetInnerHTML={{ __html: product.descriptionHtml }} 
+                />
+              </AccordionItem>
+              
+              <AccordionItem 
+                title="How to Apply" 
+                isOpen={activeAccordion === 'apply'} 
+                onToggle={() => setActiveAccordion(activeAccordion === 'apply' ? null : 'apply')}
+              >
+                <ol className="text-sm text-gray-600 font-medium space-y-3 pb-6 list-decimal pl-5 marker:text-[var(--color-brand-orange)] marker:font-black">
+                  <li>Ensure skin is completely clean, dry, and free of oils or lotions.</li>
+                  <li>Remove the clear protective top sheet.</li>
+                  <li>Press the tattoo firmly, design facing down, onto your skin.</li>
+                  <li>Hold a completely wet cloth against the back of the tattoo. Press down and soak it thoroughly.</li>
+                  <li>Wait 30 full seconds, then gently slide off the paper backing.</li>
+                </ol>
+              </AccordionItem>
+
+              <AccordionItem 
+                title="Shipping & Returns" 
+                isOpen={activeAccordion === 'shipping'} 
+                onToggle={() => setActiveAccordion(activeAccordion === 'shipping' ? null : 'shipping')}
+              >
+                <div className="space-y-4 pb-6 text-sm text-gray-600 font-medium">
+                  <p className="flex items-center gap-2"><Clock className="w-4 h-4 text-gray-400"/> Orders process in 1-2 business days.</p>
+                  <p>Free standard shipping on all domestic orders over $35. International shipping calculated at checkout.</p>
+                  <p>Not satisfied? We offer a 30-day money-back guarantee on unused tattoos.</p>
+                </div>
+              </AccordionItem>
+            </div>
+
+            {/* SEO Tags */}
+            {tags && tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-8 pt-8 border-t border-gray-100">
+                {tags.map(tag => (
+                  <span key={tag} className="px-3 py-1.5 bg-gray-50 text-gray-400 hover:text-gray-900 cursor-pointer transition-colors text-[9px] font-black uppercase tracking-[0.15em] rounded-md">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
           </div>
         </div>
-      </main>
+      </div>
 
       {/* FULL SCREEN MAGNIFIER MODAL */}
       <AnimatePresence>
@@ -437,29 +376,74 @@ const handleBuyNow = async () => {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-white/95 backdrop-blur-md flex items-center justify-center p-4"
+            className="fixed inset-0 z-[100] bg-white/95 backdrop-blur-xl flex items-center justify-center p-4 cursor-zoom-out"
+            onClick={() => setIsZoomed(false)}
           >
             <button 
-              onClick={() => setIsZoomed(false)}
-              className="absolute md:mt-20 mt-15 top-6 right-4 p-3 bg-zinc-100 hover:bg-zinc-200 rounded-full text-zinc-900 transition-colors z-50"
+              className="absolute top-6 right-6 p-4 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-900 transition-colors z-[110]"
               aria-label="Close zoom"
             >
-              <X className="w-3 h-3" />
+              <X className="w-5 h-5" strokeWidth={2.5} />
             </button>
             <motion.div 
-              initial={{ scale: 0.7, opacity: 0 }} 
+              initial={{ scale: 0.9, opacity: 0 }} 
               animate={{ scale: 1, opacity: 1 }} 
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="w-full h-full flex items-center justify-center overflow-auto"
+              className="relative w-full h-full max-w-6xl max-h-[90vh]"
             >
-              <img 
-                src={displayImage} 
+              <Image 
+                src={activeImage} 
                 alt="Magnified view" 
-                className="max-w-none md:mt-10 md:max-w-[70vw] md:max-h-[70vh] object-contain cursor-zoom-out"
-                onClick={() => setIsZoomed(false)}
+                fill
+                className="object-contain"
+                quality={100}
               />
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// =========================================================
+// STRICTLY TYPED ACCORDION COMPONENT
+// =========================================================
+interface AccordionProps {
+  title: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}
+
+function AccordionItem({ title, isOpen, onToggle, children }: AccordionProps) {
+  return (
+    <div className="border-b border-gray-100">
+      <button 
+        onClick={onToggle}
+        className="w-full py-5 flex items-center justify-between group outline-none"
+      >
+        <span className="text-[13px] font-black uppercase tracking-[0.15em] text-gray-900 group-hover:text-[var(--color-brand-orange)] transition-colors">
+          {title}
+        </span>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ChevronDown className="w-5 h-5 text-gray-300 group-hover:text-[var(--color-brand-orange)] transition-colors" />
+        </motion.div>
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+            className="overflow-hidden"
+          >
+            {children}
           </motion.div>
         )}
       </AnimatePresence>

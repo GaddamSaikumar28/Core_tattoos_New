@@ -67,7 +67,7 @@
 // // // // export default function ShopCollection() {
 // // // //   return (
 // // // //     // Subtle gradient background: White fading to a 5% opacity of the brand orange
-// // // //     <section className="min-h-screen py-16 px-4 md:px-8 bg-gradient-to-br from-white via-white to-[#fe8204]/5 font-sans">
+// // // //     <section className="min-h-screen py-16 px-4 md:px-8 bg-gradient-to-br from-white via-white to-[#fe8204]/5 ">
 // // // //       <div>
 // // // //         Our Collection
 // // // //       </div>
@@ -224,7 +224,7 @@
 // // // export default function ShopCollection() {
 // // //   return (
 // // //     // Subtle gradient background: White fading to a 5% opacity of the brand orange
-// // //     <section className="min-h-screen py-16 px-4 md:px-8 bg-gradient-to-br from-white via-white to-[#fe8204]/5 font-sans">
+// // //     <section className="min-h-screen py-16 px-4 md:px-8 bg-gradient-to-br from-white via-white to-[#fe8204]/5 ">
 // // //       <div className="text-2xl font-bold mb-8 max-w-7xl mx-auto text-gray-900">
 // // //         Our Collection
 // // //       </div>
@@ -392,7 +392,7 @@
 // // export default function ShopCollection() {
 // //   return (
 // //     // Subtle gradient background: White fading to a 5% opacity of the brand orange
-// //     <section className="min-h-screen py-16 px-4 md:px-8 bg-gradient-to-br from-white via-white to-[#fe8204]/5 font-sans">
+// //     <section className="min-h-screen py-16 px-4 md:px-8 bg-gradient-to-br from-white via-white to-[#fe8204]/5 ">
 // //       <div className="text-2xl font-bold mb-8 max-w-7xl mx-auto text-gray-900">
 // //         Our Collection
 // //       </div>
@@ -542,7 +542,7 @@
 // export default function ShopCollection() {
 //   return (
 //     // Subtle gradient background: White fading to a 5% opacity of the brand orange
-//     <section className="min-h-screen py-16 px-4 md:px-8 bg-gradient-to-br from-white via-white to-[#fe8204]/5 font-sans">
+//     <section className="min-h-screen py-16 px-4 md:px-8 bg-gradient-to-br from-white via-white to-[#fe8204]/5 ">
 //       <div className="text-2xl font-bold text-center text-[#fe8204] mb-8 max-w-7xl mx-auto">
 //         <h2>Our Collection</h2>
 //      </div>
@@ -689,7 +689,7 @@ export default function ShopCollection() {
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}} />
 
-      <section className="min-h-screen py-16 md:py-24 px-4 md:px-8 bg-[#fafafa] font-sans overflow-hidden">
+      <section className="min-h-screen py-16 md:py-24 px-4 md:px-8 bg-[#fafafa]  overflow-hidden">
         
         {/* Mobile Header (Hidden on Desktop, handled by sidebar) */}
         <div className="lg:hidden mb-8 text-center">

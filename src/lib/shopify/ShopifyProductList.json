@@ -1,0 +1,2294 @@
+{
+    "pageInfo": {
+        "hasNextPage": true,
+        "hasPreviousPage": false,
+        "startCursor": "eyJsYXN0X2lkIjoxMDAxODAxNjI5NzI1OCwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjE6MDE6MjAuMDAwMDAwIiwib2Zmc2V0IjowfQ==",
+        "endCursor": "eyJsYXN0X2lkIjoxMDAxODAxMTQxNDgyNiwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjA6NDk6MjAuMDAwMDAwIiwib2Zmc2V0IjoxMX0="
+    },
+    "edges": [
+        {
+            "cursor": "eyJsYXN0X2lkIjoxMDAxODAxNjI5NzI1OCwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjE6MDE6MjAuMDAwMDAwIiwib2Zmc2V0IjowfQ==",
+            "node": {
+                "id": "gid://shopify/Product/10018016297258",
+                "handle": "wd-033-17x48",
+                "title": "Wolves & Rose (Color)",
+                "description": "Striking tattoo design featuring two wolves flanking a blooming rose, accented with a crescent moon and arrow motif. This 6.6x18.8 inch composition balances fierce and romantic elements, making it ideal for vertical placement on the arm, leg, or torso. The color rendering brings depth to the wolves' fur and rose petals, while the celestial and directional symbols add personal meaning. Perfect for those seeking a design that merges strength with beauty in a cohesive, visually compelling arrangement.",
+                "descriptionHtml": "<p><span></span>Striking tattoo design featuring two wolves flanking a blooming rose, accented with a crescent moon and arrow motif. This 6.6x18.8 inch composition balances fierce and romantic elements, making it ideal for vertical placement on the arm, leg, or torso. The color rendering brings depth to the wolves' fur and rose petals, while the celestial and directional symbols add personal meaning. Perfect for those seeking a design that merges strength with beauty in a cohesive, visually compelling arrangement.</p>",
+                "vendor": "Just Tattoos",
+                "productType": "",
+                "tags": [
+                    "Animal"
+                ],
+                "availableForSale": true,
+                "isGiftCard": false,
+                "requiresSellingPlan": false,
+                "createdAt": "2026-01-16T21:01:20Z",
+                "publishedAt": "2026-01-16T21:01:21Z",
+                "updatedAt": "2026-03-02T19:32:58Z",
+                "seo": {
+                    "title": null,
+                    "description": null
+                },
+                "collections": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463674154",
+                                "title": "Animal",
+                                "handle": "animal"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463706922",
+                                "title": "Fantasy",
+                                "handle": "fantasy"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463739690",
+                                "title": "Nature",
+                                "handle": "nature"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504590467370",
+                                "title": "Floral",
+                                "handle": "floral"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504895865130",
+                                "title": "Colored Art",
+                                "handle": "color"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913592618",
+                                "title": "Back, Torso & Chest Pieces",
+                                "handle": "back-torso-chest-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/505243992362",
+                                "title": "Sleeve",
+                                "handle": "sleeve"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/506826522922",
+                                "title": "Large",
+                                "handle": "large"
+                            }
+                        }
+                    ]
+                },
+                "options": [
+                    {
+                        "id": "gid://shopify/ProductOption/12548629725482",
+                        "name": "Title",
+                        "values": [
+                            "Default Title"
+                        ]
+                    }
+                ],
+                "priceRange": {
+                    "maxVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    },
+                    "minVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    }
+                },
+                "variants": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/ProductVariant/51058910855466",
+                                "title": "Default Title",
+                                "sku": "WD-033",
+                                "barcode": "",
+                                "availableForSale": true,
+                                "currentlyNotInStock": false,
+                                "quantityAvailable": 500,
+                                "requiresShipping": true,
+                                "taxable": true,
+                                "weight": 0,
+                                "weightUnit": "POUNDS",
+                                "selectedOptions": [
+                                    {
+                                        "name": "Title",
+                                        "value": "Default Title"
+                                    }
+                                ],
+                                "price": {
+                                    "amount": "29.99",
+                                    "currencyCode": "USD"
+                                },
+                                "compareAtPrice": {
+                                    "amount": "34.99",
+                                    "currencyCode": "USD"
+                                },
+                                "unitPrice": null,
+                                "unitPriceMeasurement": {
+                                    "measuredType": null,
+                                    "quantityUnit": null,
+                                    "quantityValue": 0,
+                                    "referenceUnit": null,
+                                    "referenceValue": 0
+                                },
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-033.jpg.webp?v=1768597269",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "media": {
+                    "edges": [
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-033.jpg.webp?v=1768597269",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        },
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-033-1.jpg.webp?v=1768597269",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "featuredImage": {
+                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-033.jpg.webp?v=1768597269",
+                    "altText": null,
+                    "width": 2008,
+                    "height": 5669
+                },
+                "images": {
+                    "edges": [
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-033.jpg.webp?v=1768597269",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        },
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-033-1.jpg.webp?v=1768597269",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "cursor": "eyJsYXN0X2lkIjoxMDAxODAxNjEwMDY1MCwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjE6MDA6NDguMDAwMDAwIiwib2Zmc2V0IjoxfQ==",
+            "node": {
+                "id": "gid://shopify/Product/10018016100650",
+                "handle": "wd-034-17x48",
+                "title": "Apex Predator",
+                "description": "A striking composition featuring three apex animals—lion, owl, and wolf—each adorned with regal crowns, rendered as detailed illustration against a clean white backdrop. This 6.6x18.8 inch design captures the commanding presence of nature's most formidable hunters, making it an ideal choice for those who appreciate wildlife artistry and symbolism of power and dominance.",
+                "descriptionHtml": "<p><span>A striking composition featuring three apex animals—lion, owl, and wolf—each adorned with regal crowns, rendered as detailed illustration against a clean white backdrop. This 6.6x18.8 inch design captures the commanding presence of nature's most formidable hunters, making it an ideal choice for those who appreciate wildlife artistry and symbolism of power and dominance.</span></p>",
+                "vendor": "Just Tattoos",
+                "productType": "",
+                "tags": [],
+                "availableForSale": true,
+                "isGiftCard": false,
+                "requiresSellingPlan": false,
+                "createdAt": "2026-01-16T21:00:48Z",
+                "publishedAt": "2026-01-16T21:00:49Z",
+                "updatedAt": "2026-03-02T19:33:03Z",
+                "seo": {
+                    "title": null,
+                    "description": null
+                },
+                "collections": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463674154",
+                                "title": "Animal",
+                                "handle": "animal"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463706922",
+                                "title": "Fantasy",
+                                "handle": "fantasy"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463739690",
+                                "title": "Nature",
+                                "handle": "nature"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913592618",
+                                "title": "Back, Torso & Chest Pieces",
+                                "handle": "back-torso-chest-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/505243992362",
+                                "title": "Sleeve",
+                                "handle": "sleeve"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/506826522922",
+                                "title": "Large",
+                                "handle": "large"
+                            }
+                        }
+                    ]
+                },
+                "options": [
+                    {
+                        "id": "gid://shopify/ProductOption/12548629397802",
+                        "name": "Title",
+                        "values": [
+                            "Default Title"
+                        ]
+                    }
+                ],
+                "priceRange": {
+                    "maxVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    },
+                    "minVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    }
+                },
+                "variants": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/ProductVariant/51058909905194",
+                                "title": "Default Title",
+                                "sku": "WD-034",
+                                "barcode": "",
+                                "availableForSale": true,
+                                "currentlyNotInStock": false,
+                                "quantityAvailable": 500,
+                                "requiresShipping": true,
+                                "taxable": true,
+                                "weight": 0,
+                                "weightUnit": "POUNDS",
+                                "selectedOptions": [
+                                    {
+                                        "name": "Title",
+                                        "value": "Default Title"
+                                    }
+                                ],
+                                "price": {
+                                    "amount": "29.99",
+                                    "currencyCode": "USD"
+                                },
+                                "compareAtPrice": {
+                                    "amount": "34.99",
+                                    "currencyCode": "USD"
+                                },
+                                "unitPrice": null,
+                                "unitPriceMeasurement": {
+                                    "measuredType": null,
+                                    "quantityUnit": null,
+                                    "quantityValue": 0,
+                                    "referenceUnit": null,
+                                    "referenceValue": 0
+                                },
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-034.jpg.webp?v=1768597225",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "media": {
+                    "edges": [
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-034.jpg.webp?v=1768597225",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        },
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-034-1.jpg.webp?v=1768597225",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "featuredImage": {
+                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-034.jpg.webp?v=1768597225",
+                    "altText": null,
+                    "width": 2008,
+                    "height": 5669
+                },
+                "images": {
+                    "edges": [
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-034.jpg.webp?v=1768597225",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        },
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-034-1.jpg.webp?v=1768597225",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "cursor": "eyJsYXN0X2lkIjoxMDAxODAxNTc0MDIwMiwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjA6NTk6NTcuMDAwMDAwIiwib2Zmc2V0IjoyfQ==",
+            "node": {
+                "id": "gid://shopify/Product/10018015740202",
+                "handle": "wd-040-17x48",
+                "title": "Jesus Christ Neo-Traditional Religious Art",
+                "description": "This striking neo-traditional design features a reverent portrayal of Jesus adorned with a crown of thorns, complemented by symbolic imagery including a cross, delicate roses, and graceful birds. The composition measures 6.6x18.8 inches, rendered in classic black and white linework that emphasizes the intricate details and spiritual significance of each element. An ideal choice for those seeking meaningful religious artwork with sophisticated artistic execution.",
+                "descriptionHtml": "<p><span>This striking neo-traditional design features a reverent portrayal of Jesus adorned with a crown of thorns, complemented by symbolic imagery including a cross, delicate roses, and graceful birds. The composition measures 6.6x18.8 inches, rendered in classic black and white linework that emphasizes the intricate details and spiritual significance of each element. An ideal choice for those seeking meaningful religious artwork with sophisticated artistic execution.</span></p>",
+                "vendor": "Just Tattoos",
+                "productType": "",
+                "tags": [],
+                "availableForSale": true,
+                "isGiftCard": false,
+                "requiresSellingPlan": false,
+                "createdAt": "2026-01-16T20:59:57Z",
+                "publishedAt": "2026-01-16T20:59:58Z",
+                "updatedAt": "2026-03-02T19:32:59Z",
+                "seo": {
+                    "title": null,
+                    "description": null
+                },
+                "collections": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503541039402",
+                                "title": "New Arrivals",
+                                "handle": "new-arrival"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913592618",
+                                "title": "Back, Torso & Chest Pieces",
+                                "handle": "back-torso-chest-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/505243992362",
+                                "title": "Sleeve",
+                                "handle": "sleeve"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/506826522922",
+                                "title": "Large",
+                                "handle": "large"
+                            }
+                        }
+                    ]
+                },
+                "options": [
+                    {
+                        "id": "gid://shopify/ProductOption/12548628807978",
+                        "name": "Title",
+                        "values": [
+                            "Default Title"
+                        ]
+                    }
+                ],
+                "priceRange": {
+                    "maxVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    },
+                    "minVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    }
+                },
+                "variants": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/ProductVariant/51058908365098",
+                                "title": "Default Title",
+                                "sku": "WD-040",
+                                "barcode": "",
+                                "availableForSale": true,
+                                "currentlyNotInStock": false,
+                                "quantityAvailable": 500,
+                                "requiresShipping": true,
+                                "taxable": true,
+                                "weight": 0,
+                                "weightUnit": "POUNDS",
+                                "selectedOptions": [
+                                    {
+                                        "name": "Title",
+                                        "value": "Default Title"
+                                    }
+                                ],
+                                "price": {
+                                    "amount": "29.99",
+                                    "currencyCode": "USD"
+                                },
+                                "compareAtPrice": {
+                                    "amount": "34.99",
+                                    "currencyCode": "USD"
+                                },
+                                "unitPrice": null,
+                                "unitPriceMeasurement": {
+                                    "measuredType": null,
+                                    "quantityUnit": null,
+                                    "quantityValue": 0,
+                                    "referenceUnit": null,
+                                    "referenceValue": 0
+                                },
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-040.jpg.webp?v=1768597193",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "media": {
+                    "edges": [
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-040.jpg.webp?v=1768597193",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        },
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-040-1.jpg.webp?v=1768597192",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "featuredImage": {
+                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-040.jpg.webp?v=1768597193",
+                    "altText": null,
+                    "width": 2008,
+                    "height": 5669
+                },
+                "images": {
+                    "edges": [
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-040.jpg.webp?v=1768597193",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        },
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-040-1.jpg.webp?v=1768597192",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "cursor": "eyJsYXN0X2lkIjoxMDAxODAxNTQ3ODA1OCwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjA6NTk6MjYuMDAwMDAwIiwib2Zmc2V0IjozfQ==",
+            "node": {
+                "id": "gid://shopify/Product/10018015478058",
+                "handle": "wd-042-17x48",
+                "title": "Skull Amidst Roses: Beauty Meets danger.",
+                "description": "A striking monochromatic composition featuring a skull rendered with intricate detail, accompanied by a dagger and botanical motifs. This 6.6 x 18.8 inch design merges gothic symbolism with organic elements, creating a sophisticated visual narrative that appeals to those who appreciate the juxtaposition of mortality and natural beauty. The crisp black linework against a clean white ground ensures versatility across various applications.",
+                "descriptionHtml": "<p><span>A striking monochromatic composition featuring a skull rendered with intricate detail, accompanied by a dagger and botanical motifs. This 6.6 x 18.8 inch design merges gothic symbolism with organic elements, creating a sophisticated visual narrative that appeals to those who appreciate the juxtaposition of mortality and natural beauty. The crisp black linework against a clean white ground ensures versatility across various applications.</span></p>",
+                "vendor": "Just Tattoos",
+                "productType": "",
+                "tags": [],
+                "availableForSale": true,
+                "isGiftCard": false,
+                "requiresSellingPlan": false,
+                "createdAt": "2026-01-16T20:59:26Z",
+                "publishedAt": "2026-01-16T20:59:27Z",
+                "updatedAt": "2026-03-02T19:33:04Z",
+                "seo": {
+                    "title": null,
+                    "description": null
+                },
+                "collections": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463706922",
+                                "title": "Fantasy",
+                                "handle": "fantasy"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504590467370",
+                                "title": "Floral",
+                                "handle": "floral"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913592618",
+                                "title": "Back, Torso & Chest Pieces",
+                                "handle": "back-torso-chest-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913723690",
+                                "title": "Leg and Arm Pieces",
+                                "handle": "leg-and-arm-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/505243992362",
+                                "title": "Sleeve",
+                                "handle": "sleeve"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/506826522922",
+                                "title": "Large",
+                                "handle": "large"
+                            }
+                        }
+                    ]
+                },
+                "options": [
+                    {
+                        "id": "gid://shopify/ProductOption/12548628349226",
+                        "name": "Title",
+                        "values": [
+                            "Default Title"
+                        ]
+                    }
+                ],
+                "priceRange": {
+                    "maxVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    },
+                    "minVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    }
+                },
+                "variants": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/ProductVariant/51058907087146",
+                                "title": "Default Title",
+                                "sku": "WD-042",
+                                "barcode": "",
+                                "availableForSale": true,
+                                "currentlyNotInStock": false,
+                                "quantityAvailable": 500,
+                                "requiresShipping": true,
+                                "taxable": true,
+                                "weight": 0,
+                                "weightUnit": "POUNDS",
+                                "selectedOptions": [
+                                    {
+                                        "name": "Title",
+                                        "value": "Default Title"
+                                    }
+                                ],
+                                "price": {
+                                    "amount": "29.99",
+                                    "currencyCode": "USD"
+                                },
+                                "compareAtPrice": {
+                                    "amount": "34.99",
+                                    "currencyCode": "USD"
+                                },
+                                "unitPrice": null,
+                                "unitPriceMeasurement": {
+                                    "measuredType": null,
+                                    "quantityUnit": null,
+                                    "quantityValue": 0,
+                                    "referenceUnit": null,
+                                    "referenceValue": 0
+                                },
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-042.jpg.webp?v=1768597159",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "media": {
+                    "edges": [
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-042.jpg.webp?v=1768597159",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        },
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-042-1.jpg.webp?v=1768597159",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "featuredImage": {
+                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-042.jpg.webp?v=1768597159",
+                    "altText": null,
+                    "width": 2008,
+                    "height": 5669
+                },
+                "images": {
+                    "edges": [
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-042.jpg.webp?v=1768597159",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        },
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-042-1.jpg.webp?v=1768597159",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "cursor": "eyJsYXN0X2lkIjoxMDAxODAxNTI0ODY4MiwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjA6NTg6NTEuMDAwMDAwIiwib2Zmc2V0Ijo0fQ==",
+            "node": {
+                "id": "gid://shopify/Product/10018015248682",
+                "handle": "wd-043-17x48",
+                "title": "Colored Koi Fish & Floral",
+                "description": "This striking composition features vibrant koi swimming among blooming roses and delicate butterflies, rendered against a clean white backdrop. The piece measures 6.6 by 18.8 inches, offering a balanced proportion ideal for various display applications. The interplay of aquatic and botanical elements creates a sophisticated aesthetic that appeals to those seeking meaningful, nature-inspired artwork.",
+                "descriptionHtml": "<p><span>This striking composition features vibrant koi swimming among blooming roses and delicate butterflies, rendered against a clean white backdrop. The piece measures 6.6 by 18.8 inches, offering a balanced proportion ideal for various display applications. The interplay of aquatic and botanical elements creates a sophisticated aesthetic that appeals to those seeking meaningful, nature-inspired artwork.</span></p>",
+                "vendor": "Just Tattoos",
+                "productType": "",
+                "tags": [],
+                "availableForSale": true,
+                "isGiftCard": false,
+                "requiresSellingPlan": false,
+                "createdAt": "2026-01-16T20:58:51Z",
+                "publishedAt": "2026-01-16T20:58:53Z",
+                "updatedAt": "2026-03-02T19:33:05Z",
+                "seo": {
+                    "title": null,
+                    "description": null
+                },
+                "collections": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463674154",
+                                "title": "Animal",
+                                "handle": "animal"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463739690",
+                                "title": "Nature",
+                                "handle": "nature"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504590467370",
+                                "title": "Floral",
+                                "handle": "floral"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504895865130",
+                                "title": "Colored Art",
+                                "handle": "color"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913592618",
+                                "title": "Back, Torso & Chest Pieces",
+                                "handle": "back-torso-chest-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/505181995306",
+                                "title": "Fish",
+                                "handle": "fish"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/505243992362",
+                                "title": "Sleeve",
+                                "handle": "sleeve"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/506826522922",
+                                "title": "Large",
+                                "handle": "large"
+                            }
+                        }
+                    ]
+                },
+                "options": [
+                    {
+                        "id": "gid://shopify/ProductOption/12548627988778",
+                        "name": "Title",
+                        "values": [
+                            "Default Title"
+                        ]
+                    }
+                ],
+                "priceRange": {
+                    "maxVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    },
+                    "minVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    }
+                },
+                "variants": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/ProductVariant/51058906071338",
+                                "title": "Default Title",
+                                "sku": "WD-043",
+                                "barcode": "",
+                                "availableForSale": true,
+                                "currentlyNotInStock": false,
+                                "quantityAvailable": 500,
+                                "requiresShipping": true,
+                                "taxable": true,
+                                "weight": 0,
+                                "weightUnit": "POUNDS",
+                                "selectedOptions": [
+                                    {
+                                        "name": "Title",
+                                        "value": "Default Title"
+                                    }
+                                ],
+                                "price": {
+                                    "amount": "29.99",
+                                    "currencyCode": "USD"
+                                },
+                                "compareAtPrice": {
+                                    "amount": "34.99",
+                                    "currencyCode": "USD"
+                                },
+                                "unitPrice": null,
+                                "unitPriceMeasurement": {
+                                    "measuredType": null,
+                                    "quantityUnit": null,
+                                    "quantityValue": 0,
+                                    "referenceUnit": null,
+                                    "referenceValue": 0
+                                },
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-043.jpg.webp?v=1768597120",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "media": {
+                    "edges": [
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-043.jpg.webp?v=1768597120",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        },
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-043-1.jpg.webp?v=1768597119",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "featuredImage": {
+                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-043.jpg.webp?v=1768597120",
+                    "altText": null,
+                    "width": 2008,
+                    "height": 5669
+                },
+                "images": {
+                    "edges": [
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-043.jpg.webp?v=1768597120",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        },
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-043-1.jpg.webp?v=1768597119",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "cursor": "eyJsYXN0X2lkIjoxMDAxODAxNTA1MjA3NCwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjA6NTg6MTkuMDAwMDAwIiwib2Zmc2V0Ijo1fQ==",
+            "node": {
+                "id": "gid://shopify/Product/10018015052074",
+                "handle": "wd-061-17x48",
+                "title": "Colored Botanical Flamingos",
+                "description": "Featuring vibrant botanical elements and delicate butterflies alongside striking flamingos, this design showcases a sophisticated interplay of color against a clean white canvas. Measuring 6.6x18.8 inches, it combines nature-inspired artistry with elegant proportions, making it an ideal choice for those seeking a refined aesthetic with dynamic visual interest.",
+                "descriptionHtml": "<p><span>Featuring vibrant botanical elements and delicate butterflies alongside striking flamingos, this design showcases a sophisticated interplay of color against a clean white canvas. Measuring 6.6x18.8 inches, it combines nature-inspired artistry with elegant proportions, making it an ideal choice for those seeking a refined aesthetic with dynamic visual interest.</span></p>",
+                "vendor": "Just Tattoos",
+                "productType": "",
+                "tags": [],
+                "availableForSale": true,
+                "isGiftCard": false,
+                "requiresSellingPlan": false,
+                "createdAt": "2026-01-16T20:58:19Z",
+                "publishedAt": "2026-01-16T20:58:20Z",
+                "updatedAt": "2026-03-02T19:33:03Z",
+                "seo": {
+                    "title": null,
+                    "description": null
+                },
+                "collections": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463739690",
+                                "title": "Nature",
+                                "handle": "nature"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504590467370",
+                                "title": "Floral",
+                                "handle": "floral"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504895865130",
+                                "title": "Colored Art",
+                                "handle": "color"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913592618",
+                                "title": "Back, Torso & Chest Pieces",
+                                "handle": "back-torso-chest-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/505243992362",
+                                "title": "Sleeve",
+                                "handle": "sleeve"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/506826522922",
+                                "title": "Large",
+                                "handle": "large"
+                            }
+                        }
+                    ]
+                },
+                "options": [
+                    {
+                        "id": "gid://shopify/ProductOption/12548627628330",
+                        "name": "Title",
+                        "values": [
+                            "Default Title"
+                        ]
+                    }
+                ],
+                "priceRange": {
+                    "maxVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    },
+                    "minVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    }
+                },
+                "variants": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/ProductVariant/51058905219370",
+                                "title": "Default Title",
+                                "sku": "WD-061",
+                                "barcode": "",
+                                "availableForSale": true,
+                                "currentlyNotInStock": false,
+                                "quantityAvailable": 500,
+                                "requiresShipping": true,
+                                "taxable": true,
+                                "weight": 0,
+                                "weightUnit": "POUNDS",
+                                "selectedOptions": [
+                                    {
+                                        "name": "Title",
+                                        "value": "Default Title"
+                                    }
+                                ],
+                                "price": {
+                                    "amount": "29.99",
+                                    "currencyCode": "USD"
+                                },
+                                "compareAtPrice": {
+                                    "amount": "34.99",
+                                    "currencyCode": "USD"
+                                },
+                                "unitPrice": null,
+                                "unitPriceMeasurement": {
+                                    "measuredType": null,
+                                    "quantityUnit": null,
+                                    "quantityValue": 0,
+                                    "referenceUnit": null,
+                                    "referenceValue": 0
+                                },
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-061.jpg.webp?v=1768597086",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "media": {
+                    "edges": [
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-061.jpg.webp?v=1768597086",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        },
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-061-1.jpg.webp?v=1768597086",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "featuredImage": {
+                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-061.jpg.webp?v=1768597086",
+                    "altText": null,
+                    "width": 2008,
+                    "height": 5669
+                },
+                "images": {
+                    "edges": [
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-061.jpg.webp?v=1768597086",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        },
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-061-1.jpg.webp?v=1768597086",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "cursor": "eyJsYXN0X2lkIjoxMDAxODAxNDc1NzE2MiwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjA6NTc6MzkuMDAwMDAwIiwib2Zmc2V0Ijo2fQ==",
+            "node": {
+                "id": "gid://shopify/Product/10018014757162",
+                "handle": "wd-63-17x48",
+                "title": "Colored Snake and Roses",
+                "description": "A striking composition featuring a vibrant yellow serpent intertwined with crimson roses and delicate butterflies, rendered against a clean white canvas. This 6.6x18.8 inch design combines classic tattoo imagery with refined botanical elements, creating a balanced piece that merges symbolism with aesthetic appeal. Ideal for those seeking a composition that blends nature's beauty with traditional tattoo artistry.",
+                "descriptionHtml": "<p><span>A striking composition featuring a vibrant yellow serpent intertwined with crimson roses and delicate butterflies, rendered against a clean white canvas. This 6.6x18.8 inch design combines classic tattoo imagery with refined botanical elements, creating a balanced piece that merges symbolism with aesthetic appeal. Ideal for those seeking a composition that blends nature's beauty with traditional tattoo artistry.</span></p>",
+                "vendor": "Just Tattoos",
+                "productType": "",
+                "tags": [],
+                "availableForSale": true,
+                "isGiftCard": false,
+                "requiresSellingPlan": false,
+                "createdAt": "2026-01-16T20:57:39Z",
+                "publishedAt": "2026-01-16T20:57:40Z",
+                "updatedAt": "2026-03-02T19:33:03Z",
+                "seo": {
+                    "title": null,
+                    "description": null
+                },
+                "collections": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463674154",
+                                "title": "Animal",
+                                "handle": "animal"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463739690",
+                                "title": "Nature",
+                                "handle": "nature"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504590467370",
+                                "title": "Floral",
+                                "handle": "floral"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504895865130",
+                                "title": "Colored Art",
+                                "handle": "color"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913592618",
+                                "title": "Back, Torso & Chest Pieces",
+                                "handle": "back-torso-chest-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/505243992362",
+                                "title": "Sleeve",
+                                "handle": "sleeve"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/506826522922",
+                                "title": "Large",
+                                "handle": "large"
+                            }
+                        }
+                    ]
+                },
+                "options": [
+                    {
+                        "id": "gid://shopify/ProductOption/12548627104042",
+                        "name": "Title",
+                        "values": [
+                            "Default Title"
+                        ]
+                    }
+                ],
+                "priceRange": {
+                    "maxVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    },
+                    "minVariantPrice": {
+                        "amount": "29.99",
+                        "currencyCode": "USD"
+                    }
+                },
+                "variants": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/ProductVariant/51058903744810",
+                                "title": "Default Title",
+                                "sku": "WD-63",
+                                "barcode": "",
+                                "availableForSale": true,
+                                "currentlyNotInStock": false,
+                                "quantityAvailable": 500,
+                                "requiresShipping": true,
+                                "taxable": true,
+                                "weight": 0,
+                                "weightUnit": "POUNDS",
+                                "selectedOptions": [
+                                    {
+                                        "name": "Title",
+                                        "value": "Default Title"
+                                    }
+                                ],
+                                "price": {
+                                    "amount": "29.99",
+                                    "currencyCode": "USD"
+                                },
+                                "compareAtPrice": {
+                                    "amount": "34.99",
+                                    "currencyCode": "USD"
+                                },
+                                "unitPrice": null,
+                                "unitPriceMeasurement": {
+                                    "measuredType": null,
+                                    "quantityUnit": null,
+                                    "quantityValue": 0,
+                                    "referenceUnit": null,
+                                    "referenceValue": 0
+                                },
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-063.jpg.webp?v=1768597049",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "media": {
+                    "edges": [
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-063.jpg.webp?v=1768597049",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        },
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-063-1.jpg.webp?v=1768597049",
+                                    "altText": null,
+                                    "width": 2008,
+                                    "height": 5669
+                                }
+                            }
+                        }
+                    ]
+                },
+                "featuredImage": {
+                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-063.jpg.webp?v=1768597049",
+                    "altText": null,
+                    "width": 2008,
+                    "height": 5669
+                },
+                "images": {
+                    "edges": [
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-063.jpg.webp?v=1768597049",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        },
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/WD-063-1.jpg.webp?v=1768597049",
+                                "altText": null,
+                                "width": 2008,
+                                "height": 5669
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "cursor": "eyJsYXN0X2lkIjoxMDAxODAxMjYyNzI0MiwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjA6NTI6MDMuMDAwMDAwIiwib2Zmc2V0Ijo3fQ==",
+            "node": {
+                "id": "gid://shopify/Product/10018012627242",
+                "handle": "t-051-11-4x22",
+                "title": "Oh Deer",
+                "description": "A striking black and white illustration featuring a majestic deer with commanding antlers, artfully framed by delicate floral elements. This 4.4x8.6 inch design captures the natural elegance of wildlife through bold linework and intricate botanical details. Perfect for those who appreciate nature-inspired artwork with sophisticated contrast and composition. Ideal for framing, tattoo reference, or as a standalone art piece that brings timeless beauty to any space.",
+                "descriptionHtml": "<p><span>A striking black and white illustration featuring a majestic deer with commanding antlers, artfully framed by delicate floral elements. This 4.4x8.6 inch design captures the natural elegance of wildlife through bold linework and intricate botanical details. Perfect for those who appreciate nature-inspired artwork with sophisticated contrast and composition. Ideal for framing, tattoo reference, or as a standalone art piece that brings timeless beauty to any space.</span></p>",
+                "vendor": "Just Tattoos",
+                "productType": "",
+                "tags": [],
+                "availableForSale": true,
+                "isGiftCard": false,
+                "requiresSellingPlan": false,
+                "createdAt": "2026-01-16T20:52:03Z",
+                "publishedAt": "2026-01-16T20:52:03Z",
+                "updatedAt": "2026-03-02T19:32:58Z",
+                "seo": {
+                    "title": null,
+                    "description": null
+                },
+                "collections": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463674154",
+                                "title": "Animal",
+                                "handle": "animal"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463739690",
+                                "title": "Nature",
+                                "handle": "nature"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913592618",
+                                "title": "Back, Torso & Chest Pieces",
+                                "handle": "back-torso-chest-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/506826522922",
+                                "title": "Large",
+                                "handle": "large"
+                            }
+                        }
+                    ]
+                },
+                "options": [
+                    {
+                        "id": "gid://shopify/ProductOption/12548623302954",
+                        "name": "Title",
+                        "values": [
+                            "Default Title"
+                        ]
+                    }
+                ],
+                "priceRange": {
+                    "maxVariantPrice": {
+                        "amount": "24.99",
+                        "currencyCode": "USD"
+                    },
+                    "minVariantPrice": {
+                        "amount": "24.99",
+                        "currencyCode": "USD"
+                    }
+                },
+                "variants": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/ProductVariant/51058889556266",
+                                "title": "Default Title",
+                                "sku": "T-051",
+                                "barcode": "",
+                                "availableForSale": true,
+                                "currentlyNotInStock": false,
+                                "quantityAvailable": 500,
+                                "requiresShipping": true,
+                                "taxable": true,
+                                "weight": 0,
+                                "weightUnit": "POUNDS",
+                                "selectedOptions": [
+                                    {
+                                        "name": "Title",
+                                        "value": "Default Title"
+                                    }
+                                ],
+                                "price": {
+                                    "amount": "24.99",
+                                    "currencyCode": "USD"
+                                },
+                                "compareAtPrice": {
+                                    "amount": "29.99",
+                                    "currencyCode": "USD"
+                                },
+                                "unitPrice": null,
+                                "unitPriceMeasurement": {
+                                    "measuredType": null,
+                                    "quantityUnit": null,
+                                    "quantityValue": 0,
+                                    "referenceUnit": null,
+                                    "referenceValue": 0
+                                },
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-051.jpg.webp?v=1768596709",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        }
+                    ]
+                },
+                "media": {
+                    "edges": [
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-051.jpg.webp?v=1768596709",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        },
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-051-1.jpg.webp?v=1768596709",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        }
+                    ]
+                },
+                "featuredImage": {
+                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-051.jpg.webp?v=1768596709",
+                    "altText": null,
+                    "width": 1346,
+                    "height": 2598
+                },
+                "images": {
+                    "edges": [
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-051.jpg.webp?v=1768596709",
+                                "altText": null,
+                                "width": 1346,
+                                "height": 2598
+                            }
+                        },
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-051-1.jpg.webp?v=1768596709",
+                                "altText": null,
+                                "width": 1346,
+                                "height": 2598
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "cursor": "eyJsYXN0X2lkIjoxMDAxODAxMjIwMTI1OCwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjA6NTE6MjAuMDAwMDAwIiwib2Zmc2V0Ijo4fQ==",
+            "node": {
+                "id": "gid://shopify/Product/10018012201258",
+                "handle": "t-056-11-4x22",
+                "title": "Praying, Family, Rosery",
+                "description": "This striking black and white design captures the spiritual essence of faith and devotion. Featuring intricately detailed praying hands intertwined with a delicate rose, the composition symbolizes the intersection of prayer and love. The word \"Family\" anchors the piece, emphasizing the sacred bonds that unite us. Measuring 4.4x8.6 inches, this versatile design works beautifully as a standalone tattoo or as part of a larger sleeve. Perfect for those seeking meaningful body art that honors both spirituality and familial connection with timeless elegance.",
+                "descriptionHtml": "<p><span>This striking black and white design captures the spiritual essence of faith and devotion. Featuring intricately detailed praying hands intertwined with a delicate rose, the composition symbolizes the intersection of prayer and love. The word \"Family\" anchors the piece, emphasizing the sacred bonds that unite us. Measuring 4.4x8.6 inches, this versatile design works beautifully as a standalone tattoo or as part of a larger sleeve. Perfect for those seeking meaningful body art that honors both spirituality and familial connection with timeless elegance.</span></p>",
+                "vendor": "Just Tattoos",
+                "productType": "",
+                "tags": [],
+                "availableForSale": true,
+                "isGiftCard": false,
+                "requiresSellingPlan": false,
+                "createdAt": "2026-01-16T20:51:20Z",
+                "publishedAt": "2026-01-16T20:51:21Z",
+                "updatedAt": "2026-03-02T19:32:58Z",
+                "seo": {
+                    "title": null,
+                    "description": null
+                },
+                "collections": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463772458",
+                                "title": "Spiritual",
+                                "handle": "spiritual"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463870762",
+                                "title": "Symbols and Quotes",
+                                "handle": "symbols-and-quotes"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913592618",
+                                "title": "Back, Torso & Chest Pieces",
+                                "handle": "back-torso-chest-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913723690",
+                                "title": "Leg and Arm Pieces",
+                                "handle": "leg-and-arm-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/506826522922",
+                                "title": "Large",
+                                "handle": "large"
+                            }
+                        }
+                    ]
+                },
+                "options": [
+                    {
+                        "id": "gid://shopify/ProductOption/12548622614826",
+                        "name": "Title",
+                        "values": [
+                            "Default Title"
+                        ]
+                    }
+                ],
+                "priceRange": {
+                    "maxVariantPrice": {
+                        "amount": "24.99",
+                        "currencyCode": "USD"
+                    },
+                    "minVariantPrice": {
+                        "amount": "24.99",
+                        "currencyCode": "USD"
+                    }
+                },
+                "variants": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/ProductVariant/51058886410538",
+                                "title": "Default Title",
+                                "sku": "T-056",
+                                "barcode": "",
+                                "availableForSale": true,
+                                "currentlyNotInStock": false,
+                                "quantityAvailable": 500,
+                                "requiresShipping": true,
+                                "taxable": true,
+                                "weight": 0,
+                                "weightUnit": "POUNDS",
+                                "selectedOptions": [
+                                    {
+                                        "name": "Title",
+                                        "value": "Default Title"
+                                    }
+                                ],
+                                "price": {
+                                    "amount": "24.99",
+                                    "currencyCode": "USD"
+                                },
+                                "compareAtPrice": {
+                                    "amount": "29.99",
+                                    "currencyCode": "USD"
+                                },
+                                "unitPrice": null,
+                                "unitPriceMeasurement": {
+                                    "measuredType": null,
+                                    "quantityUnit": null,
+                                    "quantityValue": 0,
+                                    "referenceUnit": null,
+                                    "referenceValue": 0
+                                },
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-056.jpg.webp?v=1768596661",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        }
+                    ]
+                },
+                "media": {
+                    "edges": [
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-056.jpg.webp?v=1768596661",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        },
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-056-1.jpg.webp?v=1768596661",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        }
+                    ]
+                },
+                "featuredImage": {
+                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-056.jpg.webp?v=1768596661",
+                    "altText": null,
+                    "width": 1346,
+                    "height": 2598
+                },
+                "images": {
+                    "edges": [
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-056.jpg.webp?v=1768596661",
+                                "altText": null,
+                                "width": 1346,
+                                "height": 2598
+                            }
+                        },
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-056-1.jpg.webp?v=1768596661",
+                                "altText": null,
+                                "width": 1346,
+                                "height": 2598
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "cursor": "eyJsYXN0X2lkIjoxMDAxODAxMTkwNjM0NiwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjA6NTA6MzMuMDAwMDAwIiwib2Zmc2V0Ijo5fQ==",
+            "node": {
+                "id": "gid://shopify/Product/10018011906346",
+                "handle": "t-082-11-4x22",
+                "title": "Japanese Foo Dog (Color)",
+                "description": "This striking Japanese Foo Dog illustration showcases masterful linework and ornamental detailing, rendered in bold black against a clean white canvas. The 4.4x8.6inch format captures the majestic presence of this protective guardian figure, with intricate patterns flowing across the face and mane. Perfect for those seeking authentic Asian-inspired artwork with traditional symbolism, this piece combines cultural significance with contemporary aesthetic appeal. Ideal for framing, reference material, or as inspiration for custom tattoo designs.",
+                "descriptionHtml": "<p>This striking Japanese Foo Dog illustration showcases masterful linework and ornamental detailing, rendered in bold black against a clean white canvas. The 4.4x8.6inch format captures the majestic presence of this protective guardian figure, with intricate patterns flowing across the face and mane. Perfect for those seeking authentic Asian-inspired artwork with traditional symbolism, this piece combines cultural significance with contemporary aesthetic appeal. Ideal for framing, reference material, or as inspiration for custom tattoo designs.</p>",
+                "vendor": "Just Tattoos",
+                "productType": "",
+                "tags": [],
+                "availableForSale": true,
+                "isGiftCard": false,
+                "requiresSellingPlan": false,
+                "createdAt": "2026-01-16T20:50:33Z",
+                "publishedAt": "2026-01-16T20:50:34Z",
+                "updatedAt": "2026-03-02T19:32:59Z",
+                "seo": {
+                    "title": null,
+                    "description": null
+                },
+                "collections": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503541039402",
+                                "title": "New Arrivals",
+                                "handle": "new-arrival"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504895865130",
+                                "title": "Colored Art",
+                                "handle": "color"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504898584874",
+                                "title": "Japanese Art",
+                                "handle": "japanese-art"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504901042474",
+                                "title": "Tribal Art",
+                                "handle": "tribal-art"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913592618",
+                                "title": "Back, Torso & Chest Pieces",
+                                "handle": "back-torso-chest-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913723690",
+                                "title": "Leg and Arm Pieces",
+                                "handle": "leg-and-arm-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/505181733162",
+                                "title": "Dog",
+                                "handle": "dog"
+                            }
+                        }
+                    ]
+                },
+                "options": [
+                    {
+                        "id": "gid://shopify/ProductOption/12548622057770",
+                        "name": "Title",
+                        "values": [
+                            "Default Title"
+                        ]
+                    }
+                ],
+                "priceRange": {
+                    "maxVariantPrice": {
+                        "amount": "24.99",
+                        "currencyCode": "USD"
+                    },
+                    "minVariantPrice": {
+                        "amount": "24.99",
+                        "currencyCode": "USD"
+                    }
+                },
+                "variants": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/ProductVariant/51058884346154",
+                                "title": "Default Title",
+                                "sku": "T-082",
+                                "barcode": "",
+                                "availableForSale": true,
+                                "currentlyNotInStock": false,
+                                "quantityAvailable": 500,
+                                "requiresShipping": true,
+                                "taxable": true,
+                                "weight": 0,
+                                "weightUnit": "POUNDS",
+                                "selectedOptions": [
+                                    {
+                                        "name": "Title",
+                                        "value": "Default Title"
+                                    }
+                                ],
+                                "price": {
+                                    "amount": "24.99",
+                                    "currencyCode": "USD"
+                                },
+                                "compareAtPrice": {
+                                    "amount": "29.99",
+                                    "currencyCode": "USD"
+                                },
+                                "unitPrice": null,
+                                "unitPriceMeasurement": {
+                                    "measuredType": null,
+                                    "quantityUnit": null,
+                                    "quantityValue": 0,
+                                    "referenceUnit": null,
+                                    "referenceValue": 0
+                                },
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-082.jpg.webp?v=1768596626",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        }
+                    ]
+                },
+                "media": {
+                    "edges": [
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-082.jpg.webp?v=1768596626",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        },
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-082-1.jpg.webp?v=1768596626",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        }
+                    ]
+                },
+                "featuredImage": {
+                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-082.jpg.webp?v=1768596626",
+                    "altText": null,
+                    "width": 1346,
+                    "height": 2598
+                },
+                "images": {
+                    "edges": [
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-082.jpg.webp?v=1768596626",
+                                "altText": null,
+                                "width": 1346,
+                                "height": 2598
+                            }
+                        },
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-082-1.jpg.webp?v=1768596626",
+                                "altText": null,
+                                "width": 1346,
+                                "height": 2598
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "cursor": "eyJsYXN0X2lkIjoxMDAxODAxMTY3Njk3MCwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjA6NDk6NTQuMDAwMDAwIiwib2Zmc2V0IjoxMH0=",
+            "node": {
+                "id": "gid://shopify/Product/10018011676970",
+                "handle": "t-085-11-4x22",
+                "title": "Colored Dragon Rose",
+                "description": "This expertly crafted design features a majestic dragon paired with a vibrant crimson rose against a pristine white backdrop. Measuring 4.4x8.6 inches, the composition balances mythological power with delicate floral beauty, demonstrating sophisticated color theory and linework. An excellent selection for discerning collectors seeking a tattoo that merges symbolic strength with refined aesthetic appeal.",
+                "descriptionHtml": "<p><span>This expertly crafted design features a majestic dragon paired with a vibrant crimson rose against a pristine white backdrop. Measuring 4.4x8.6 inches, the composition balances mythological power with delicate floral beauty, demonstrating sophisticated color theory and linework. An excellent selection for discerning collectors seeking a tattoo that merges symbolic strength with refined aesthetic appeal.</span></p>",
+                "vendor": "Just Tattoos",
+                "productType": "",
+                "tags": [],
+                "availableForSale": true,
+                "isGiftCard": false,
+                "requiresSellingPlan": false,
+                "createdAt": "2026-01-16T20:49:54Z",
+                "publishedAt": "2026-01-16T20:49:55Z",
+                "updatedAt": "2026-03-02T19:32:58Z",
+                "seo": {
+                    "title": null,
+                    "description": null
+                },
+                "collections": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463674154",
+                                "title": "Animal",
+                                "handle": "animal"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503463706922",
+                                "title": "Fantasy",
+                                "handle": "fantasy"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503541039402",
+                                "title": "New Arrivals",
+                                "handle": "new-arrival"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504590467370",
+                                "title": "Floral",
+                                "handle": "floral"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504895865130",
+                                "title": "Colored Art",
+                                "handle": "color"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913592618",
+                                "title": "Back, Torso & Chest Pieces",
+                                "handle": "back-torso-chest-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913723690",
+                                "title": "Leg and Arm Pieces",
+                                "handle": "leg-and-arm-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/506826522922",
+                                "title": "Large",
+                                "handle": "large"
+                            }
+                        }
+                    ]
+                },
+                "options": [
+                    {
+                        "id": "gid://shopify/ProductOption/12548621664554",
+                        "name": "Title",
+                        "values": [
+                            "Default Title"
+                        ]
+                    }
+                ],
+                "priceRange": {
+                    "maxVariantPrice": {
+                        "amount": "24.99",
+                        "currencyCode": "USD"
+                    },
+                    "minVariantPrice": {
+                        "amount": "24.99",
+                        "currencyCode": "USD"
+                    }
+                },
+                "variants": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/ProductVariant/51058883133738",
+                                "title": "Default Title",
+                                "sku": "T-085",
+                                "barcode": "",
+                                "availableForSale": true,
+                                "currentlyNotInStock": false,
+                                "quantityAvailable": 500,
+                                "requiresShipping": true,
+                                "taxable": true,
+                                "weight": 0,
+                                "weightUnit": "POUNDS",
+                                "selectedOptions": [
+                                    {
+                                        "name": "Title",
+                                        "value": "Default Title"
+                                    }
+                                ],
+                                "price": {
+                                    "amount": "24.99",
+                                    "currencyCode": "USD"
+                                },
+                                "compareAtPrice": {
+                                    "amount": "29.99",
+                                    "currencyCode": "USD"
+                                },
+                                "unitPrice": null,
+                                "unitPriceMeasurement": {
+                                    "measuredType": null,
+                                    "quantityUnit": null,
+                                    "quantityValue": 0,
+                                    "referenceUnit": null,
+                                    "referenceValue": 0
+                                },
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-085.jpg.webp?v=1768596586",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        }
+                    ]
+                },
+                "media": {
+                    "edges": [
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-085.jpg.webp?v=1768596586",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        },
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-085-1.jpg.webp?v=1768596586",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        }
+                    ]
+                },
+                "featuredImage": {
+                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-085.jpg.webp?v=1768596586",
+                    "altText": null,
+                    "width": 1346,
+                    "height": 2598
+                },
+                "images": {
+                    "edges": [
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-085.jpg.webp?v=1768596586",
+                                "altText": null,
+                                "width": 1346,
+                                "height": 2598
+                            }
+                        },
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-085-1.jpg.webp?v=1768596586",
+                                "altText": null,
+                                "width": 1346,
+                                "height": 2598
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "cursor": "eyJsYXN0X2lkIjoxMDAxODAxMTQxNDgyNiwibGFzdF92YWx1ZSI6IjIwMjYtMDEtMTYgMjA6NDk6MjAuMDAwMDAwIiwib2Zmc2V0IjoxMX0=",
+            "node": {
+                "id": "gid://shopify/Product/10018011414826",
+                "handle": "t-102-11-4x22",
+                "title": "Floral Skull with Hat Colored",
+                "description": "A striking design featuring a skull adorned with a teal top hat, surrounded by delicate floral elements set against a clean white backdrop. This piece measures 4.4 x 8.6 inches, offering a sophisticated balance of edgy and botanical aesthetics perfect for those seeking meaningful body art with artistic flair.",
+                "descriptionHtml": "<p><span>A striking design featuring a skull adorned with a teal top hat, surrounded by delicate floral elements set against a clean white backdrop. This piece measures 4.4 x 8.6 inches, offering a sophisticated balance of edgy and botanical aesthetics perfect for those seeking meaningful body art with artistic flair.</span></p>",
+                "vendor": "Just Tattoos",
+                "productType": "",
+                "tags": [],
+                "availableForSale": true,
+                "isGiftCard": false,
+                "requiresSellingPlan": false,
+                "createdAt": "2026-01-16T20:49:20Z",
+                "publishedAt": "2026-01-16T20:49:20Z",
+                "updatedAt": "2026-03-02T19:32:58Z",
+                "seo": {
+                    "title": null,
+                    "description": null
+                },
+                "collections": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/503541039402",
+                                "title": "New Arrivals",
+                                "handle": "new-arrival"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504590467370",
+                                "title": "Floral",
+                                "handle": "floral"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504895865130",
+                                "title": "Colored Art",
+                                "handle": "color"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913592618",
+                                "title": "Back, Torso & Chest Pieces",
+                                "handle": "back-torso-chest-pieces"
+                            }
+                        },
+                        {
+                            "node": {
+                                "id": "gid://shopify/Collection/504913723690",
+                                "title": "Leg and Arm Pieces",
+                                "handle": "leg-and-arm-pieces"
+                            }
+                        }
+                    ]
+                },
+                "options": [
+                    {
+                        "id": "gid://shopify/ProductOption/12548621238570",
+                        "name": "Title",
+                        "values": [
+                            "Default Title"
+                        ]
+                    }
+                ],
+                "priceRange": {
+                    "maxVariantPrice": {
+                        "amount": "24.99",
+                        "currencyCode": "USD"
+                    },
+                    "minVariantPrice": {
+                        "amount": "24.99",
+                        "currencyCode": "USD"
+                    }
+                },
+                "variants": {
+                    "edges": [
+                        {
+                            "node": {
+                                "id": "gid://shopify/ProductVariant/51058881757482",
+                                "title": "Default Title",
+                                "sku": "T-102",
+                                "barcode": "",
+                                "availableForSale": true,
+                                "currentlyNotInStock": false,
+                                "quantityAvailable": 500,
+                                "requiresShipping": true,
+                                "taxable": true,
+                                "weight": 0,
+                                "weightUnit": "POUNDS",
+                                "selectedOptions": [
+                                    {
+                                        "name": "Title",
+                                        "value": "Default Title"
+                                    }
+                                ],
+                                "price": {
+                                    "amount": "24.99",
+                                    "currencyCode": "USD"
+                                },
+                                "compareAtPrice": {
+                                    "amount": "29.99",
+                                    "currencyCode": "USD"
+                                },
+                                "unitPrice": null,
+                                "unitPriceMeasurement": {
+                                    "measuredType": null,
+                                    "quantityUnit": null,
+                                    "quantityValue": 0,
+                                    "referenceUnit": null,
+                                    "referenceValue": 0
+                                },
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-102.jpg.webp?v=1768596552",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        }
+                    ]
+                },
+                "media": {
+                    "edges": [
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-102.jpg.webp?v=1768596552",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        },
+                        {
+                            "node": {
+                                "mediaContentType": "IMAGE",
+                                "alt": "",
+                                "image": {
+                                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-102-1.jpg.webp?v=1768596552",
+                                    "altText": null,
+                                    "width": 1346,
+                                    "height": 2598
+                                }
+                            }
+                        }
+                    ]
+                },
+                "featuredImage": {
+                    "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-102.jpg.webp?v=1768596552",
+                    "altText": null,
+                    "width": 1346,
+                    "height": 2598
+                },
+                "images": {
+                    "edges": [
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-102.jpg.webp?v=1768596552",
+                                "altText": null,
+                                "width": 1346,
+                                "height": 2598
+                            }
+                        },
+                        {
+                            "node": {
+                                "url": "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/T-102-1.jpg.webp?v=1768596552",
+                                "altText": null,
+                                "width": 1346,
+                                "height": 2598
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

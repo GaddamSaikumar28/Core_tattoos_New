@@ -15,12 +15,12 @@ const NewsletterSection = () => {
           className="max-w-3xl"
         >
           {/* Heading */}
-          <h2 className="text-5xl md:text-6xl lg:text-[72px] font-almarena font-bold text-black uppercase leading-none mb-6 tracking-tight">
+          <h2 className="text-5xl md:text-6xl lg:text-[72px]  font-bold text-black uppercase leading-none mb-6 tracking-tight">
             Subscribe to news
           </h2>
           
           {/* Subheading */}
-          <p className="text-lg md:text-xl lg:text-2xl font-montserrat text-black font-medium leading-snug mb-10 max-w-[500px]">
+          <p className="text-lg md:text-xl lg:text-2xl  text-black font-medium leading-snug mb-10 max-w-[500px]">
             Join our newsletter to stay up to date on features and releases.
           </p>
 
@@ -35,14 +35,14 @@ const NewsletterSection = () => {
                 type="email" 
                 placeholder="jane@email.com" 
                 required
-                className="w-full h-[60px] md:h-[68px] rounded-full px-8 text-base md:text-lg font-montserrat text-black bg-white border border-gray-200 focus:border-black outline-none placeholder:text-gray-500 shadow-sm transition-all"
+                className="w-full h-[60px] md:h-[68px] rounded-full px-8 text-base md:text-lg  text-black bg-white border border-gray-200 focus:border-black outline-none placeholder:text-gray-500 shadow-sm transition-all"
               />
             </div>
 
             {/* Submit Button */}
             <button 
               type="submit" 
-              className="w-full sm:w-auto h-[60px] md:h-[68px] px-8 md:px-12 rounded-full bg-black text-white font-bold text-base md:text-lg font-almarena uppercase tracking-wider hover:bg-[#fe8204] hover:shadow-lg transition-all duration-300 shrink-0"
+              className="w-full sm:w-auto h-[60px] md:h-[68px] px-8 md:px-12 rounded-full bg-black text-white font-bold text-base md:text-lg  uppercase tracking-wider hover:bg-[#fe8204] hover:shadow-lg transition-all duration-300 shrink-0"
             >
               Subscribe
             </button>

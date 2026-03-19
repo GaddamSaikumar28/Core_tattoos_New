@@ -80,7 +80,7 @@
 //               variants={itemVariants}
 //               className="border border-black/5 bg-gray-50/50 rounded-[30px] p-8 flex flex-col justify-between min-h-[200px] md:min-h-[280px] transition-colors hover:border-[var(--color-brand-orange)]/30"
 //             >
-//               <h3 className="font-almarena text-[var(--color-brand-orange)] text-[20px] md:text-[24px] font-bold uppercase tracking-wide">
+//               <h3 className=" text-[var(--color-brand-orange)] text-[20px] md:text-[24px] font-bold uppercase tracking-wide">
 //                 {section.title}
 //               </h3>
 //               <ul className="space-y-4 mt-8 md:mt-0 flex-grow flex flex-col justify-end">
@@ -88,7 +88,7 @@
 //                   <li key={link.name}>
 //                     <Link 
 //                       href={link.href} 
-//                       className="group font-montserrat font-semibold text-[var(--color-black)] uppercase text-[14px] tracking-wider flex w-fit"
+//                       className="group  font-semibold text-[var(--color-black)] uppercase text-[14px] tracking-wider flex w-fit"
 //                     >
 //                       {link.name}
 //                       {/* Smooth Underline Animation */}
@@ -167,15 +167,15 @@
 
 //         {/* BOTTOM SECTION: Legal & Utilities */}
 //         <div className="mt-16 pt-8 border-t border-black/10 flex flex-col md:flex-row justify-between items-center gap-4">
-//           <p className="font-montserrat text-[12px] text-gray-500 font-medium text-center md:text-left">
+//           <p className=" text-[12px] text-gray-500 font-medium text-center md:text-left">
 //             © {new Date().getFullYear()} Core Tattoos. All rights reserved.
 //           </p>
           
 //           <div className="flex items-center gap-6">
-//             <Link href="/privacy-policy" className="font-montserrat text-[12px] text-gray-500 hover:text-[var(--color-brand-orange)] transition-colors">
+//             <Link href="/privacy-policy" className=" text-[12px] text-gray-500 hover:text-[var(--color-brand-orange)] transition-colors">
 //               Privacy Policy
 //             </Link>
-//             <Link href="/terms-of-service" className="font-montserrat text-[12px] text-gray-500 hover:text-[var(--color-brand-orange)] transition-colors">
+//             <Link href="/terms-of-service" className=" text-[12px] text-gray-500 hover:text-[var(--color-brand-orange)] transition-colors">
 //               Terms of Service
 //             </Link>
 //           </div>
@@ -183,7 +183,7 @@
 //           <button 
 //             onClick={scrollToTop}
 //             aria-label="Scroll to top"
-//             className="flex items-center gap-2 font-montserrat text-[12px] font-bold text-[var(--color-black)] hover:text-[var(--color-brand-orange)] transition-colors group"
+//             className="flex items-center gap-2  text-[12px] font-bold text-[var(--color-black)] hover:text-[var(--color-brand-orange)] transition-colors group"
 //           >
 //             BACK TO TOP
 //             <div className="p-2 bg-gray-100 rounded-full group-hover:bg-[var(--color-brand-orange)] group-hover:text-[var(--color-white)] transition-all duration-300">
@@ -260,10 +260,10 @@ export default function Footer() {
           {/* Brand & Newsletter Column (Spans 5 cols) */}
           <div className="lg:col-span-5 flex flex-col justify-between">
             <div>
-              <h2 className="font-almarena text-3xl md:text-4xl font-bold tracking-tight text-white mb-4">
+              <h2 className=" text-3xl md:text-4xl font-bold tracking-tight text-white mb-4">
                 JOIN <span className="text-[var(--color-brand-orange)]">US.</span>
               </h2>
-              <p className="font-montserrat text-gray-400 text-sm md:text-base max-w-md mb-8 leading-relaxed">
+              <p className=" text-gray-400 text-sm md:text-base max-w-md mb-8 leading-relaxed">
                 Subscribe for exclusive drops, early access to new collections, and the latest in temporary tattoo artistry.
               </p>
             </div>
@@ -276,7 +276,7 @@ export default function Footer() {
               <input 
                 type="email" 
                 placeholder="Enter your email" 
-                className="w-full bg-white/5 border border-white/10 rounded-full py-4 pl-6 pr-14 font-montserrat text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[var(--color-brand-orange)] focus:ring-1 focus:ring-[var(--color-brand-orange)] transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-full py-4 pl-6 pr-14  text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[var(--color-brand-orange)] focus:ring-1 focus:ring-[var(--color-brand-orange)] transition-all"
                 required
               />
               <button 
@@ -296,7 +296,7 @@ export default function Footer() {
           >
             {FOOTER_LINKS.map((section) => (
               <div key={section.title} className="flex flex-col">
-                <h3 className="font-almarena text-[var(--color-white)] text-sm md:text-base font-bold uppercase tracking-widest mb-6">
+                <h3 className=" text-[var(--color-white)] text-sm md:text-base font-bold uppercase tracking-widest mb-6">
                   {section.title}
                 </h3>
                 <ul className="space-y-4">
@@ -304,7 +304,7 @@ export default function Footer() {
                     <li key={link.name}>
                       <Link 
                         href={link.href} 
-                        className="group relative font-montserrat text-gray-400 hover:text-white text-sm md:text-base transition-colors duration-300 w-fit block"
+                        className="group relative  text-gray-400 hover:text-white text-sm md:text-base transition-colors duration-300 w-fit block"
                       >
                         {link.name}
                         {/* High-end CSS Underline Effect */}
@@ -333,7 +333,7 @@ export default function Footer() {
           filter: "invert(58%) sepia(85%) saturate(1835%) hue-rotate(359deg) brightness(101%) contrast(106%)" 
         }}
      />
-     <span className="font-montserrat text-[10px] text-center uppercase tracking-[0.4em] text-gray-500">
+     <span className=" text-[10px] text-center uppercase tracking-[0.4em] text-gray-500">
         Premium Temporary Art
      </span>
   </div>
@@ -365,7 +365,7 @@ export default function Footer() {
           </div>
 
           {/* Copyright & Links */}
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 font-montserrat text-[12px] text-gray-500">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8  text-[12px] text-gray-500">
             <p>© {new Date().getFullYear()} Core Tattoos. All rights reserved.</p>
             <div className="flex gap-6">
               <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
@@ -387,7 +387,7 @@ export default function Footer() {
       {/* BACKGROUND BRAND WATERMARK */}
       {/* Absolute positioned, scaled up text that sits behind the footer content at the very bottom */}
       <div className="absolute bottom-[-10%] left-0 w-full overflow-hidden flex justify-center pointer-events-none select-none z-0 opacity-[0.03]">
-        <span className="font-almarena font-black text-[13vw] leading-none whitespace-nowrap text-white">
+        <span className=" font-black text-[13vw] leading-none whitespace-nowrap text-white">
           JUST TATTOOS
         </span>
       </div>

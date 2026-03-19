@@ -5251,7 +5251,7 @@
 // //             <div className="mt-12">
 // //                 <h3 className="uppercase tracking-widest font-bold text-gray-800 mb-2">Excellent Job!</h3>
 // //                 <div className="text-yellow-600 mb-4">★★★★★</div>
-// //                 <p className="text-gray-500 italic text-sm leading-loose mb-6">
+// //                 <p className="text-gray-500  text-sm leading-loose mb-6">
 // //                     "A scelerisque purus semper eget duis at tellus. Amet cursus sit amet dictum sit justo."
 // //                 </p>
 // //                 <span className="font-serif text-2xl text-gray-800">Fanny Deen</span>
@@ -5274,7 +5274,7 @@
 
 // //         {/* 4. Mid Left - Dmitri Style (Dark Image Cutout) */}
 // //         <motion.div className="bg-white p-6 rounded-[2.5rem] flex items-center gap-4 shadow-lg">
-// //             <p className="text-sm text-gray-600 flex-1 italic">"Mauris in aliquam se fringilla morbi tincidunt augue amet dui massa"</p>
+// //             <p className="text-sm text-gray-600 flex-1 ">"Mauris in aliquam se fringilla morbi tincidunt augue amet dui massa"</p>
 // //             <div className="relative">
 // //                 <img src="https://i.pravatar.cc/150?u=12" className="w-16 h-16 rounded-full grayscale" alt="" />
 // //                 <div className="absolute -bottom-2 -left-2 bg-yellow-400 rounded-full px-2 py-1 text-[8px] font-bold">★★★★★</div>
@@ -5416,7 +5416,7 @@
 //             <div className="mt-8 flex flex-col items-center">
 //               <h3 className="uppercase tracking-widest font-bold text-gray-800 mb-2">{review.title || "Excellent!"}</h3>
 //               <div className="mb-4"><Stars rating={review.rating} /></div>
-//               <p className="text-gray-500 italic text-sm leading-loose mb-6">"{review.text}"</p>
+//               <p className="text-gray-500  text-sm leading-loose mb-6">"{review.text}"</p>
 //               <span className="font-serif text-xl text-gray-800 font-medium">{review.name}</span>
 //             </div>
 //           </motion.div>
@@ -5430,7 +5430,7 @@
 //               <span className="text-xs text-[#fe8204] font-medium">{review.handle}</span>
 //             </div>
 //             <div className="p-6 flex-1 flex flex-col justify-center">
-//               <p className="text-gray-600 text-sm italic">"{review.text}"</p>
+//               <p className="text-gray-600 text-sm ">"{review.text}"</p>
 //               <div className="mt-4 flex gap-2 text-[#fe8204] font-semibold text-xs cursor-pointer hover:underline">
 //                 Read More &rarr;
 //               </div>
@@ -5441,7 +5441,7 @@
 //       case 3: // Mid Left - Minimal Cutout Style
 //         return (
 //           <motion.div {...animationProps} className="h-full bg-white p-5 rounded-[2.5rem] flex items-center gap-4 shadow-lg">
-//             <p className="text-sm text-gray-600 flex-1 italic leading-snug">"{review.text}"</p>
+//             <p className="text-sm text-gray-600 flex-1  leading-snug">"{review.text}"</p>
 //             <div className="relative shrink-0">
 //               <Avatar name={review.name} size="w-14 h-14" />
 //               <div className="absolute -bottom-2 -left-2 bg-white rounded-full p-1 shadow-sm"><Stars rating={review.rating} /></div>
@@ -5489,7 +5489,7 @@
 //             <div className="flex items-center gap-3 flex-row-reverse">
 //               <Avatar name={review.name} size="w-12 h-12" />
 //               <div className="flex flex-col items-end">
-//                 <span className="font-serif italic text-gray-800">{review.name}</span>
+//                 <span className="font-serif  text-gray-800">{review.name}</span>
 //                 <span className="text-[10px] text-[#fe8204]">{review.handle}</span>
 //               </div>
 //             </div>
@@ -5676,7 +5676,7 @@
 // //                 >
 // //                   {visibleReviews[1].name.charAt(0)}
 // //                 </div>
-// //                 <p className="text-gray-600 text-sm italic mb-4 pr-6">"{visibleReviews[1].text}"</p>
+// //                 <p className="text-gray-600 text-sm  mb-4 pr-6">"{visibleReviews[1].text}"</p>
 // //                 <div className="flex justify-between items-end pr-6">
 // //                   <div>
 // //                     <h4 className="font-bold text-gray-800 text-[10px] uppercase tracking-wider">{visibleReviews[1].name}</h4>
@@ -5728,10 +5728,10 @@
 // //                   {visibleReviews[3].title}
 // //                 </h2>
 // //                 <div className="mb-6"><StarRating rating={visibleReviews[3].rating} /></div>
-// //                 <p className="text-gray-500 text-sm leading-loose italic mb-8 px-4">
+// //                 <p className="text-gray-500 text-sm leading-loose  mb-8 px-4">
 // //                   "{visibleReviews[3].text}"
 // //                 </p>
-// //                 <span className="font-serif italic text-2xl text-gray-400">
+// //                 <span className="font-serif  text-2xl text-gray-400">
 // //                   {visibleReviews[3].name}
 // //                 </span>
 // //               </div>
@@ -5836,7 +5836,7 @@
 // //                 <div className="absolute -bottom-6 left-6 text-7xl text-gray-400 font-serif leading-none rotate-180 opacity-50">“</div>
 // //                 <p className="text-gray-600 text-sm mb-6">"{visibleReviews[8].text}"</p>
 // //                 <div className="flex justify-end pr-16 text-right flex-col">
-// //                   <span className="font-[Brush Script MT, cursive] font-serif italic text-xl text-gray-400">{visibleReviews[8].name}</span>
+// //                   <span className="font-[Brush Script MT, cursive] font-serif  text-xl text-gray-400">{visibleReviews[8].name}</span>
 // //                   <span className="text-[10px] text-gray-400">{visibleReviews[8].handle}</span>
 // //                 </div>
 // //                 <div 
@@ -6016,7 +6016,7 @@
 //                 >
 //                   {visibleReviews[1].name.charAt(0)}
 //                 </div>
-//                 <p className="text-gray-600 text-sm italic mb-4 pr-6">"{visibleReviews[1].text}"</p>
+//                 <p className="text-gray-600 text-sm  mb-4 pr-6">"{visibleReviews[1].text}"</p>
 //                 <div className="flex justify-between items-end pr-6">
 //                   <div>
 //                     <h4 className="font-bold text-gray-800 text-[10px] uppercase tracking-wider">{visibleReviews[1].name}</h4>
@@ -6068,10 +6068,10 @@
 //                   {visibleReviews[3].title}
 //                 </h2>
 //                 <div className="mb-6"><StarRating rating={visibleReviews[3].rating} /></div>
-//                 <p className="text-gray-500 text-sm leading-loose italic mb-8 px-4">
+//                 <p className="text-gray-500 text-sm leading-loose  mb-8 px-4">
 //                   "{visibleReviews[3].text}"
 //                 </p>
-//                 <span className="font-serif italic text-2xl text-gray-400">
+//                 <span className="font-serif  text-2xl text-gray-400">
 //                   {visibleReviews[3].name}
 //                 </span>
 //               </div>
@@ -6174,7 +6174,7 @@
 //                 <div className="absolute -bottom-6 left-6 text-7xl text-gray-400 font-serif leading-none rotate-180 opacity-50">“</div>
 //                 <p className="text-gray-600 text-sm mb-6">"{visibleReviews[8].text}"</p>
 //                 <div className="flex justify-end pr-16 text-right flex-col">
-//                   <span className="font-[Brush Script MT, cursive] font-serif italic text-xl text-gray-400">{visibleReviews[8].name}</span>
+//                   <span className="font-[Brush Script MT, cursive] font-serif  text-xl text-gray-400">{visibleReviews[8].name}</span>
 //                   <span className="text-[10px] text-gray-400">{visibleReviews[8].handle}</span>
 //                 </div>
 //                 <div 
@@ -6367,7 +6367,7 @@
 // //                 >
 // //                   {visibleReviews[1].name.charAt(0)}
 // //                 </div>
-// //                 <p className="text-gray-600 text-sm italic mb-4 pr-6">"{visibleReviews[1].text}"</p>
+// //                 <p className="text-gray-600 text-sm  mb-4 pr-6">"{visibleReviews[1].text}"</p>
 // //                 <div className="flex justify-between items-end pr-6">
 // //                   <div>
 // //                     <h4 className="font-bold text-gray-800 text-[10px] uppercase tracking-wider">{visibleReviews[1].name}</h4>
@@ -6419,10 +6419,10 @@
 // //                   {visibleReviews[3].title}
 // //                 </h2>
 // //                 <div className="mb-6"><StarRating rating={visibleReviews[3].rating} /></div>
-// //                 <p className="text-gray-500 text-sm leading-loose italic mb-8 px-4">
+// //                 <p className="text-gray-500 text-sm leading-loose  mb-8 px-4">
 // //                   "{visibleReviews[3].text}"
 // //                 </p>
-// //                 <span className="font-serif italic text-2xl text-gray-400">
+// //                 <span className="font-serif  text-2xl text-gray-400">
 // //                   {visibleReviews[3].name}
 // //                 </span>
 // //               </div>
@@ -6525,7 +6525,7 @@
 // //                 <div className="absolute -bottom-6 left-6 text-7xl text-gray-400 font-serif leading-none rotate-180 opacity-50">“</div>
 // //                 <p className="text-gray-600 text-sm mb-6">"{visibleReviews[8].text}"</p>
 // //                 <div className="flex justify-end pr-16 text-right flex-col">
-// //                   <span className="font-[Brush Script MT, cursive] font-serif italic text-xl text-gray-400">{visibleReviews[8].name}</span>
+// //                   <span className="font-[Brush Script MT, cursive] font-serif  text-xl text-gray-400">{visibleReviews[8].name}</span>
 // //                   <span className="text-[10px] text-gray-400">{visibleReviews[8].handle}</span>
 // //                 </div>
 // //                 <div 
@@ -6715,7 +6715,7 @@
 //                 >
 //                   {visibleReviews[1].name.charAt(0)}
 //                 </div>
-//                 <p className="text-gray-600 text-sm italic mb-4 pr-6">"{visibleReviews[1].text}"</p>
+//                 <p className="text-gray-600 text-sm  mb-4 pr-6">"{visibleReviews[1].text}"</p>
 //                 <div className="flex justify-between items-end pr-6">
 //                   <div>
 //                     <h4 className="font-bold text-gray-800 text-[10px] uppercase tracking-wider">{visibleReviews[1].name}</h4>
@@ -6764,10 +6764,10 @@
 //                   {visibleReviews[3].title}
 //                 </h2>
 //                 <div className="mb-6"><StarRating rating={visibleReviews[3].rating} /></div>
-//                 <p className="text-gray-500 text-sm leading-loose italic mb-8 px-4">
+//                 <p className="text-gray-500 text-sm leading-loose  mb-8 px-4">
 //                   "{visibleReviews[3].text}"
 //                 </p>
-//                 <span className="font-serif italic text-2xl text-gray-400">
+//                 <span className="font-serif  text-2xl text-gray-400">
 //                   {visibleReviews[3].name}
 //                 </span>
 //               </div>
@@ -6860,7 +6860,7 @@
 //                 <div className="absolute -bottom-6 left-6 text-7xl text-gray-400 font-serif leading-none rotate-180 opacity-50">“</div>
 //                 <p className="text-gray-600 text-sm mb-6">"{visibleReviews[8].text}"</p>
 //                 <div className="flex justify-end pr-16 text-right flex-col">
-//                   <span className="font-[Brush Script MT, cursive] font-serif italic text-xl text-gray-400">{visibleReviews[8].name}</span>
+//                   <span className="font-[Brush Script MT, cursive] font-serif  text-xl text-gray-400">{visibleReviews[8].name}</span>
 //                   <span className="text-[10px] text-gray-400">{visibleReviews[8].handle}</span>
 //                 </div>
 //                 <div 

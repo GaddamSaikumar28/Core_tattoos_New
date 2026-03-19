@@ -128,7 +128,7 @@
 
 //           {/* Text Content Container */}
 //           <motion.div variants={itemVariants} className="flex flex-col items-center text-center lg:items-start lg:text-left max-w-xl mx-auto lg:mx-0 z-10 lg:pl-12">
-//             <h4 className="font-heading text-xl text-[var(--color-brand-orange)] mb-2 italic lowercase tracking-widest">
+//             <h4 className="font-heading text-xl text-[var(--color-brand-orange)] mb-2  lowercase tracking-widest">
 //               About Us
 //             </h4>
 //             <h2 className="text-h2 font-heading text-[var(--color-black)] mb-6">
@@ -232,8 +232,8 @@ export default function WhatWeDo() {
                   <div className="mb-6 text-[var(--color-brand-orange)] transition-transform duration-500 ease-out group-hover:scale-110">
                     <Icon strokeWidth={1.5} size={48} />
                   </div>
-                  {/* Italic/Cursive styled subtitle mapping to the mockup */}
-                  <h4 className="font-serif italic text-xl text-[var(--color-secondary)] opacity-80 mb-2 capitalize">
+                  {/* /Cursive styled subtitle mapping to the mockup */}
+                  <h4 className=" text-xl text-[var(--color-secondary)] opacity-80 mb-2 capitalize">
                     {feature.subtitle}
                   </h4>
                   <h3 className="text-h3 font-heading mb-4 text-[var(--color-black)] group-hover:text-[var(--color-primary)] transition-colors duration-300">
@@ -290,7 +290,7 @@ export default function WhatWeDo() {
 
           {/* Right Side: Text Content */}
           <motion.div variants={itemVariants} className="flex flex-col items-center text-center lg:items-start lg:text-left max-w-xl mx-auto lg:mx-0 z-10">
-            <h4 className="font-serif italic text-3xl text-[var(--color-black)] mb-6 tracking-wide">
+            <h4 className=" text-3xl text-[var(--color-black)] mb-6 tracking-wide">
               About Us
             </h4>
             <p className="text-body text-gray-600 mb-10 leading-relaxed">

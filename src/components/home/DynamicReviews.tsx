@@ -36,7 +36,7 @@ const StarRating = ({ rating }: { rating: number }) => {
   return (
     <div className="text-[#fe8204] text-[10px] sm:text-xs tracking-widest flex items-center gap-1">
       {"★".repeat(rating)}{"☆".repeat(5 - rating)}
-      {rating > 0 && <span className="text-gray-400 font-sans ml-1">({rating.toFixed(1)})</span>}
+      {rating > 0 && <span className="text-gray-400 ml-1">({rating.toFixed(1)})</span>}
     </div>
   );
 };
@@ -134,13 +134,13 @@ export default function ReviewsMockupGrid() {
   return (
     <section 
       style={{ backgroundColor: bgTheme }} 
-      className="min-h-screen p-8 md:p-16 lg:p-24 flex items-center justify-center font-sans overflow-hidden"
+      className="min-h-screen p-8 md:p-16 lg:p-24 flex items-center justify-center overflow-hidden"
     >
       <div className="max-w-[1400px] w-full flex flex-col items-center">
         
         {/* ================= HEADING (TOP & CENTERED) ================= */}
         <div className="w-full text-center mb-12 md:mb-16">
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 uppercase tracking-wide">
+          <h2 className="text-4xl md:text-5xl  font-bold text-gray-900 uppercase tracking-wide">
             Our Testimonials
           </h2>
         </div>
@@ -159,9 +159,9 @@ export default function ReviewsMockupGrid() {
                   >
                     {visibleReviews[0].name.charAt(0)}
                   </div>
-                  <div className="absolute top-2 right-4 text-6xl text-gray-300 font-serif leading-none">“</div>
+                  <div className="absolute top-2 right-4 text-6xl text-gray-300 leading-none">“</div>
                   <div className="ml-10 mb-3">
-                    <h4 className="font-serif text-lg text-gray-800">{visibleReviews[0].name}</h4>
+                    <h4 className=" text-lg text-gray-800">{visibleReviews[0].name}</h4>
                     <StarRating rating={visibleReviews[0].rating} />
                   </div>
                   <p className="text-gray-500 text-xs leading-relaxed">{visibleReviews[0].text}</p>
@@ -178,7 +178,7 @@ export default function ReviewsMockupGrid() {
                   >
                     {visibleReviews[1].name.charAt(0)}
                   </div>
-                  <p className="text-gray-600 text-sm italic mb-4 pr-6">"{visibleReviews[1].text}"</p>
+                  <p className="text-gray-600 text-sm  mb-4 pr-6">"{visibleReviews[1].text}"</p>
                   <div className="flex justify-between items-end pr-6">
                     <div>
                       <h4 className="font-bold text-gray-800 text-[10px] uppercase tracking-wider">{visibleReviews[1].name}</h4>
@@ -194,7 +194,7 @@ export default function ReviewsMockupGrid() {
               <AnimWrap id={visibleReviews[2].id} index={2} isInitial={isInitialMount.current}>
                 <div className={`bg-white rounded-3xl overflow-hidden flex flex-col ${shadowStyle}`}>
                   <div className="p-8 text-center flex-1">
-                    <h3 className="font-serif text-xl text-gray-800 mb-4">{visibleReviews[2].title || "Top-notch!"}</h3>
+                    <h3 className=" text-xl text-gray-800 mb-4">{visibleReviews[2].title || "Top-notch!"}</h3>
                     <p className="text-gray-500 text-xs leading-relaxed mb-6">{visibleReviews[2].text}</p>
                     <div className="flex justify-center"><StarRating rating={visibleReviews[2].rating} /></div>
                   </div>
@@ -223,14 +223,14 @@ export default function ReviewsMockupGrid() {
                   >
                     {visibleReviews[3].name.charAt(0)}
                   </div>
-                  <h2 className="font-serif text-2xl text-gray-800 mb-3 tracking-wide mt-4 uppercase">
+                  <h2 className=" text-2xl text-gray-800 mb-3 tracking-wide mt-4 uppercase">
                     {visibleReviews[3].title}
                   </h2>
                   <div className="mb-6"><StarRating rating={visibleReviews[3].rating} /></div>
-                  <p className="text-gray-500 text-sm leading-loose italic mb-8 px-4">
+                  <p className="text-gray-500 text-sm leading-loose  mb-8 px-4">
                     "{visibleReviews[3].text}"
                   </p>
-                  <span className="font-serif italic text-2xl text-gray-400">
+                  <span className=" text-2xl text-gray-400">
                     {visibleReviews[3].name}
                   </span>
                 </div>
@@ -280,7 +280,7 @@ export default function ReviewsMockupGrid() {
               <AnimWrap id={visibleReviews[6].id} index={6} isInitial={isInitialMount.current}>
                 <div className={`bg-white rounded-3xl overflow-hidden ${shadowStyle}`}>
                   <div className="bg-[#EBE5DF] px-6 py-4 flex justify-between items-center border-b border-gray-100">
-                    <span className="font-serif font-bold text-gray-800">{visibleReviews[6].title}</span>
+                    <span className=" font-bold text-gray-800">{visibleReviews[6].title}</span>
                     <span className="text-xs text-gray-500">{visibleReviews[6].handle}</span>
                   </div>
                   <div className="p-6">
@@ -309,7 +309,7 @@ export default function ReviewsMockupGrid() {
                     👍
                   </div>
                   <div className="flex-1 pr-4">
-                    <h4 className="font-serif text-sm font-bold text-gray-800 uppercase mb-1">{visibleReviews[7].name}</h4>
+                    <h4 className="text-sm font-bold text-gray-800 uppercase mb-1">{visibleReviews[7].name}</h4>
                     <p className="text-gray-500 text-[10px] leading-tight mb-2 pr-8">{visibleReviews[7].text}</p>
                     <StarRating rating={visibleReviews[7].rating} />
                   </div>
@@ -320,10 +320,10 @@ export default function ReviewsMockupGrid() {
             <div className="relative mt-8">
               <AnimWrap id={visibleReviews[8].id} index={8} isInitial={isInitialMount.current}>
                 <div className={`bg-white rounded-[2rem] rounded-bl-none p-8 relative ${shadowStyle}`}>
-                  <div className="absolute -bottom-6 left-6 text-7xl text-gray-400 font-serif leading-none rotate-180 opacity-50">“</div>
+                  <div className="absolute -bottom-6 left-6 text-7xl text-gray-400 leading-none rotate-180 opacity-50">“</div>
                   <p className="text-gray-600 text-sm mb-6">"{visibleReviews[8].text}"</p>
                   <div className="flex justify-end pr-16 text-right flex-col">
-                    <span className="font-[Brush Script MT, cursive] font-serif italic text-xl text-gray-400">{visibleReviews[8].name}</span>
+                    <span className=" text-xl text-gray-400">{visibleReviews[8].name}</span>
                     <span className="text-[10px] text-gray-400">{visibleReviews[8].handle}</span>
                   </div>
                   <div 

@@ -67,7 +67,7 @@ const FaqSection = () => {
   };
 
   return (
-    <section className="bg-white w-full px-4 py-16 md:px-8 lg:px-16 md:py-24 font-sans overflow-hidden">
+    <section className="bg-white w-full px-4 py-16 md:px-8 lg:px-16 md:py-24 overflow-hidden">
       <div className="max-w-[1312px] mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
         
         {/* ================= LEFT COLUMN: Header & CTA ================= */}
@@ -78,10 +78,10 @@ const FaqSection = () => {
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-4xl md:text-5xl font-almarena font-bold text-black uppercase leading-tight">
+            <h2 className="text-4xl md:text-5xl font-bold text-black uppercase leading-tight">
               Got <span className="text-[#fe8204]">Questions?</span>
             </h2>
-            <p className="text-gray-600 font-montserrat mt-4 leading-relaxed">
+            <p className="text-gray-600 mt-4 leading-relaxed">
               We’ve got answers. Everything you need to know about our ink, application, and making your style last.
             </p>
             
@@ -118,7 +118,7 @@ const FaqSection = () => {
                   onClick={() => toggleAccordion(index)}
                   className="w-full flex items-center justify-between text-left group gap-4 focus:outline-none"
                 >
-                  <h3 className={`font-almarena font-bold text-lg md:text-xl transition-colors duration-300 ${isOpen ? 'text-[#fe8204]' : 'text-black group-hover:text-[#fe8204]'}`}>
+                  <h3 className={` font-bold text-lg md:text-xl transition-colors duration-300 ${isOpen ? 'text-[#fe8204]' : 'text-black group-hover:text-[#fe8204]'}`}>
                     {faq.question}
                   </h3>
                   
@@ -147,7 +147,7 @@ const FaqSection = () => {
                       transition={{ duration: 0.3, ease: "easeInOut" }}
                       className="overflow-hidden"
                     >
-                      <p className="pt-4 pb-2 text-gray-600 font-montserrat leading-relaxed pr-8 md:pr-12">
+                      <p className="pt-4 pb-2 text-gray-600 leading-relaxed pr-8 md:pr-12">
                         {faq.answer}
                       </p>
                     </motion.div>

@@ -3305,7 +3305,7 @@ export default function FeatureSection() {
 //                         {review.title}
 //                       </h5>
 //                     )}
-//                     <p className="text-gray-500 text-sm leading-relaxed italic m-0">
+//                     <p className="text-gray-500 text-sm leading-relaxed  m-0">
 //                       &quot;{review.text}&quot;
 //                     </p>
 //                   </div>
