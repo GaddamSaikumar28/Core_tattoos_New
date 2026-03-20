@@ -693,3 +693,133 @@ export async function deleteCustomerAccessToken(customerAccessToken: string) {
   });
   return true;
 }
+
+// src/lib/shopify/index.ts
+// Add these imports at the top if not already there:
+import { getCustomerOrdersQuery, customerUpdateMutation } from './queries';
+
+// Fetch Orders
+export async function getCustomerOrders(customerAccessToken: string) {
+  const res = await shopifyFetch<any>({
+    query: getCustomerOrdersQuery,
+    variables: { customerAccessToken },
+    cache: 'no-store'
+  });
+  
+  const orders = res.body?.data?.customer?.orders?.edges?.map((edge: any) => edge.node) || [];
+  return orders;
+}
+
+// Update Profile (Can be used for name, email, phone, or password)
+export async function updateCustomerProfile(customerAccessToken: string, customerData: any) {
+  const res = await shopifyFetch<any>({
+    query: customerUpdateMutation,
+    variables: { 
+      customerAccessToken,
+      customer: customerData 
+    },
+    cache: 'no-store'
+  });
+
+  const data = res.body?.data?.customerUpdate;
+  if (data?.customerUserErrors?.length > 0) {
+    throw new Error(data.customerUserErrors[0].message);
+  }
+  
+  return {
+    customer: data?.customer,
+    // If password/email is changed, Shopify might return a new token
+    newToken: data?.customerAccessToken?.accessToken 
+  };
+}
+
+// src/lib/shopify/index.ts
+// Add imports at the top
+import { 
+  getCustomerAddressesQuery, 
+  customerAddressCreateMutation, 
+  customerAddressUpdateMutation, 
+  customerAddressDeleteMutation, 
+  customerDefaultAddressUpdateMutation 
+} from './queries';
+
+export interface ShopifyAddress {
+  id: string;
+  firstName: string;
+  lastName: string;
+  company?: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  province: string;
+  country: string;
+  zip: string;
+  phone?: string;
+}
+
+// 1. Fetch Addresses
+export async function getCustomerAddresses(customerAccessToken: string) {
+  const res = await shopifyFetch<any>({
+    query: getCustomerAddressesQuery,
+    variables: { customerAccessToken },
+    cache: 'no-store'
+  });
+  
+  const customer = res.body?.data?.customer;
+  const addresses = customer?.addresses?.edges?.map((edge: any) => edge.node) || [];
+  const defaultAddressId = customer?.defaultAddress?.id || null;
+  
+  return { addresses, defaultAddressId };
+}
+
+// 2. Create Address
+export async function createCustomerAddress(customerAccessToken: string, address: Omit<ShopifyAddress, 'id'>) {
+  const res = await shopifyFetch<any>({
+    query: customerAddressCreateMutation,
+    variables: { customerAccessToken, address },
+    cache: 'no-store'
+  });
+
+  const data = res.body?.data?.customerAddressCreate;
+  if (data?.customerUserErrors?.length > 0) throw new Error(data.customerUserErrors[0].message);
+  return data?.customerAddress;
+}
+
+// 3. Update Address
+export async function updateCustomerAddress(customerAccessToken: string, id: string, address: Omit<ShopifyAddress, 'id'>) {
+  const res = await shopifyFetch<any>({
+    query: customerAddressUpdateMutation,
+    variables: { customerAccessToken, id, address },
+    cache: 'no-store'
+  });
+
+  const data = res.body?.data?.customerAddressUpdate;
+  if (data?.customerUserErrors?.length > 0) throw new Error(data.customerUserErrors[0].message);
+  return data?.customerAddress;
+}
+
+// 4. Delete Address
+export async function deleteCustomerAddress(customerAccessToken: string, id: string) {
+  const res = await shopifyFetch<any>({
+    query: customerAddressDeleteMutation,
+    variables: { customerAccessToken, id },
+    cache: 'no-store'
+  });
+
+  const data = res.body?.data?.customerAddressDelete;
+  if (data?.customerUserErrors?.length > 0) throw new Error(data.customerUserErrors[0].message);
+  return true;
+}
+
+// 5. Set Default Address
+export async function setDefaultCustomerAddress(customerAccessToken: string, addressId: string) {
+  const res = await shopifyFetch<any>({
+    query: customerDefaultAddressUpdateMutation,
+    variables: { customerAccessToken, addressId },
+    cache: 'no-store'
+  });
+
+  const data = res.body?.data?.customerDefaultAddressUpdate;
+  if (data?.customerUserErrors?.length > 0) throw new Error(data.customerUserErrors[0].message);
+  return true;
+}

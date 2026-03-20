@@ -24,7 +24,7 @@ import {
 import { cn } from "@/src/lib/utils"; 
 import { useCart } from "@/src/context/CartContext";
 import { getCollectionNames, searchShopifyProducts } from "@/src/lib/shopify"; 
-
+import { useAuth } from "@/src/context/AuthContext";
 // Premium How it Works Data
 const HOW_IT_WORKS_DATA = [
   { 
@@ -113,7 +113,9 @@ export default function Header() {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  // const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const { customer, logout } = useAuth();
+  const isLoggedIn = !!customer;
   
   // Search States
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -454,7 +456,7 @@ export default function Header() {
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       className="absolute top-12 right-0 w-48 bg-white border border-gray-100 shadow-xl rounded-2xl py-2 z-50"
                     >
-                      {isLoggedIn ? (
+                      {/* {isLoggedIn ? (
                         <>
                           <Link href="/account" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[var(--color-brand-orange)]">
                             <Settings className="w-4 h-4" /> My Account
@@ -468,7 +470,46 @@ export default function Header() {
                           <Link href="/login" className="block px-4 py-2 text-sm font-bold text-gray-900 hover:bg-gray-50 hover:text-[var(--color-brand-orange)]">Login</Link>
                           <Link href="/register" className="block px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-[var(--color-brand-orange)]">Create Account</Link>
                         </>
-                      )}
+                      )} */}
+
+                      {isLoggedIn ? (
+  <>
+    <div className="p-5 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <div className="w-10 h-10 bg-[var(--color-brand-orange)]/10 text-[var(--color-brand-orange)] rounded-full flex items-center justify-center font-black text-lg">
+        {customer?.firstName?.charAt(0) || "U"}
+      </div>
+      <div>
+        <p className="text-xs font-black uppercase tracking-widest text-gray-900">Welcome,</p>
+        <p className="text-sm font-bold text-gray-600 truncate max-w-[140px]">{customer?.firstName || 'User'}!</p>
+      </div>
+    </div>
+    <div className="p-2">
+      <Link href="/account" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-[var(--color-brand-orange)] rounded-xl transition-colors">
+        <User className="w-4 h-4" /> My Account
+      </Link>
+    </div>
+    <div className="p-2 border-t border-gray-100">
+      <button 
+        className="flex items-center gap-3 px-4 py-3 w-full text-left text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors" 
+        onClick={async () => { await logout(); setIsProfileMenuOpen(false); }}
+      >
+        <LogOut className="w-4 h-4" /> Log Out
+      </button>
+    </div>
+  </>
+) : (
+  <>
+    {/* Update these links to point to the new pages instead of "/" */}
+    <div className="p-4 flex flex-col gap-3">
+      <Link href="/login" className="block w-full py-3 text-center bg-[var(--color-brand-orange)] text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-orange-600 shadow-md transition-colors" onClick={() => setIsProfileMenuOpen(false)}>
+        Log In
+      </Link>
+      <Link href="/signup" className="block w-full py-3 text-center bg-white border border-gray-200 text-gray-900 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsProfileMenuOpen(false)}>
+        Create Account
+      </Link>
+    </div>
+  </>
+)}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -859,7 +900,7 @@ export default function Header() {
 
               {/* STICKY FOOTER (Auth & Contact) */}
               <div className="mt-auto bg-gray-50 border-t border-gray-100 p-6">
-                <div className="flex flex-col gap-3">
+                {/* <div className="flex flex-col gap-3">
                   {isLoggedIn ? (
                     <>
                       <Link 
@@ -894,7 +935,54 @@ export default function Header() {
                       </Link>
                     </>
                   )}
-                </div>
+                </div> */}
+                <div className="flex flex-col gap-3">
+  {isLoggedIn ? (
+    <>
+      <div className="flex items-center gap-3 mb-2">
+         <div className="w-10 h-10 bg-[var(--color-brand-orange)]/10 text-[var(--color-brand-orange)] rounded-full flex items-center justify-center font-black text-lg">
+           {customer?.firstName?.charAt(0) || "U"}
+         </div>
+         <div>
+           <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Logged in as</p>
+           <p className="text-sm font-bold text-gray-900">{customer?.firstName || 'User'} {customer?.lastName}</p>
+         </div>
+      </div>
+      <Link 
+        href="/account" 
+        className="flex items-center justify-center gap-2 w-full py-3.5 bg-gray-900 text-white rounded-xl font-bold hover:bg-[var(--color-brand-orange)] transition-colors shadow-md" 
+        onClick={() => setIsMobileDrawerOpen(false)}
+      >
+        <User className="w-4 h-4" /> My Account
+      </Link>
+      <button 
+        className="flex items-center justify-center gap-2 w-full py-3.5 bg-transparent text-gray-500 hover:text-red-500 rounded-xl font-bold transition-colors" 
+        // Changed from setIsLoggedIn(false) to await logout()
+        onClick={async () => { await logout(); setIsMobileDrawerOpen(false); }}
+      >
+        <LogOut className="w-4 h-4" /> Log Out
+      </button>
+    </>
+  ) : (
+    <>
+      {/* Update these links to point to the new pages instead of "/" */}
+      <Link 
+        href="/login" 
+        className="flex justify-center items-center py-3.5 bg-[var(--color-brand-orange)] text-white rounded-xl font-bold hover:bg-orange-600 transition-colors shadow-md shadow-orange-500/20 uppercase tracking-widest text-xs" 
+        onClick={() => setIsMobileDrawerOpen(false)}
+      >
+        Log In
+      </Link>
+      <Link 
+        href="/signup" 
+        className="flex justify-center items-center py-3.5 bg-white border border-gray-200 text-gray-900 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm uppercase tracking-widest text-xs" 
+        onClick={() => setIsMobileDrawerOpen(false)}
+      >
+        Create Account
+      </Link>
+    </>
+  )}
+</div>
               </div>
 
             </motion.div>

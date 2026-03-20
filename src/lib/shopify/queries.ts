@@ -465,3 +465,162 @@ export const customerRecoverMutation = /* GraphQL */ `
     }
   }
 `;
+
+// src/lib/shopify/queries.ts
+
+// --- CUSTOMER ORDERS ---
+export const getCustomerOrdersQuery = /* GraphQL */ `
+  query getCustomerOrders($customerAccessToken: String!, $first: Int = 20) {
+    customer(customerAccessToken: $customerAccessToken) {
+      orders(first: $first, sortKey: PROCESSED_AT, reverse: true) {
+        edges {
+          node {
+            id
+            orderNumber
+            processedAt
+            financialStatus
+            fulfillmentStatus
+            totalPrice {
+              amount
+              currencyCode
+            }
+            lineItems(first: 10) {
+              edges {
+                node {
+                  title
+                  quantity
+                  variant {
+                    image {
+                      url
+                      altText
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+// --- UPDATE CUSTOMER PROFILE & PASSWORD ---
+export const customerUpdateMutation = /* GraphQL */ `
+  mutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
+    customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
+      customer {
+        id
+        firstName
+        lastName
+        email
+        phone
+      }
+      customerAccessToken {
+        accessToken
+        expiresAt
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
+
+// src/lib/shopify/queries.ts
+
+export const customerAddressFragment = /* GraphQL */ `
+  fragment customerAddress on MailingAddress {
+    id
+    firstName
+    lastName
+    company
+    address1
+    address2
+    city
+    province
+    country
+    zip
+    phone
+  }
+`;
+
+export const getCustomerAddressesQuery = /* GraphQL */ `
+  query getCustomerAddresses($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
+      defaultAddress {
+        id
+      }
+      addresses(first: 10) {
+        edges {
+          node {
+            ...customerAddress
+          }
+        }
+      }
+    }
+  }
+  ${customerAddressFragment}
+`;
+
+export const customerAddressCreateMutation = /* GraphQL */ `
+  mutation customerAddressCreate($customerAccessToken: String!, $address: MailingAddressInput!) {
+    customerAddressCreate(customerAccessToken: $customerAccessToken, address: $address) {
+      customerAddress {
+        ...customerAddress
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+  ${customerAddressFragment}
+`;
+
+export const customerAddressUpdateMutation = /* GraphQL */ `
+  mutation customerAddressUpdate($customerAccessToken: String!, $id: ID!, $address: MailingAddressInput!) {
+    customerAddressUpdate(customerAccessToken: $customerAccessToken, id: $id, address: $address) {
+      customerAddress {
+        ...customerAddress
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+  ${customerAddressFragment}
+`;
+
+export const customerAddressDeleteMutation = /* GraphQL */ `
+  mutation customerAddressDelete($customerAccessToken: String!, $id: ID!) {
+    customerAddressDelete(customerAccessToken: $customerAccessToken, id: $id) {
+      deletedCustomerAddressId
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
+
+export const customerDefaultAddressUpdateMutation = /* GraphQL */ `
+  mutation customerDefaultAddressUpdate($customerAccessToken: String!, $addressId: ID!) {
+    customerDefaultAddressUpdate(customerAccessToken: $customerAccessToken, addressId: $addressId) {
+      customer {
+        id
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
