@@ -1494,160 +1494,6 @@ export default function Header() {
       </AnimatePresence>
       </header>
 
-      {/* ========================================== */}
-      {/* MOBILE SLIDE-OUT DRAWER                    */}
-      {/* ========================================== */}
-      {/* <AnimatePresence>
-        {isMobileDrawerOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMobileDrawerOpen(false)}
-              className="fixed inset-0 bg-black/50 z-[60] md:hidden backdrop-blur-sm"
-            />
-            <motion.div
-              variants={drawerVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="fixed top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white z-[70] md:hidden flex flex-col shadow-2xl"
-            >
-              <div className="flex items-center justify-between p-5 border-b border-gray-100">
-                <Image
-                  src="/assets/icons/Fotterlogo2.svg"
-                  alt="Just Tattoos"
-                  width={110}
-                  height={36}
-                  className="w-auto h-7"
-                />
-                <button
-                  onClick={() => setIsMobileDrawerOpen(false)}
-                  className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-full transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto py-6 px-6">
-                <div className="flex flex-col gap-6">
-                  
-                  <Link href="/collections/new-arrivals" className="text-[16px] font-bold text-gray-900 flex items-center justify-between group" onClick={() => setIsMobileDrawerOpen(false)}>
-                    NEW ARRIVALS <span className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-[var(--color-brand-orange)]">→</span>
-                  </Link>
-
-           
-                  <div className="border-b border-gray-100 pb-6">
-                    <button
-                      onClick={() => setMobileExpanded(mobileExpanded === "collection" ? null : "collection")}
-                      className="w-full flex items-center justify-between text-[16px] font-bold text-gray-900 group"
-                    >
-                      COLLECTION
-                      <ChevronDown className={cn("w-5 h-5 transition-transform duration-300 text-gray-400 group-hover:text-gray-900", mobileExpanded === "collection" && "rotate-180")} />
-                    </button>
-                    <AnimatePresence>
-                      {mobileExpanded === "collection" && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden flex flex-col gap-3 mt-4 pl-4 border-l-2 border-gray-100"
-                        >
-                           {isLoadingCollections ? (
-                              <div className="text-[14px] text-gray-400 py-1">Loading...</div>
-                           ) : collections.length > 0 ? (
-                              collections.map((collection) => (
-                                <Link 
-                                  key={collection.handle} 
-                                  href={`/collections/${collection.handle}`}
-                                  className="text-gray-600 text-[14px] font-medium hover:text-[var(--color-brand-orange)] transition-colors py-1.5"
-                                  onClick={() => setIsMobileDrawerOpen(false)}
-                                >
-                                  {collection.title}
-                                </Link>
-                              ))
-                           ) : (
-                              <div className="text-[14px] text-gray-400 py-1">No collections found.</div>
-                           )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-            
-                  <div className="border-b border-gray-100 pb-6">
-                    <button
-                      onClick={() => setMobileExpanded(mobileExpanded === "how-it-works" ? null : "how-it-works")}
-                      className="w-full flex items-center justify-between text-[16px] font-bold text-gray-900 group"
-                    >
-                      HOW IT WORKS
-                      <ChevronDown className={cn("w-5 h-5 transition-transform duration-300 text-gray-400 group-hover:text-gray-900", mobileExpanded === "how-it-works" && "rotate-180")} />
-                    </button>
-                    <AnimatePresence>
-                      {mobileExpanded === "how-it-works" && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden flex flex-col gap-4 mt-4 pl-2"
-                        >
-                          {HOW_IT_WORKS_DATA.map((item) => {
-                            const Icon = item.icon;
-                            return (
-                              <Link
-                                key={item.title}
-                                href={item.href}
-                                className="flex items-center gap-3 py-1 text-gray-600 hover:text-[var(--color-brand-orange)] transition-colors group"
-                                onClick={() => setIsMobileDrawerOpen(false)}
-                              >
-                                <Icon className="w-4 h-4 text-gray-400 group-hover:text-[var(--color-brand-orange)]" />
-                                <span className="text-[14px] font-medium">{item.title}</span>
-                              </Link>
-                            );
-                          })}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  <Link href="/sale" className="text-[16px] font-bold text-red-500 flex items-center justify-between group" onClick={() => setIsMobileDrawerOpen(false)}>
-                    SALE <span className="text-red-200 group-hover:text-red-500 group-hover:translate-x-1 transition-all">→</span>
-                  </Link>
-
-                
-                  <div className="mt-8 pt-8 border-t border-gray-100 flex flex-col gap-4">
-                    {isLoggedIn ? (
-                      <>
-                        <Link href="/account" className="flex items-center gap-3 text-gray-600 font-medium" onClick={() => setIsMobileDrawerOpen(false)}>
-                          <User className="w-5 h-5" /> My Account
-                        </Link>
-                        <button className="flex items-center gap-3 text-red-500 font-medium" onClick={() => { setIsLoggedIn(false); setIsMobileDrawerOpen(false); }}>
-                          <LogOut className="w-5 h-5" /> Log Out
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <Link href="/login" className="flex justify-center items-center py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-[var(--color-brand-orange)] transition-colors" onClick={() => setIsMobileDrawerOpen(false)}>
-                          Login
-                        </Link>
-                        <Link href="/register" className="flex justify-center items-center py-3 bg-gray-50 text-gray-900 rounded-xl font-bold hover:bg-gray-100 transition-colors" onClick={() => setIsMobileDrawerOpen(false)}>
-                          Create Account
-                        </Link>
-                      </>
-                    )}
-                  </div>
-
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence> */}
-
-      {/* ========================================== */}
-      {/* MOBILE SLIDE-OUT DRAWER                    */}
-      {/* ========================================== */}
       <AnimatePresence>
         {isMobileDrawerOpen && (
           <>
@@ -1700,47 +1546,73 @@ export default function Header() {
                     <span className="text-[var(--color-brand-orange)] opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all">→</span>
                   </Link>
 
-                  {/* MOBILE COLLECTIONS ACCORDION */}
+           
                   <div className="border-b border-gray-100">
-                    <button
-                      onClick={() => setMobileExpanded(mobileExpanded === "collection" ? null : "collection")}
-                      className="w-full py-4 flex items-center justify-between text-[13px] font-black tracking-[0.15em] text-gray-900 group"
-                    >
-                      COLLECTION
-                      <ChevronDown className={cn("w-4 h-4 transition-transform duration-300 text-gray-400 group-hover:text-gray-900", mobileExpanded === "collection" && "rotate-180")} />
-                    </button>
-                    <AnimatePresence>
-                      {mobileExpanded === "collection" && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden"
-                        >
-                           <div className="bg-gray-50 rounded-2xl p-4 mb-4 flex flex-col gap-1">
-                             {isLoadingCollections ? (
-                                <div className="text-[13px] font-medium text-gray-400 py-2 text-center flex items-center justify-center gap-2">
-                                  <Loader2 className="w-4 h-4 animate-spin" /> Loading...
-                                </div>
-                             ) : collections.length > 0 ? (
-                                collections.map((collection) => (
-                                  <Link 
-                                    key={collection.handle} 
-                                    href={`/collections?category=$${collection.handle}`}
-                                    className="text-gray-600 text-[14px] font-medium hover:bg-white hover:text-[var(--color-brand-orange)] hover:shadow-sm transition-all py-2.5 px-4 rounded-xl"
-                                    onClick={() => setIsMobileDrawerOpen(false)}
-                                  >
-                                    {collection.title}
-                                  </Link>
-                                ))
-                             ) : (
-                                <div className="text-[13px] text-gray-400 py-2 text-center">No collections found.</div>
-                             )}
-                           </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+  {/* Header Container */}
+  <div className="w-full py-4 flex items-center justify-between group">
+    {/* Clickable Link for the text */}
+    <Link
+      href="/collections"
+      className="text-[13px] font-black tracking-[0.15em] text-gray-900 flex-1 text-left hover:opacity-70 transition-opacity"
+      onClick={() => setIsMobileDrawerOpen(false)}
+    >
+      COLLECTION
+    </Link>
+
+    {/* Clickable Button for the accordion toggle */}
+    <button
+      onClick={(e) => {
+        e.preventDefault(); // Prevents any unexpected bubbling
+        setMobileExpanded(mobileExpanded === "collection" ? null : "collection");
+      }}
+      className="p-2 -mr-2 flex items-center justify-center cursor-pointer"
+      aria-label="Toggle collections menu"
+      aria-expanded={mobileExpanded === "collection"}
+    >
+      <ChevronDown
+        className={cn(
+          "w-4 h-4 transition-transform duration-300 text-gray-400 group-hover:text-gray-900",
+          mobileExpanded === "collection" && "rotate-180"
+        )}
+      />
+    </button>
+  </div>
+
+  {/* Accordion Body */}
+  <AnimatePresence>
+    {mobileExpanded === "collection" && (
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: "auto", opacity: 1 }}
+        exit={{ height: 0, opacity: 0 }}
+        className="overflow-hidden"
+      >
+        <div className="bg-gray-50 rounded-2xl p-4 mb-4 flex flex-col gap-1">
+          {isLoadingCollections ? (
+            <div className="text-[13px] font-medium text-gray-400 py-2 text-center flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading...
+            </div>
+          ) : collections.length > 0 ? (
+            collections.map((collection) => (
+              <Link
+                key={collection.handle}
+                href={`/collections?category=$${collection.handle}`}
+                className="text-gray-600 text-[14px] font-medium hover:bg-white hover:text-[var(--color-brand-orange)] hover:shadow-sm transition-all py-2.5 px-4 rounded-xl"
+                onClick={() => setIsMobileDrawerOpen(false)}
+              >
+                {collection.title}
+              </Link>
+            ))
+          ) : (
+            <div className="text-[13px] text-gray-400 py-2 text-center">
+              No collections found.
+            </div>
+          )}
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
 
                   {/* MOBILE HOW IT WORKS ACCORDION */}
                   <div className="border-b border-gray-100">

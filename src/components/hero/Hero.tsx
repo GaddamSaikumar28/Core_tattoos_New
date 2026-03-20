@@ -384,10 +384,11 @@ export default function Hero() {
               {/* Right Column: Scaled-down Card Deck */}
               <motion.div
                 // className="w-[50%] md:w-[45%] h-[250px] md:h-[380px] lg:h-[420px] relative flex justify-center items-center order-2  md:mt-0"
-                   className="w-[50%] md:w-[45%] h-[220px] md:h-[380px] lg:h-[420px] relative flex justify-center items-center order-2 md:mt-0"
+                   className="w-[50%] md:w-[45%] h-[220px] md:h-[380px] lg:h-[480px] relative flex justify-center items-center order-2 md:mt-0"
                 animate={{
                   x: isScrolled && isDesktop ? "-61%" : "0%",
-                  y: isScrolled ? 80 : 0,
+                //   y: isScrolled ? 80 : 0,
+                y: isScrolled ? (isDesktop ? 20 : 80) : 0,
                 }}
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               >
