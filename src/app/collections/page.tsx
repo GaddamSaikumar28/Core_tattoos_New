@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { SlidersHorizontal, LayoutGrid, List, X, RefreshCcw, Loader2 } from 'lucide-react';
 import clsx from 'clsx';
@@ -15,7 +15,7 @@ const STATIC_FILTER_OPTIONS = {
   placements: ['Forearm', 'Calf', 'Chest', 'Neck', 'Wrist', 'Spine', 'Any']
 };
 
-export default function ShopAll() {
+function ShopAllContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -349,5 +349,26 @@ export default function ShopAll() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ShopAll() {
+  return (
+    // The Suspense boundary catches Next.js's static rendering process
+    // and displays this fallback UI until the client-side loads the search params.
+    <Suspense 
+      fallback={
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center mt-20">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-10 h-10 text-[#fe8204] animate-spin" />
+            <span className="text-[12px] font-black uppercase tracking-[0.2em] text-slate-950">
+              Loading Collection...
+            </span>
+          </div>
+        </div>
+      }
+    >
+      <ShopAllContent />
+    </Suspense>
   );
 }
