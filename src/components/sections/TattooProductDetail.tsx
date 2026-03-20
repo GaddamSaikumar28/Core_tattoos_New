@@ -103,7 +103,7 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
       setIsBuyingNow(false);
     }
   };
-  
+
 //   const handleBuyNow = async () => {
 //     if (!selectedVariant?.variantId) {
 //       toast.error("Please select a variant.");
@@ -264,7 +264,7 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
                   <span className="text-sm font-bold text-gray-400 line-through">
                     ${compareAtPrice.toFixed(2)}
                   </span>
-                  {product.checkout.discountPercentage > 0 && (
+                  {product.checkout.discountPercentage!=null && product.checkout.discountPercentage > 0 && (
                     <span className="text-[10px] font-black uppercase tracking-widest text-red-500 bg-red-50 px-2 py-0.5 rounded-sm">
                       Save {product.checkout.discountPercentage}%
                     </span>

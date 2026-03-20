@@ -66,7 +66,7 @@ export default function NewArrivalsPage() {
       // Use CREATED_AT sortKey to ensure newest products show first
       const response = await getProducts({ 
         first: itemsPerPage, 
-        after: cursor,
+        after: cursor ?? undefined,
         query: finalQuery,
         sortKey: 'CREATED_AT',
         reverse: true // Reverses so newest is at the top

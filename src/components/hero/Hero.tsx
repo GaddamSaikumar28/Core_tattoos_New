@@ -2,6 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { FormattedProduct } from "@/src/lib/shopify";
+interface ProductState {
+  formattedData: FormattedProduct[];
+  pageInfo: any; 
+}
+
 interface CardConfig {
   id: number;
   heroRotate: number;
@@ -208,10 +214,13 @@ export default function Hero() {
   const [topCardReady, setTopCardReady] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [cardIsFalling, setCardIsFalling] = useState(false);
- const [allProducts, setAllProducts] = useState([]);
+ //const [allProducts, setAllProducts] = useState([]);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
-
+const [allProducts, setAllProducts] = useState<ProductState>({
+  formattedData: [],
+  pageInfo: null
+});
   
 
   useEffect(() => {

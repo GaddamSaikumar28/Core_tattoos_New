@@ -64,7 +64,7 @@ export default function SalePage() {
 
       const response = await getProducts({ 
         first: itemsPerPage, 
-        after: cursor,
+        after: cursor ?? undefined,
         query: finalQuery 
       });
 

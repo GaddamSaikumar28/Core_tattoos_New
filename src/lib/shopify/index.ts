@@ -1,6 +1,7 @@
 
 'use server';
 
+
 import { getProductsQuery, getCollectionNamesQuery, searchProductsQuery } from './queries';
 import { getProductByHandleQuery, getProductRecommendationsQuery } from './queries';
 
@@ -75,6 +76,11 @@ export interface SearchResult {
   price: string;
   image: string;
   category?: string;
+}
+
+interface CollectionName {
+  title: string;
+  handle: string;
 }
 
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
@@ -170,7 +176,7 @@ export async function getProducts({
   };
 }
 
-export async function getCollectionNames() {
+export async function getCollectionNames(): Promise<CollectionName[]> {
   const res = await shopifyFetch<any>({
     query: getCollectionNamesQuery,
     tags: ['collections'],
