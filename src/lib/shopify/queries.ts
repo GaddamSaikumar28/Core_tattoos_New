@@ -368,3 +368,100 @@ export const updateCartBuyerIdentityMutation = /* GraphQL */ `
   }
   ${cartFragment}
 `;
+
+
+export const getCollectionProductsQuery = /* GraphQL */ `
+  query getCollectionProducts($handle: String!, $first: Int!) {
+    collection(handle: $handle) {
+      products(first: $first) {
+        edges {
+          node {
+            ...product
+          }
+        }
+      }
+    }
+  }
+  ${productFragment}
+`;
+
+
+// Add to queries.ts
+
+export const customerFragment = /* GraphQL */ `
+  fragment customer on Customer {
+    id
+    firstName
+    lastName
+    email
+    phone
+    acceptsMarketing
+    createdAt
+  }
+`;
+
+export const customerCreateMutation = /* GraphQL */ `
+  mutation customerCreate($input: CustomerCreateInput!) {
+    customerCreate(input: $input) {
+      customer {
+        ...customer
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+  ${customerFragment}
+`;
+
+export const customerAccessTokenCreateMutation = /* GraphQL */ `
+  mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+    customerAccessTokenCreate(input: $input) {
+      customerAccessToken {
+        accessToken
+        expiresAt
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
+
+export const customerAccessTokenDeleteMutation = /* GraphQL */ `
+  mutation customerAccessTokenDelete($customerAccessToken: String!) {
+    customerAccessTokenDelete(customerAccessToken: $customerAccessToken) {
+      deletedAccessToken
+      deletedCustomerAccessTokenId
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+export const getCustomerQuery = /* GraphQL */ `
+  query getCustomer($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
+      ...customer
+    }
+  }
+  ${customerFragment}
+`;
+
+export const customerRecoverMutation = /* GraphQL */ `
+  mutation customerRecover($email: String!) {
+    customerRecover(email: $email) {
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;

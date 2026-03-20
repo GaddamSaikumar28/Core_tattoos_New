@@ -4,7 +4,7 @@
 
 import { getProductsQuery, getCollectionNamesQuery, searchProductsQuery } from './queries';
 import { getProductByHandleQuery, getProductRecommendationsQuery } from './queries';
-
+import { getCollectionProductsQuery } from './queries';
 import { 
   getCartQuery, 
   createCartMutation, 
@@ -541,4 +541,155 @@ export async function updateCartBuyerIdentity(cartId: string, customerAccessToke
     cache: 'no-store',
   });
   return reshapeCart(res.body.data.cartBuyerIdentityUpdate.cart);
+}
+
+
+export async function getHomePageNewArrivals(limit: number = 4): Promise<FormattedProduct[]> {
+  // Shopify automatically converts "Home Page New Arrivals" to this handle
+  const collectionHandle = 'home-page-new-arrivals'; 
+
+  try {
+    const res = await shopifyFetch<any>({
+      query: getCollectionProductsQuery,
+      tags: ['collections', 'products', collectionHandle], // Great for Next.js cache invalidation
+      variables: {
+        handle: collectionHandle,
+        first: limit,
+      }
+    });
+
+    // The data shape for a collection query nests the products array
+    const productsData = res.body?.data?.collection?.products;
+
+    if (!productsData?.edges) {
+      console.warn(`No products found in collection: ${collectionHandle}`);
+      return [];
+    }
+
+    // Pass the raw edges directly into your existing production mapper
+    const formattedProducts = await mapShopifyProductsForProduction(productsData);
+    
+    return formattedProducts as FormattedProduct[];
+
+  } catch (error) {
+    console.error(`Error fetching collection ${collectionHandle}:`, error);
+    return [];
+  }
+}
+
+
+
+export async function getHomePageCollections(limit: number = 15): Promise<FormattedProduct[]> {
+  // The exact handle of your new collection
+  const collectionHandle = 'home-page-collections'; 
+
+  try {
+    const res = await shopifyFetch<any>({
+      query: getCollectionProductsQuery,
+      tags: ['collections', 'products', collectionHandle], // Caches based on this specific collection
+      variables: {
+        handle: collectionHandle,
+        first: limit,
+      }
+    });
+
+    // Extract the nested products array from the collection response
+    const productsData = res.body?.data?.collection?.products;
+
+    if (!productsData?.edges) {
+      console.warn(`No products found in collection: ${collectionHandle}`);
+      return [];
+    }
+
+    // Run the raw Shopify data through your production mapper
+    const formattedProducts = await mapShopifyProductsForProduction(productsData);
+    
+    return formattedProducts as FormattedProduct[];
+
+  } catch (error) {
+    console.error(`Error fetching collection ${collectionHandle}:`, error);
+    return [];
+  }
+}
+
+// Add to index.ts
+
+import { 
+  customerCreateMutation, 
+  customerAccessTokenCreateMutation, 
+  customerAccessTokenDeleteMutation,
+  getCustomerQuery, 
+  customerRecoverMutation 
+} from './queries';
+
+export interface Customer {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+}
+
+// 1. SIGN UP
+export async function createCustomer(input: any) {
+  const res = await shopifyFetch<any>({
+    query: customerCreateMutation,
+    variables: { input },
+    cache: 'no-store'
+  });
+  
+  const data = res.body?.data?.customerCreate;
+  if (data?.customerUserErrors?.length > 0) {
+    throw new Error(data.customerUserErrors[0].message);
+  }
+  return data?.customer;
+}
+
+// 2. LOGIN (Generate Token)
+export async function createCustomerAccessToken(input: any) {
+  const res = await shopifyFetch<any>({
+    query: customerAccessTokenCreateMutation,
+    variables: { input },
+    cache: 'no-store'
+  });
+
+  const data = res.body?.data?.customerAccessTokenCreate;
+  if (data?.customerUserErrors?.length > 0) {
+    throw new Error(data.customerUserErrors[0].message);
+  }
+  return data?.customerAccessToken;
+}
+
+// 3. FETCH CUSTOMER BY TOKEN
+export async function getCustomer(customerAccessToken: string) {
+  const res = await shopifyFetch<any>({
+    query: getCustomerQuery,
+    variables: { customerAccessToken },
+    cache: 'no-store'
+  });
+  return res.body?.data?.customer;
+}
+
+// 4. FORGOT PASSWORD
+export async function recoverCustomerPassword(email: string) {
+  const res = await shopifyFetch<any>({
+    query: customerRecoverMutation,
+    variables: { email },
+    cache: 'no-store'
+  });
+  const data = res.body?.data?.customerRecover;
+  if (data?.customerUserErrors?.length > 0) {
+    throw new Error(data.customerUserErrors[0].message);
+  }
+  return true;
+}
+
+// 5. LOGOUT (Delete Token)
+export async function deleteCustomerAccessToken(customerAccessToken: string) {
+  await shopifyFetch<any>({
+    query: customerAccessTokenDeleteMutation,
+    variables: { customerAccessToken },
+    cache: 'no-store'
+  });
+  return true;
 }

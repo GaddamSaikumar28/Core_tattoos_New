@@ -302,16 +302,16 @@ function ShopAllContent() {
                </div>
             ) : null}
 
-            {/* PRODUCTS LAYOUT */}
+            {/* PRODUCTS LAYOUT  bg-gradient-to-br from-gray-50 via-white to-[#fe8204]/5 */}
             {!isLoading && products.length > 0 ? (
               <div className="flex flex-col items-center">
                 <div className={clsx(
-                  "w-full p-4 sm:p-6 lg:p-8 rounded-3xl bg-gradient-to-br from-gray-50 via-white to-[#fe8204]/5 border border-gray-100 shadow-[inset_0_1px_3px_rgba(0,0,0,0.02)]",
+                  "w-full p-4 sm:p-6 lg:p-8 rounded-3xl  border bg-black border-gray-100 shadow-[inset_0_1px_3px_rgba(0,0,0,0.02)]",
                   "grid gap-6 sm:gap-8",
                   viewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" : "grid-cols-1"
                 )}>
                   {products.map((item, index) => (
-                    <ProductCard key={`${item.id}-${index}`} item={item} viewMode={viewMode} page="collections" />
+                    <ProductCard key={`${item.id}-${index}`} item={item} viewMode={viewMode} page="collections" index={index} />
                   ))}
                 </div>
 

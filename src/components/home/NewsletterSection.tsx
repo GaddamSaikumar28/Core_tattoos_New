@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 const NewsletterSection = () => {
   return (
-    <section className="bg-[#EBEBEB] w-full py-16 md:py-24 px-4 md:px-8 lg:px-16 overflow-hidden font-sans">
+    <section className="bg-[#EBEBEB] w-full py-16 md:py-24 px-4 md:px-8 lg:px-16 overflow-hidden ">
       <div className="max-w-[1312px] mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}

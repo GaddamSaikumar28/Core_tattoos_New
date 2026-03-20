@@ -1,8 +1,6 @@
-
-
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { ChevronDown, ShoppingCart, Loader2, Minus, Plus } from 'lucide-react';
 import clsx from 'clsx';
@@ -11,13 +9,39 @@ import { toast } from 'sonner';
 import { useCart } from '@/src/context/CartContext';
 import { FormattedProduct, Variant } from '@/src/lib/shopify';
 
+// 1. Add the custom hook here (or import it if you have it in a shared utils file)
+const useScrollReveal = (options = { threshold: 0.15 }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+        observer.unobserve(entry.target);
+      }
+    }, options);
+
+    if (ref.current) observer.observe(ref.current);
+    return () => {
+      if (ref.current) observer.unobserve(ref.current);
+    };
+  }, [options]);
+
+  return [ref, isVisible] as const;
+};
+
 interface ProductCardProps {
   item: FormattedProduct;
   viewMode: 'grid' | 'list';
   page: string; 
+  index: number; // 2. Add index to props
 }
 
-export function ProductCard({ item, viewMode, page }: ProductCardProps) {
+export function ProductCard({ item, viewMode, page, index }: ProductCardProps) {
+  // 3. Initialize the scroll reveal hook
+  const [ref, isVisible] = useScrollReveal({ threshold: 0.1 });
+  
   const isList = viewMode === 'list';
   const variants = item.allVariants || [];
    
@@ -25,12 +49,10 @@ export function ProductCard({ item, viewMode, page }: ProductCardProps) {
     variants.length > 0 ? variants[0] : null
   );
 
-  // New State for Quantity
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const { addToCart } = useCart();
 
-  // Price Calculation handling both Normal and Discounted states
   const currentPrice = selectedVariant ? Number(selectedVariant.price) : Number(item.checkout.price);
   const originalPrice = selectedVariant?.compareAtPrice ? Number(selectedVariant.compareAtPrice) : null;
   const hasDiscount = originalPrice !== null && originalPrice > currentPrice;
@@ -42,7 +64,6 @@ export function ProductCard({ item, viewMode, page }: ProductCardProps) {
   const productUrl = `/${page}/${slug}`;
   
   const displayBadge = item.styling.badges?.[0];
-  const cardColor = item.styling.uiBackgroundColor || '#35A7FF'; 
 
   const handleQuantityChange = (type: 'increase' | 'decrease') => {
     if (type === 'decrease' && quantity > 1) setQuantity(q => q - 1);
@@ -65,215 +86,186 @@ export function ProductCard({ item, viewMode, page }: ProductCardProps) {
     }
   };
 
+  // 4. Set up the animation classes based on the index
+  const isEven = index % 2 === 0;
+  const hiddenTransformClasses = isEven 
+    ? '-translate-x-[100%] rotate-[15deg]' 
+    : 'translate-x-[100%] -rotate-[15deg] md:-translate-x-[100%] md:rotate-[15deg]';
+    
+  const originClass = isEven
+    ? 'origin-bottom-left'
+    : 'origin-bottom-right md:origin-bottom-left';
 
   return (
-    <div className={clsx(
-      "group relative bg-[#fdfdfd] rounded-[32px] overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]",
-      "shadow-[0_8px_24px_rgba(149,157,165,0.15)] hover:shadow-[0_20px_40px_rgba(149,157,165,0.25)] hover:-translate-y-2",
-      // Changed mobile list mode to true horizontal (flex-row) instead of stacking (flex-col)
-      isList ? "flex flex-row sm:flex-row h-auto items-center sm:items-stretch" : "flex flex-col w-full"
-    )}>
+    <div 
+      ref={ref}
+      className={clsx(
+        "group flex transition-all duration-[1500ms] ease-[cubic-bezier(0.25,1,0.5,1)]",
+        originClass,
+        isVisible ? "opacity-100 translate-x-0 rotate-0" : `opacity-0 ${hiddenTransformClasses}`,
+        isList ? "flex-row h-auto gap-4 sm:gap-6 items-center sm:items-stretch" : "flex-col gap-4 sm:gap-5"
+      )}
+    >
       
-      {/* 1. Geometric Colorful Background */}
-      <div 
-        className={clsx(
-            "absolute top-0 left-0 z-0 transition-all duration-700 ease-in-out group-hover:scale-105 origin-top",
-            isList ? "h-full w-[45%] sm:w-1/2" : "h-[50%] w-full"
-        )}
-        style={{ 
-            backgroundColor: cardColor,
-            clipPath: isList 
-                ? 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' 
-                : 'polygon(0 0, 100% 0, 100% 80%, 0 100%)' 
-        }}
-      />
-
-      {/* 2. Top Elements: Badges and Floating Price Pill */}
+      {/* 1. The Product Image Area */}
       <div className={clsx(
-        "absolute flex justify-between items-start z-30 pointer-events-none",
-        isList ? "top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-4" : "top-4 left-4 right-4"
+        "relative bg-zinc-900 rounded-lg overflow-hidden shrink-0",
+        isList ? "w-[40%] sm:w-60 aspect-[4/5] sm:aspect-square" : "w-full aspect-[4/5]"
       )}>
-        {/* Badges */}
-        <div className="flex flex-col gap-2">
-            {displayBadge && (
-            <span className={clsx(
-              "bg-white text-gray-900 font-black uppercase rounded-full shadow-sm tracking-wider w-fit",
-              isList ? "text-[9px] px-2 py-1 sm:text-[11px] sm:px-3 sm:py-1.5" : "text-[11px] px-3 py-1.5"
-            )}>
-                {displayBadge.label}
-            </span>
-            )}
+        
+        {/* Badges Overlay */}
+        <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-30 flex flex-col gap-2">
+          {displayBadge && (
+            // <span 
+            //   className="bg-black/80 backdrop-blur-md text-white text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full border border-white/10 shadow-lg"
+            //   style={{ 
+            //     color: displayBadge.color !== '#000000' && displayBadge.color !== '#999999' ? displayBadge.color : 'white',
+            //     borderColor: displayBadge.color !== '#000000' && displayBadge.color !== '#999999' ? `${displayBadge.color}40` : 'rgba(255,255,255,0.1)'
+            //   }}
+            // >
+            //   {displayBadge.label}
+            // </span>
+            <div 
+                              key={0} 
+                              className="bg-black backdrop-blur-md text-white text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full border shadow-lg"
+                            //   style={{ color: badge.color, borderColor: `${badge.color}40` }}
+                            >
+                              {displayBadge.label}
+                            </div>
+          )}
         </div>
 
-        {/* Dynamic Price Pill (Expands if there is a discount) */}
-        <div className={clsx(
-          "bg-white rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.1)] transition-transform duration-500 group-hover:scale-105 group-hover:rotate-2",
-          isList ? "h-8 px-3 gap-1 sm:h-12 sm:px-4 sm:gap-2" : "h-12 px-4 gap-2"
-        )}>
-           {hasDiscount && (
-             <span className={clsx(
-               "font-bold text-gray-400 line-through", 
-               isList ? "text-[11px] sm:text-[13px]" : "text-[13px]"
-             )}>
-               ${originalPrice.toFixed(2)}
-             </span>
-           )}
-           <span className={clsx(
-             "font-black tracking-tighter", 
-             hasDiscount ? "text-[#FF5964]" : "text-gray-900", 
-             isList ? "text-[14px] sm:text-[17px]" : "text-[17px]"
-           )}>
-             ${currentPrice.toFixed(2)}
-           </span>
-        </div>
-      </div>
-
-      {/* 3. The Product Image */}
-      <div className={clsx(
-        "relative z-20 flex items-center justify-center shrink-0",
-        isList ? "w-[35%] sm:w-64 h-full p-2 sm:p-6" : "w-full pt-20 pb-4 px-6"
-      )}>
-        <Link href={productUrl} prefetch={false} className={clsx(
-          "relative block bg-white rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.08)] overflow-hidden group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] transition-all duration-500 group-hover:-translate-y-2",
-          // Shrink the image on mobile list view so it doesn't break boundaries
-          isList ? "w-24 h-24 sm:w-48 sm:h-48 p-2 sm:p-4 mt-8 sm:mt-0 mx-auto" : "w-48 h-48 p-4 mx-auto"
-        )}>
+        {/* Images with crossfade & zoom animation */}
+        <Link href={productUrl} prefetch={false} className="absolute inset-0 block w-full h-full z-20 cursor-pointer">
             <Image
                 src={image}
                 alt={item.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-contain p-2 sm:p-4 transition-all duration-700 ease-in-out group-hover:opacity-0 group-hover:scale-90"
+                className="object-cover transition-all duration-[1500ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:opacity-0 group-hover:scale-110"
             />
             <Image
                 src={hoverImage}
                 alt={`${item.title} alternate view`}
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-contain p-2 sm:p-4 opacity-0 scale-120 transition-all duration-700 ease-in-out group-hover:opacity-100 group-hover:scale-100"
+                className="object-cover absolute inset-0 opacity-0 scale-100 transition-all duration-[1500ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:opacity-80 group-hover:scale-110"
             />
         </Link>
       </div>
 
-      {/* 4. Content & Controls Area */}
+      {/* 2. Content & Controls Area */}
       <div className={clsx(
-        "relative z-20 flex flex-col flex-grow bg-transparent min-w-0",
-        isList ? "justify-center pr-3 py-4 pl-1 sm:pr-8 sm:py-6 sm:pl-0" : "px-5 pb-5 pt-2"
+        "flex flex-col flex-grow min-w-0",
+        isList ? "justify-center py-2 pr-2 sm:pr-4" : ""
       )}>
         
-        <div className={clsx(isList ? "text-left sm:text-center mt-6 sm:mt-0" : "text-center")}>
+        {/* Title & Pricing Block */}
+        <div className="flex justify-between items-start gap-4">
+          <div className="flex flex-col gap-1 min-w-0">
             {item.attributes.themes?.[0] && (
-                <span className="text-[10px] font-bold text-gray-500 tracking-[0.2em] uppercase mb-1.5 block truncate">
-                {item.attributes.themes[0]}
+                <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 tracking-widest uppercase truncate block">
+                  {item.attributes.themes[0]}
                 </span>
             )}
-            
             <Link href={productUrl} prefetch={false}>
                 <h3 className={clsx(
-                  "font-black text-gray-900 leading-tight hover:text-gray-600 transition-colors line-clamp-2",
-                  isList ? "text-[15px] sm:text-[18px]" : "text-[18px]"
+                  "font-semibold tracking-wide uppercase text-gray-100 leading-snug hover:text-white transition-colors line-clamp-2",
+                  isList ? "text-sm sm:text-lg" : "text-base md:text-lg"
                 )}>
-                {item.title}
+                  {item.title}
                 </h3>
             </Link>
+          </div>
+
+          <div className="flex flex-col items-end shrink-0">
+             <span className="text-[var(--color-brand-orange)] font-black text-lg sm:text-xl md:text-2xl tracking-tight">
+               ${currentPrice.toFixed(2)}
+             </span>
+             {hasDiscount && (
+               <span className="text-white line-through text-xs sm:text-sm md:text-base font-medium mt-0.5">
+                 ${originalPrice.toFixed(2)}
+               </span>
+             )}
+          </div>
         </div>
 
-        {/* View Details Button */}
+        {/* View Details Text Link */}
+        <Link 
+          href={productUrl}
+          prefetch={false}
+          className="text-[10px] sm:text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest transition-colors inline-flex items-center gap-1.5 w-fit mt-2 sm:mt-3"
+        >
+          View Details <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
+        </Link>
+
+        {/* Form Controls - Variant, Quantity, Add to Cart */}
         <div className={clsx(
-          "flex-grow flex items-center py-3",
-          isList ? "justify-start sm:justify-center" : "justify-center"
+          "flex flex-col",
+          isList ? "gap-2.5 sm:gap-3 mt-4 sm:mt-6" : "gap-3 mt-5"
         )}>
-          <Link 
-            href={productUrl}
-            prefetch={false}
-            className={clsx(
-              "font-bold text-gray-500 hover:text-gray-900 border-2 border-gray-100 hover:border-gray-200 bg-white hover:bg-gray-50 rounded-full transition-all duration-300 uppercase tracking-wider",
-              isList ? "text-[10px] px-3 py-1 sm:text-[12px] sm:px-5 sm:py-1.5" : "text-[12px] px-5 py-1.5"
-            )}
-          >
-            View Details
-          </Link>
-        </div>
-
-        {/* Form Controls */}
-        <div className="flex flex-col gap-2 sm:gap-3">
           
-          {/* Variant Selector (Full Width) */}
+          {/* Variant Selector */}
           {variants.length > 1 && (
             <div className="relative w-full">
               <select 
-                className={clsx(
-                  "w-full appearance-none bg-gray-50 font-bold text-gray-700 border-2 border-transparent rounded-full outline-none cursor-pointer hover:bg-gray-100 focus:border-gray-200 focus:bg-white transition-colors",
-                  isList ? "py-2 pl-3 pr-8 text-[11px] sm:py-3 sm:pl-5 sm:pr-10 sm:text-[13px]" : "py-3 pl-5 pr-10 text-[13px]"
-                )}
+                className="w-full appearance-none bg-zinc-900/40 text-white border border-white/20 rounded-full py-2.5 sm:py-3 pl-4 sm:pl-5 pr-10 text-[11px] sm:text-xs font-semibold tracking-widest uppercase outline-none cursor-pointer hover:border-white/40 focus:border-[var(--color-brand-orange)] transition-colors"
                 value={selectedVariant ? selectedVariant.variantId : ""}
                 onChange={(e) => setSelectedVariant(variants.find(v => v.variantId === e.target.value) || null)}
               >
                 <option value="" disabled>Select Option</option>
                 {variants.map(v => <option key={v.variantId} value={v.variantId}>{v.title}</option>)}
               </select>
-              <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                <ChevronDown className="w-4 h-4 stroke-[3]" />
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
+                <ChevronDown className="w-4 h-4 stroke-[2.5]" />
               </div>
             </div>
           )}
 
           {/* Quantity & Add to Cart Row */}
-          <div className={clsx("flex gap-2", isList ? "flex-wrap sm:flex-nowrap" : "")}>
+          <div className={clsx("flex gap-2 sm:gap-3", isList ? "flex-wrap xl:flex-nowrap" : "flex-row")}>
             
             {/* Quantity Selector */}
-            <div className={clsx(
-              "flex items-center justify-between bg-gray-50 rounded-full shrink-0 border-2 border-transparent hover:border-gray-100 transition-colors",
-              isList ? "px-1 w-[80px] sm:px-2 sm:w-[100px]" : "px-2 w-[100px]"
-            )}>
+            <div className="flex items-center justify-between bg-zinc-900/40 border border-white/20 rounded-full px-2 w-[90px] sm:w-[100px] shrink-0 h-[42px] sm:h-[48px]">
               <button 
                 onClick={(e) => { e.preventDefault(); handleQuantityChange('decrease'); }}
-                className={clsx(
-                  "flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-white rounded-full transition-colors active:scale-90",
-                  isList ? "w-6 h-6 sm:w-8 sm:h-8" : "w-8 h-8"
-                )}
+                className="p-1.5 text-white/50 hover:text-white transition-colors active:scale-90"
               >
-                <Minus className={clsx("stroke-[3]", isList ? "w-3 h-3 sm:w-3.5 sm:h-3.5" : "w-3.5 h-3.5")} />
+                <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
               </button>
               
-              <span className={clsx(
-                "font-black text-gray-900 select-none",
-                isList ? "text-[12px] sm:text-[14px]" : "text-[14px]"
-              )}>
+              <span className="font-semibold text-white text-xs sm:text-sm select-none">
                 {quantity}
               </span>
               
               <button 
                 onClick={(e) => { e.preventDefault(); handleQuantityChange('increase'); }}
-                className={clsx(
-                  "flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-white rounded-full transition-colors active:scale-90",
-                  isList ? "w-6 h-6 sm:w-8 sm:h-8" : "w-8 h-8"
-                )}
+                className="p-1.5 text-white/50 hover:text-white transition-colors active:scale-90"
               >
-                <Plus className={clsx("stroke-[3]", isList ? "w-3 h-3 sm:w-3.5 sm:h-3.5" : "w-3.5 h-3.5")} />
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               </button>
             </div>
 
-            {/* Action Button */}
+            {/* Add to Cart Button */}
             <button 
               onClick={handleAddToCart}
               disabled={!item.inventory.availableForSale || !selectedVariant || isAdding}
-              className={clsx(
-                "flex-1 flex items-center justify-center gap-2 rounded-full font-black uppercase tracking-wide transition-all duration-300 transform active:scale-[0.97]",
-                isList ? "py-2 px-3 text-[11px] sm:py-3.5 sm:px-4 sm:text-[13px]" : "py-3.5 px-4 text-[13px]",
-                (!item.inventory.availableForSale || !selectedVariant)
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-gray-900 text-white hover:bg-gray-800 hover:shadow-[0_10px_20px_rgba(0,0,0,0.15)] hover:-translate-y-0.5"
-              )}
+              className="flex-1 rounded-full bg-transparent border border-white/20 text-white px-4 h-[42px] sm:h-[48px] text-[11px] sm:text-xs font-semibold tracking-widest hover:border-[var(--color-brand-orange)] hover:bg-[var(--color-brand-orange)] hover:text-black transition-all duration-300 uppercase flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-white/20 disabled:hover:text-white"
             >
-              {isAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : (!item.inventory.availableForSale) ? 'Sold Out' : 'Add to Cart'} 
-              {(!isAdding && item.inventory.availableForSale) && <ShoppingCart className={clsx(isList ? "w-3.5 h-3.5 sm:w-4 sm:h-4" : "w-4 h-4")} />}
+              {isAdding ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : !item.inventory.availableForSale ? (
+                'Sold Out'
+              ) : (
+                <>
+                  Add to Cart <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 mb-[2px]" />
+                </>
+              )} 
             </button>
           </div>
         </div>
 
       </div>
-
     </div>
   );
 }
