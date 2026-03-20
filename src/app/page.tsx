@@ -1,7 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import HeroSection from "../components/hero/HeroSection";
-import WhatWeDo from "../components/home/WhatWeDo";
 import AboutSection from "../components/home/AboutSection";
 import FeatureSection from "../components/home/FeatureSection";
 import NewArrivals from "../components/home/NewArrivals";
