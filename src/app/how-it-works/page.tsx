@@ -10,21 +10,21 @@ const steps = [
         id: 1,
         title: 'Prime',
         description: 'Grab the Primer Wipe and exfoliate the area you wish to place your tattoo for 30 seconds. Wait until it’s fully dry, like, 60 seconds.',
-        image: '/assets/images/step-1-prime.jpg',
+        image: '/assets/images/backup-article-385719861295.jpeg',
         alt: 'Person prepping skin with a primer wipe'
     },
     {
         id: 2,
         title: 'Place',
         description: 'Peel off the tattoo backing and place the tattoo on your skin, sticky side down. Find the peelable corner and remove the paper border. Press down to ensure it’s totally adhered. Need a little help? Ask a friend! Then chill for an hour while your ink develops.',
-        image: '/assets/images/step-2-place.jpg',
+        image: '/assets/images/temporary_tattoos.webp',
         alt: 'Applying the temporary tattoo to the skin'
     },
     {
         id: 3,
         title: 'Peel',
         description: 'After one hour, peel off the applicator. The ink will initially be blue/green depending on your skin and develop into a blue/black within 24 hours. Now you’re basically your own tattoo artist!',
-        image: '/assets/images/step-3-peel.jpg',
+        image: '/assets/images/ok-to-remove-second-skin-after-one-day-v0-9mzlf6slt3bd1.webp',
         alt: 'Peeling off the tattoo applicator to reveal the design'
     }
 ];
@@ -35,8 +35,8 @@ export default function HowItWorks() {
             {/* Hero Section */}
             <SharedHeroBanner 
                 title="HOW IT WORKS"
-                image="/assets/images/HowItWorksHero.jpg"
-                mobileImage="/assets/images/HowItWorksHeroMobile.jpg"
+                image="/assets/images/Tattoo_Peeling-2996730.webp"
+                mobileImage="/assets/images/Tattoo_Peeling-2996730.webp"
                 useMobileImage={true}
                 textColor="#FE8204"
             />

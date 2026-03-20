@@ -405,8 +405,8 @@ export default function NewArrivalsPage() {
       {/* ========================================================= */}
       <SharedHeroBanner 
         title="NEW ARRIVALS"
-        image="/assets/images/NewArrivals.svg"
-        mobileImage="/assets/images/NewArrivals.svg"
+        image="/assets/images/temporary_tattoos.webp"
+        mobileImage="/assets/images/temporary_tattoos.webp"
         useMobileImage={true}
         textColor="#FE8204"
       />

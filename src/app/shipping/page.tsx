@@ -10,8 +10,8 @@ export default function Shipping() {
             {/* Hero Section */}
             <SharedHeroBanner 
                 title="SHIPPING & DELIVERY"
-                image="/assets/images/ShippingHero.jpg"
-                mobileImage="/assets/images/ShippingHeroMobile.jpg"
+                image="/assets/images/A_cheerful_business_woman_in_her_30s_smiling_with_satisfaction_as_she_gently_peels_off_the_back_plastic_of_a__Lions_Den__restaurant_temporary_business_logo_tattoo_on_her_forearm._Theb_b1ba6ed2-3dd7-4df6-96f7-80c700b9bce6.webp"
+                mobileImage="/assets/images/A_cheerful_business_woman_in_her_30s_smiling_with_satisfaction_as_she_gently_peels_off_the_back_plastic_of_a__Lions_Den__restaurant_temporary_business_logo_tattoo_on_her_forearm._Theb_b1ba6ed2-3dd7-4df6-96f7-80c700b9bce6.webp"
                 useMobileImage={true}
                 textColor="#FE8204"
             />

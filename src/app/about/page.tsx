@@ -11,8 +11,8 @@ export default function AboutUs() {
             {/* Hero Section */}
             <SharedHeroBanner 
                 title="ABOUT US"
-                image="/assets/images/AboutUsHero.jpg"
-                mobileImage="/assets/images/AboutUsHeroMobile.jpg"
+                image="/assets/images/20250830_2049_Temporary_Tattoo_Application_simple_compose_01k3y1f3t3exwt3qv75t544k2g.webp"
+                mobileImage="/assets/images/20250830_2049_Temporary_Tattoo_Application_simple_compose_01k3y1f3t3exwt3qv75t544k2g.webp"
                 useMobileImage={true}
                 textColor="#FE8204" // Kept your brand color, or change to #FFFFFF / #000000 if preferred
             />
@@ -30,7 +30,7 @@ export default function AboutUs() {
                     </div>
                     <div className="md:w-1/2 w-full relative h-[400px] md:h-[550px] rounded-3xl overflow-hidden shadow-2xl">
                         <Image 
-                            src="/assets/images/about-expression.jpg" 
+                            src="/assets/images/0af9a1b6-fa15-4881-9265-ac0d424e1e36tattoo1.jpg" 
                             alt="Person expressing themselves with ultra-realistic temporary tattoos" 
                             fill 
                             className="object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
@@ -66,7 +66,7 @@ export default function AboutUs() {
                         </div>
                         <div className="md:w-1/2 w-full relative h-[450px] md:h-[600px] rounded-3xl overflow-hidden shadow-xl">
                             <Image 
-                                src="/assets/images/who-we-are.jpg" 
+                                src="/assets/images/Custom-Full-Arm-Eco-Friendly-Temporary-Tattoo-Women-Men-Large-Size-Waterproof-Body-Art-Naturalness-Fashionable-Artificial-Tattoo.avif" 
                                 alt="Artist designing temporary tattoo creations" 
                                 fill 
                                 className="object-cover hover:scale-105 transition-transform duration-700 ease-in-out"

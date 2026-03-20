@@ -209,6 +209,22 @@ export default function Header() {
     return () => { document.body.style.overflow = ""; }; 
   }, [isMobileDrawerOpen, isSearchOpen]);
 
+  useEffect(() => {
+  closeSearch();
+  setIsMobileDrawerOpen(false);
+}, [pathname, closeSearch]);
+
+// Close search on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isSearchOpen) {
+        closeSearch();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isSearchOpen, closeSearch]);
+
   const isActive = (path: string) => pathname?.includes(path);
 
   return (
@@ -456,22 +472,7 @@ export default function Header() {
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       className="absolute top-12 right-0 w-48 bg-white border border-gray-100 shadow-xl rounded-2xl py-2 z-50"
                     >
-                      {/* {isLoggedIn ? (
-                        <>
-                          <Link href="/account" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[var(--color-brand-orange)]">
-                            <Settings className="w-4 h-4" /> My Account
-                          </Link>
-                          <button onClick={() => setIsLoggedIn(false)} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-500">
-                            <LogOut className="w-4 h-4" /> Log out
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <Link href="/login" className="block px-4 py-2 text-sm font-bold text-gray-900 hover:bg-gray-50 hover:text-[var(--color-brand-orange)]">Login</Link>
-                          <Link href="/register" className="block px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-[var(--color-brand-orange)]">Create Account</Link>
-                        </>
-                      )} */}
-
+        
                       {isLoggedIn ? (
   <>
     <div className="p-5 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
@@ -517,62 +518,17 @@ export default function Header() {
             </div>
           </div>
 
-          {/* ========================================== */}
-          {/* MOBILE VIEW (Icons/Menu Trigger)           */}
-          {/* ========================================== */}
-          {/* <div className="flex md:hidden items-center justify-between w-full h-full">
-            <button
-              onClick={() => setIsMobileDrawerOpen(true)}
-              className="p-2 -ml-2 text-gray-900 hover:bg-gray-50 rounded-full transition-colors"
-              aria-label="Open Menu"
-            >
-              <Menu className="w-6 h-6" strokeWidth={1.8} />
-            </button>
-
-            <Link href="/" className="absolute left-1/2 -translate-x-1/2 outline-none">
-              <Image
-                src="/assets/icons/Fotterlogo2.svg"
-                alt="Just Tattoos"
-                width={120}
-                height={40}
-                className={cn("transition-all duration-300 w-auto", isScrolled ? "h-7" : "h-8")}
-                priority
-              />
-            </Link>
-
-            <div className="flex items-center gap-2 -mr-2">
-              <button 
-                onClick={() => setIsSearchOpen(true)}
-                className="p-2 text-gray-900 hover:bg-gray-50 rounded-full transition-colors"
-                aria-label="Search"
-              >
-                <Search className="w-5 h-5" strokeWidth={1.8} />
-              </button>
-              <button 
-                onClick={() => setCartOpen(true)}
-                className="p-2 text-gray-900 hover:bg-gray-50 rounded-full transition-colors relative"
-                aria-label="Cart"
-              >
-                <ShoppingBag className="w-5 h-5" strokeWidth={1.8} />
-                {cartCount > 0 && (
-                  <span className="absolute top-1 right-1 bg-[var(--color-brand-orange)] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full shadow-sm">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
-            </div>
-          </div> */}
-          {/* ========================================== */}
-          {/* MOBILE VIEW (Icons/Menu Trigger)           */}
-          {/* ========================================== */}
            <div className="flex md:hidden items-center justify-between w-full h-full">
             
-            {/* PREMIUM CUSTOM HAMBURGER MENU */}
             <button
-              onClick={() => setIsMobileDrawerOpen(true)}
+              onClick={() => {
+                setIsMobileDrawerOpen(true);
+                if (isSearchOpen) closeSearch();
+              }}
               className="p-2 -ml-2 group flex items-center justify-center h-10 w-10"
               aria-label="Open Menu"
             >
+
               <div className="flex flex-col items-start justify-center gap-[5px] w-5">
                 <span className="w-full h-[2px] bg-gray-900 rounded-full transition-all duration-300 group-hover:bg-[var(--color-brand-orange)]"></span>
                 <span className="w-3/4 h-[2px] bg-gray-900 rounded-full transition-all duration-300 group-hover:w-full group-hover:bg-[var(--color-brand-orange)]"></span>
@@ -596,12 +552,19 @@ export default function Header() {
 
             {/* REFINED RIGHT ICONS */}
             <div className="flex items-center gap-1 -mr-2">
-              <button 
+              {/* <button 
                 onClick={() => setIsSearchOpen(true)}
                 className="p-2 text-gray-900 hover:text-[var(--color-brand-orange)] transition-colors"
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" strokeWidth={1.8} />
+              </button> */}
+              <button 
+                onClick={() => isSearchOpen ? closeSearch() : setIsSearchOpen(true)}
+                className="p-2 text-gray-900 hover:text-[var(--color-brand-orange)] transition-colors"
+                aria-label="Search"
+              >
+                {isSearchOpen ? <X className="w-5 h-5" strokeWidth={1.8} /> : <Search className="w-5 h-5" strokeWidth={1.8} />}
               </button>
               <button 
                 onClick={() => setCartOpen(true)}
@@ -637,6 +600,19 @@ export default function Header() {
               exit={{ height: 0, opacity: 0 }}
               className="absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-2xl overflow-visible z-40 rounded-b-2xl"
             >
+
+                <button
+                  onClick={closeSearch}
+                  className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-400 hover:text-black-500 hover:bg-black-50 rounded-full transition-all z-50 flex flex-col items-center group"
+                  aria-label="Close search drawer"
+                >
+                  <X className="w-6 h-6" strokeWidth={5} />
+                  {/* <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 group-hover:text-red-500 mt-1 hidden sm:block">
+                    Esc
+                  </span> */}
+                </button>
+
+
               <div className="max-w-[700px] mx-auto px-4 py-6 relative">
                 <div className="relative flex items-center w-full">
                   {isSearching ? (
@@ -658,6 +634,16 @@ export default function Header() {
                     <button
                       onClick={() => setSearchQuery("")}
                       className="absolute right-4 p-1.5 text-gray-400 hover:text-gray-800 rounded-full hover:bg-gray-100 transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  )}
+
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-4 p-1.5 text-gray-400 hover:text-gray-800 rounded-full hover:bg-gray-100 transition-colors"
+                      aria-label="Clear search text"
                     >
                       <X className="w-5 h-5" />
                     </button>
