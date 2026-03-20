@@ -1,11 +1,10 @@
-
-
 "use client";
 
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUp, ArrowRight } from "lucide-react";
 import Image from "next/image";
+
 // --- Data Structures ---
 const FOOTER_LINKS = [
   {
@@ -42,6 +41,16 @@ const SOCIAL_ICONS = [
   { name: "YouTube", path: "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" },
 ];
 
+const PAYMENT_METHODS = [
+  { name: "Visa", src: "/assets/icons/payments/visa.svg" },
+  { name: "Mastercard", src: "/assets/icons/payments/master-card.svg" },
+  { name: "PayPal", src: "/assets/icons/payments/paypal.svg" },
+  { name: "Apple Pay", src: "/assets/icons/payments/apple-pay.svg" },
+  { name: "Google Pay", src: "/assets/icons/payments/google-pay.svg" },
+  { name: "AMEX", src: "/assets/icons/payments/amex.svg" },
+  { name: "Discouver", src: "/assets/icons/payments/discover.svg" },
+];
+
 export default function Footer() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -59,13 +68,13 @@ export default function Footer() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 mb-24"
         >
-          {/* Brand & Newsletter Column (Spans 5 cols) */}
+          {/* Brand & Newsletter Column */}
           <div className="lg:col-span-5 flex flex-col justify-between">
             <div>
-              <h2 className=" text-3xl md:text-4xl font-bold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-4">
                 JOIN <span className="text-[var(--color-brand-orange)]">US.</span>
               </h2>
-              <p className=" text-gray-400 text-sm md:text-base max-w-md mb-8 leading-relaxed">
+              <p className="text-gray-400 text-sm md:text-base max-w-md mb-8 leading-relaxed">
                 Subscribe for exclusive drops, early access to new collections, and the latest in temporary tattoo artistry.
               </p>
             </div>
@@ -78,7 +87,7 @@ export default function Footer() {
               <input 
                 type="email" 
                 placeholder="Enter your email" 
-                className="w-full bg-white/5 border border-white/10 rounded-full py-4 pl-6 pr-14  text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[var(--color-brand-orange)] focus:ring-1 focus:ring-[var(--color-brand-orange)] transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-full py-4 pl-6 pr-14 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[var(--color-brand-orange)] focus:ring-1 focus:ring-[var(--color-brand-orange)] transition-all"
                 required
               />
               <button 
@@ -91,14 +100,14 @@ export default function Footer() {
             </form>
           </div>
 
-          {/* Navigation Columns (Spans 7 cols) */}
+          {/* Navigation Columns */}
           <nav 
             className="lg:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-12"
             aria-label="Footer Navigation"
           >
             {FOOTER_LINKS.map((section) => (
               <div key={section.title} className="flex flex-col">
-                <h3 className=" text-[var(--color-white)] text-sm md:text-base font-bold uppercase tracking-widest mb-6">
+                <h3 className="text-[var(--color-white)] text-sm md:text-base font-bold uppercase tracking-widest mb-6">
                   {section.title}
                 </h3>
                 <ul className="space-y-4">
@@ -106,7 +115,7 @@ export default function Footer() {
                     <li key={link.name}>
                       <Link 
                         href={link.href} 
-                        className="group relative  text-gray-400 hover:text-white text-sm md:text-base transition-colors duration-300 w-fit block"
+                        className="group relative text-gray-400 hover:text-white text-sm md:text-base transition-colors duration-300 w-fit block"
                       >
                         {link.name}
                         {/* High-end CSS Underline Effect */}
@@ -119,30 +128,46 @@ export default function Footer() {
             ))}
           </nav>
         </motion.div>
-            <div className="py-1 flex flex-col items-center justify-center border-b border-white/10">
-  <div className="flex flex-col items-center gap-3">
-     {/* Logo with Brand Color Filter */}
-     <Image 
-        src="/assets/icons/Fotterlogo2.svg" 
-        alt="Core Tattoos Logo" 
-        width={160} 
-        height={50} 
-        /* This filter converts white/grayscale to approximately #fe8204.
-           If the source SVG is black, use: invert(62%) sepia(88%) saturate(3000%) hue-rotate(1deg) brightness(103%) contrast(105%)
-        */
-        className="opacity-100"
-        style={{ 
-          filter: "invert(58%) sepia(85%) saturate(1835%) hue-rotate(359deg) brightness(101%) contrast(106%)" 
-        }}
-     />
-     <span className=" text-[10px] text-center uppercase tracking-[0.4em] text-gray-500">
-        Premium Temporary Art
-     </span>
-  </div>
-</div>
+
+        {/* MIDDLE SECTION: Logo & Payment Methods */}
+        <div className="py-10 flex flex-col items-center justify-center border-b border-white/10 gap-8">
+          <div className="flex flex-col items-center gap-3">
+            {/* Logo with Brand Color Filter */}
+            <Image 
+                src="/assets/icons/Fotterlogo2.svg" 
+                alt="Core Tattoos Logo" 
+                width={160} 
+                height={50} 
+                className="opacity-100"
+                style={{ filter: "invert(58%) sepia(85%) saturate(1835%) hue-rotate(359deg) brightness(101%) contrast(106%)" }}
+            />
+            <span className="text-[10px] text-center uppercase tracking-[0.4em] text-gray-500">
+                Premium Temporary Art
+            </span>
+          </div>
+
+          {/* Payment Method Cards */}
+          <div className="flex bg-white  rounded-2xl border border-gray-100 p-2 flex-wrap justify-center items-center gap-3 shadow-sm flex-wrap justify-center items-center gap-3">
+            {PAYMENT_METHODS.map((payment) => (
+              <div 
+                key={payment.name} 
+                className=" h-10 py-1.5 rounded-lg flex items-center justify-center  transition-colors duration-300"
+                title={`Pay with ${payment.name}`}
+              >
+                <Image 
+                  src={payment.src} 
+                  alt={payment.name} 
+                  width={36} 
+                  height={22} 
+                  className="w-auto h-5 object-contain opacity-80"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* BOTTOM SECTION: Legal & Utilities */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-8 border-t border-white/10 relative z-20">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-8 relative z-20">
           
           {/* Social Icons */}
           <div className="flex items-center gap-4">
@@ -167,11 +192,13 @@ export default function Footer() {
           </div>
 
           {/* Copyright & Links */}
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8  text-[12px] text-gray-500">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-[12px] text-gray-500">
             <p>© {new Date().getFullYear()} Core Tattoos. All rights reserved.</p>
             <div className="flex gap-6">
-              <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
               <Link href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link>
+              <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
+              <Link href="/refund-policy" className="hover:text-white transition-colors">Refund Policy</Link>
+              <Link href="/shipping-policy" className="hover:text-white transition-colors">Shipping Policy</Link>
             </div>
           </div>
 
@@ -187,9 +214,8 @@ export default function Footer() {
       </div>
 
       {/* BACKGROUND BRAND WATERMARK */}
-      {/* Absolute positioned, scaled up text that sits behind the footer content at the very bottom */}
       <div className="absolute bottom-[-10%] left-0 w-full overflow-hidden flex justify-center pointer-events-none select-none z-0 opacity-[0.03]">
-        <span className=" font-black text-[13vw] leading-none whitespace-nowrap text-white">
+        <span className="font-black text-[13vw] leading-none whitespace-nowrap text-white">
           JUST TATTOOS
         </span>
       </div>

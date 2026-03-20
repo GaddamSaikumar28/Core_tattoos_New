@@ -469,6 +469,41 @@ export const customerRecoverMutation = /* GraphQL */ `
 // src/lib/shopify/queries.ts
 
 // --- CUSTOMER ORDERS ---
+// export const getCustomerOrdersQuery = /* GraphQL */ `
+//   query getCustomerOrders($customerAccessToken: String!, $first: Int = 20) {
+//     customer(customerAccessToken: $customerAccessToken) {
+//       orders(first: $first, sortKey: PROCESSED_AT, reverse: true) {
+//         edges {
+//           node {
+//             id
+//             orderNumber
+//             processedAt
+//             financialStatus
+//             fulfillmentStatus
+//             totalPrice {
+//               amount
+//               currencyCode
+//             }
+//             lineItems(first: 10) {
+//               edges {
+//                 node {
+//                   title
+//                   quantity
+//                   variant {
+//                     image {
+//                       url
+//                       altText
+//                     }
+//                   }
+//                 }
+//               }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// `;
 export const getCustomerOrdersQuery = /* GraphQL */ `
   query getCustomerOrders($customerAccessToken: String!, $first: Int = 20) {
     customer(customerAccessToken: $customerAccessToken) {
@@ -477,12 +512,21 @@ export const getCustomerOrdersQuery = /* GraphQL */ `
           node {
             id
             orderNumber
+            email
+            statusUrl
             processedAt
             financialStatus
             fulfillmentStatus
             totalPrice {
               amount
               currencyCode
+            }
+            successfulFulfillments {
+              trackingCompany
+              trackingInfo {
+                number
+                url
+              }
             }
             lineItems(first: 10) {
               edges {
@@ -624,3 +668,41 @@ export const customerDefaultAddressUpdateMutation = /* GraphQL */ `
     }
   }
 `;
+
+
+// export const getCustomerOrdersQuery = /* GraphQL */ `
+//   query getCustomerOrders($customerAccessToken: String!, $first: Int = 20) {
+//     customer(customerAccessToken: $customerAccessToken) {
+//       orders(first: $first, sortKey: PROCESSED_AT, reverse: true) {
+//         edges {
+//           node {
+//             id
+//             orderNumber
+//             processedAt
+//             financialStatus
+//             fulfillmentStatus
+//             totalPrice {
+//               amount
+//               currencyCode
+//             }
+//             lineItems(first: 10) {
+//               edges {
+//                 node {
+//                   title
+//                   quantity
+//                   variant {
+//                     image {
+//                       url
+//                       altText
+//                     }
+//                   }
+//                 }
+//               }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// `;
+

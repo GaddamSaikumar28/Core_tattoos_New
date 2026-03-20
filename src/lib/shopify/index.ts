@@ -531,12 +531,38 @@ export async function removeFromCart(cartId: string, lineId: string): Promise<Ca
 }
 
 // Associates a guest cart with a logged-in user's Shopify Account
-export async function updateCartBuyerIdentity(cartId: string, customerAccessToken: string): Promise<Cart> {
+export async function updateCartBuyerIdentity(cartId: string, customerAccessToken: string, email?: string,
+  shippingAddress?: ShopifyAddress): Promise<Cart> {
+    const buyerIdentity: any = { customerAccessToken };
+
+  // 1. Explicitly attach the email so it pre-fills the checkout contact field
+    if (email) {
+      buyerIdentity.email = email;
+    }
+
+  // 2. Map the saved customer address to Shopify's expected DeliveryAddressInput
+    if (shippingAddress) {
+      buyerIdentity.deliveryAddressPreferences = [{
+        deliveryAddress: {
+          firstName: shippingAddress.firstName,
+          lastName: shippingAddress.lastName,
+          address1: shippingAddress.address1,
+          address2: shippingAddress.address2 || "",
+          city: shippingAddress.city,
+          province: shippingAddress.province,
+          country: shippingAddress.country,
+          zip: shippingAddress.zip,
+          phone: shippingAddress.phone || "",
+          company: shippingAddress.company || ""
+        }
+      }];
+    }
+
   const res = await shopifyFetch<any>({
     query: updateCartBuyerIdentityMutation,
     variables: { 
       cartId, 
-      buyerIdentity: { customerAccessToken } 
+      buyerIdentity
     },
     cache: 'no-store',
   });

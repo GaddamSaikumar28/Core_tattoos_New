@@ -11,9 +11,12 @@ import {
   addToCart as apiAddToCart, 
   updateCartItem, 
   removeFromCart,
-  updateCartBuyerIdentity
+  updateCartBuyerIdentity,
+  ShopifyAddress,
+  getCustomer,
+  getCustomerAddresses,
 } from "@/src/lib/shopify";
-
+import Cookies from "js-cookie";
 interface CartContextType {
   cart: Cart | null;
   cartCount: number;
@@ -110,6 +113,26 @@ const addToCart = async (variantOrId: any, incomingQuantity?: number) => {
         // A. CREATE BRAND NEW CART
         newCart = await createCart(finalVariantId, safeQuantity);
         localStorage.setItem(CART_ID_KEY, newCart.id);
+        const userToken = Cookies.get("shopify_customer_token");
+        if (userToken) {
+          const [profile, addressData] = await Promise.all([
+            getCustomer(userToken),
+            getCustomerAddresses(userToken)
+          ]);
+
+          const defaultAddress = addressData?.addresses?.find(
+            (a: any) => a.id === addressData.defaultAddressId
+          ) || addressData?.addresses?.[0];
+
+          newCart = await updateCartBuyerIdentity(
+            newCart.id, 
+            userToken,
+            profile?.email,
+            defaultAddress
+          );
+          //newCart = await updateCartBuyerIdentity(newCart.id, userToken);
+        }
+
       } else {
         // B. CHECK FOR EXISTING ITEM TO PREVENT DUPLICATES
         const existingLineItem = cart.lines.find(
@@ -179,10 +202,37 @@ const addToCart = async (variantOrId: any, incomingQuantity?: number) => {
   // Call this function when a user successfully logs in.
   // It attaches the current guest cart to their official customer account.
   const linkCartToUser = async (customerAccessToken: string) => {
-    if (!cart?.id) return;
+    // if (!cart?.id) return;
     try {
-      const linkedCart = await updateCartBuyerIdentity(cart.id, customerAccessToken);
-      setCart(linkedCart);
+      const savedCartId = localStorage.getItem(CART_ID_KEY);
+      if (!savedCartId || !cart) return;
+
+      // 1. Fetch the user's basic profile (for email) and their addresses
+      const [customerProfile, addressData] = await Promise.all([
+        getCustomer(customerAccessToken),
+        getCustomerAddresses(customerAccessToken)
+      ]);
+
+      // 2. Identify the default address (or fallback to the first saved address)
+      let defaultAddress: ShopifyAddress | undefined = undefined;
+      
+      if (addressData?.addresses?.length > 0) {
+        defaultAddress = addressData.addresses.find(
+          (addr: ShopifyAddress) => addr.id === addressData.defaultAddressId
+        ) || addressData.addresses[0];
+      }
+
+      const updatedCart = await updateCartBuyerIdentity(
+        savedCartId, 
+        customerAccessToken,
+        customerProfile?.email, 
+        defaultAddress          
+      );
+      
+      setCart(updatedCart);
+
+      // const linkedCart = await updateCartBuyerIdentity(cart.id, customerAccessToken);
+      // setCart(linkedCart);
     } catch (error) {
       console.error("Failed to link cart to user:", error);
     }
@@ -197,6 +247,26 @@ const addToCart = async (variantOrId: any, incomingQuantity?: number) => {
         // Create a new cart if one doesn't exist
         checkoutCart = await createCart(variantId, quantity);
         localStorage.setItem(CART_ID_KEY, checkoutCart.id);
+        const userToken = Cookies.get("shopify_customer_token");
+        if (userToken) {
+          const [profile, addressData] = await Promise.all([
+            getCustomer(userToken),
+            getCustomerAddresses(userToken)
+          ]);
+
+          const defaultAddress = addressData?.addresses?.find(
+            (a: any) => a.id === addressData.defaultAddressId
+          ) || addressData?.addresses?.[0];
+
+          checkoutCart = await updateCartBuyerIdentity(
+            checkoutCart.id, 
+            userToken,
+            profile?.email,
+            defaultAddress
+          );
+
+          //checkoutCart = await updateCartBuyerIdentity(checkoutCart.id, userToken);
+        }
       } else {
         // Check if item already exists in the cart
         const existingLineItem = cart.lines.find(

@@ -142,7 +142,7 @@ import { Toaster } from "sonner";
 import { CartProvider } from "../context/CartContext";
 import { CartDrawer } from "../components/cart/CartDrawer";
 import { AuthProvider } from "../context/AuthContext";
-
+import Script from "next/script";
 const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"], 
@@ -190,7 +190,15 @@ export default function RootLayout({
 
           {/* Toaster doesn't need Auth or Cart contexts, but it's fine here */}
           <Toaster position="bottom-right" richColors />
+
+
         </CartProvider>
+
+        <Script 
+          src="https://cdn.your-messaging-app.com/widget.js" 
+          strategy="lazyOnload" 
+        />
+
       </body>
     </html>
   );

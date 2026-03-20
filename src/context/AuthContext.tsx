@@ -42,6 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const fetchedCustomer = await getCustomer(token);
           if (fetchedCustomer) {
             setCustomer(fetchedCustomer);
+            await linkCartToUser(token);
           } else {
             Cookies.remove(TOKEN_KEY);
           }

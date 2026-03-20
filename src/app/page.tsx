@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import AboutSection from "../components/home/AboutSection";
+// import AboutSection from "../components/home/AboutSection";
 import FeatureSection from "../components/home/FeatureSection";
 import NewArrivals from "../components/home/NewArrivals";
 import ShopCollection from "../components/home/ShopCollection";
@@ -25,7 +25,7 @@ export default function HomePage() {
       <HowItWorks />
       <FreeGiftComponent />
       <DynamicReviews />
-      <AboutSection />
+      {/* <AboutSection /> */}
       <FaqSection />
       <NewsletterSection />
       {/* <WhatWeDo /> */}

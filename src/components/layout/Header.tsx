@@ -36,19 +36,19 @@ const HOW_IT_WORKS_DATA = [
   { 
     title: "Help & FAQ", 
     description: "Quick answers to our most common questions.", 
-    href: "/help-faq", 
+    href: "/help", 
     icon: MessageCircleQuestion 
   },
   { 
     title: "Help Center", 
     description: "Comprehensive guides and customer support.", 
-    href: "/help-center", 
+    href: "/contact", 
     icon: HelpCircle 
   },
   { 
     title: "About us", 
     description: "Our story, mission, and the team behind it all.", 
-    href: "/about-us", 
+    href: "/about", 
     icon: Info 
   },
 ];
