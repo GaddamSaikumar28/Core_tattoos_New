@@ -9,7 +9,7 @@ export default function AccountDashboard() {
   const { customer } = useAuth();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-in mt-10 fade-in slide-in-from-bottom-4 duration-500">
       <div>
         <h1 className="text-3xl font-black text-gray-900 mb-2">Welcome back, {customer?.firstName}!</h1>
         <p className="text-gray-500">From your account dashboard you can view your recent orders and manage your account details.</p>

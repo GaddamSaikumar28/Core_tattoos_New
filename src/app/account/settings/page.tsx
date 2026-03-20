@@ -65,10 +65,10 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-3xl mt-10">
       <h1 className="text-2xl font-black text-gray-900 mb-6">Account Settings</h1>
       
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 border border-gray-100 rounded-2xl shadow-sm">
+      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 border border-gray-100 rounded-2xl shadow-sm bg-white p-6 border border-gray-100 rounded-2xl shadow-sm w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-[11px] font-black uppercase tracking-widest text-gray-500">First Name</label>

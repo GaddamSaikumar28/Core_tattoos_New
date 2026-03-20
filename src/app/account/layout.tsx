@@ -37,8 +37,9 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
   if (!customer) return null; // Will redirect via useEffect
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col md:flex-row gap-8">
-      {/* Sidebar */}
+
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-18 mt-10 flex flex-col md:flex-row gap-8 lg:gap-12">
+      {/* Sidebar      // <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col md:flex-row gap-8"> */}
       <aside className="w-full md:w-64 shrink-0">
         <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
           <div className="mb-8">
@@ -61,8 +62,11 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                   href={item.href}
                   className={clsx(
                     "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors",
+                    // isActive 
+                    //   ? "bg-white text-[var(--color-brand-orange)] shadow-sm border border-gray-100" 
+                    //   : "text-gray-600 hover:bg-gray-100"
                     isActive 
-                      ? "bg-white text-[var(--color-brand-orange)] shadow-sm border border-gray-100" 
+                      ? "bg-orange-50 text-[var(--color-brand-orange)] border border-orange-100/50" 
                       : "text-gray-600 hover:bg-gray-100"
                   )}
                 >

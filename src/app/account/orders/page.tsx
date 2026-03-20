@@ -33,7 +33,9 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-black text-gray-900">Order History</h1>
+      {/* <h1 className="text-2xl font-black text-gray-900">Order History</h1> */}
+      <h1 className="text-3xl mt-10 font-black text-gray-900 mb-2">Order History</h1>
+      
       
       {orders.length === 0 ? (
         <div className="p-12 text-center bg-gray-50 border border-gray-100 rounded-2xl">

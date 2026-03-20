@@ -554,7 +554,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, useInView, Transition } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import Image from 'next/image';
-
+import clsx from 'clsx';
 // Adjust these import paths based on your actual folder structure
 import { getHomePageCollections, FormattedProduct } from '@/src/lib/shopify/index'; 
 import { useCart } from '@/src/context/CartContext';
@@ -697,6 +697,18 @@ export default function ShopCollection() {
         {!isLoading && totalCards > 0 && (
           <div 
             className="relative w-full max-w-[1400px] h-[480px] md:h-[500px] flex justify-center items-center"
+            // className={clsx(
+            //   "relative w-full mx-auto",
+            //   "flex justify-center items-center overflow-hidden",
+            //   // Width constraints
+            //   "max-w-[1400px] lg:w-[95%] xl:w-full",
+            //   "h-[80vh] min-h-[320px] max-h-[600px]",
+            //   // Laptop/Desktop Scaling: Return to standard premium hero height
+            //   "md:h-[80vh] md:min-h-[650px] md:max-h-[950px] md:max-w-[1400px] lg:w-[95%]",
+            //   // Dynamic Height: Mobile (shorter) -> Laptop (taller)
+            //   // "h-[60vh] min-h-[400px] max-h-[550px]", 
+            //   "md:h-[70vh] md:min-h-[500px] md:max-h-[750px]"
+            // )}
             style={{ perspective: "1200px", transformStyle: "preserve-3d" }}
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
@@ -721,7 +733,7 @@ export default function ShopCollection() {
                   }}
                   onClick={() => !isActive && setActiveIndex(index)}
                   className={`absolute origin-center h-[70vh] md:h-[60vh]
-                    min-h-[400px] md:min-h-[470px] 
+                    min-h-[400px] md:min-h-[500px] 
                     max-h-[550px] md:max-h-[670px]
 
                     ${isActive ? 'cursor-default' : 'cursor-pointer hover:brightness-110'} active:cursor-grabbing`}
