@@ -1689,14 +1689,14 @@ export default function Header() {
                   ) : (
                     <>
                       <Link 
-                        href="/login" 
+                        href="/" 
                         className="flex justify-center items-center py-3.5 bg-[var(--color-brand-orange)] text-white rounded-xl font-bold hover:bg-orange-600 transition-colors shadow-md shadow-orange-500/20" 
                         onClick={() => setIsMobileDrawerOpen(false)}
                       >
                         Login
                       </Link>
                       <Link 
-                        href="/register" 
+                        href="/" 
                         className="flex justify-center items-center py-3.5 bg-white border border-gray-200 text-gray-900 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm" 
                         onClick={() => setIsMobileDrawerOpen(false)}
                       >
