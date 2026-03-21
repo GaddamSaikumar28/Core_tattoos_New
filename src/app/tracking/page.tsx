@@ -80,7 +80,7 @@ function TrackingDetailPage() {
   };
 
   return (
-    <div className="min-h-screen mt-10 bg-[#FAFAFA] text-gray-900 selection:bg-[#fe8204] selection:text-white py-12 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden">
+    <div className="min-h-screen mt-10 bg-[#FAFAFA] text-gray-900 selection:bg-[#fe8204] selection:text-white py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <div className="max-w-5xl mx-auto space-y-10 mt-4 sm:mt-10">
         
         {/* --- Hero Section --- */}
