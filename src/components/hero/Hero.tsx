@@ -1,11 +1,17 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState , useMemo} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { FormattedProduct } from "@/src/lib/shopify";
-interface ProductState {
-  formattedData: FormattedProduct[];
-  pageInfo: any; 
+import Link from "next/link";
+// import { getHomePageHeroCollections } from '@/src/lib/shopify/index'; 
+// interface ProductState {
+//   formattedData: FormattedProduct[];
+//   pageInfo: any; 
+// }
+
+interface HeroProps {
+  initialProducts: FormattedProduct[];
 }
 
 interface CardConfig {
@@ -108,7 +114,6 @@ const FACE_CARD_DROP_MS = 2500;
 const POST_SETTLE_GAP_MS = 500;
 const EXPAND_DELAY_MS = FACE_CARD_DROP_MS + POST_SETTLE_GAP_MS;
 
-// Extracted Card Component to cleanly handle image error state without DOM manipulation
 const TattooCard = ({
   card,
   isTopCard,
@@ -122,7 +127,8 @@ const TattooCard = ({
   index,
 }: any) => {
   const [hasError, setHasError] = useState(false);
-
+ const imageUrl = card.product?.media?.featuredImage || card.product?.media?.gallery?.[0]?.url;
+  const imageAlt = card.product?.title || `Tattoo Card ${card.id}`;
   return (
     <motion.div
       className="absolute inset-0 rounded-2xl md:rounded-[24px] overflow-hidden flex flex-col items-center justify-center bg-white border-2 border-[#111] shadow-[0_20px_40px_rgba(0,0,0,0.12)]"
@@ -185,8 +191,8 @@ const TattooCard = ({
     >
       {!hasError ? (
         <Image
-          src={`/assets/images/Card${card.id}.png`}
-          alt={`Tattoo Card ${card.id}`}
+          src={imageUrl}
+          alt={imageAlt}
           fill
           className="object-cover"
           onError={() => setHasError(true)}
@@ -202,14 +208,7 @@ const TattooCard = ({
     </motion.div>
   );
 };
-import { getProducts } from "@/src/lib/shopify";
-export async function fetchProducts() {
-    const newArrivals = await getProducts({ sortKey: 'CREATED_AT', reverse: true });
-    console.log("shopify api is hit");
-    console.log(newArrivals);
-    return newArrivals;
-}
-export default function Hero() {
+export default function Hero({ initialProducts = [] }: HeroProps) {
   const [showIntro, setShowIntro] = useState(true);
   const [topCardReady, setTopCardReady] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -217,26 +216,49 @@ export default function Hero() {
  //const [allProducts, setAllProducts] = useState([]);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
-const [allProducts, setAllProducts] = useState<ProductState>({
-  formattedData: [],
-  pageInfo: null
-});
-  
+  const [isLoading, setIsLoading] = useState(true);
+// const [allProducts, setAllProducts] = useState<ProductState>({
+//   formattedData: [],
+//   pageInfo: null
+// });
+
+  const cardsWithProducts = useMemo(() => {
+    return deckConfig.map((card, index) => {
+      if (initialProducts.length === 0) return { ...card, product: null };
+      const product = initialProducts[index % initialProducts.length];
+      return { ...card, product };
+    });
+  }, [initialProducts]);
+
+
+  // const [products, setProducts] = useState<FormattedProduct[]>([]);
+  //  useEffect(() => {
+  //     let isMounted = true;
+      
+  //     async function fetchShopifyProducts() {
+  //       try {
+  //         // Fetch the first 10 products (adjustable)
+  //         const formattedData = await getHomePageHeroCollections();
+  //         if (isMounted && formattedData) {
+  //           setProducts(formattedData);
+  //         }
+  //         console.log("Home page ");
+  //         console.log(formattedData);
+  //       } catch (error) {
+  //         console.error("Error fetching collection products:", error);
+  //       } finally {
+  //         if (isMounted) {
+  //           setIsLoading(false);
+  //         }
+  //       }
+  //     }
+  //     fetchShopifyProducts();
+  //     return () => {
+  //       isMounted = false;
+  //     };
+  //   }, []);
 
   useEffect(() => {
-
-
-    const loadProducts = async () => {
-      try {
-        const data = await fetchProducts();
-        setAllProducts(data); 
-      } catch (error) {
-        console.error("Failed to load products:", error);
-      }
-    };
-
-
-    const setAllproducts = fetchProducts();
     const hasSeenSplash =
       typeof window !== "undefined"
         ? sessionStorage.getItem("hasSeenSplash")
@@ -356,20 +378,53 @@ const [allProducts, setAllProducts] = useState<ProductState>({
                   </span>
                 </motion.p>
 
-                <motion.button
+                    {/* 1. Changed motion.button to motion.div so it's valid HTML */}
+<motion.div
+  className="relative mt-8 text-white rounded-full hidden md:flex font-bold uppercase tracking-widest text-[12px] lg:text-[14px] group overflow-hidden w-fit"
+  initial={{ y: 20, opacity: 0 }}
+  animate={{ y: 0, opacity: 1 }}
+  transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+>
+  <span className="absolute inset-0 bg-black"></span>
+  <span className="absolute inset-0 bg-[#FE8204] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"></span>
+
+  {/* 2. Changed span to Link and added href */}
+  <Link 
+    href="/collections"
+    className="relative z-10 flex items-center gap-4 px-7 py-3.5 lg:px-8 lg:py-4 cursor-pointer"
+  >
+    SHOP COLLECTIONS
+    <span className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M5 12h14"></path>
+        <path d="m12 5 7 7-7 7"></path>
+      </svg>
+    </span>
+  </Link>
+</motion.div>
+                {/* <motion.button
                   className="relative mt-8 text-white rounded-full hidden md:flex font-bold uppercase tracking-widest text-[12px] lg:text-[14px] group overflow-hidden"
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
                 >
-                  {/* Base Black Background */}
+               
                   <span className="absolute inset-0 bg-black"></span>
 
-                  {/* Expanding Orange Fill (Sweeps left to right) */}
+                  
                   <span className="absolute inset-0 bg-[#FE8204] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"></span>
 
-                  {/* Content Container (z-10 keeps text above the background layers) */}
-                  <span className="relative z-10 flex items-center gap-4 px-7 py-3.5 lg:px-8 lg:py-4">
+                 
+                 <span className="relative z-10 flex items-center gap-4 px-7 py-3.5 lg:px-8 lg:py-4">
                     SHOP COLLECTIONS
                     <span className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center group-hover:translate-x-1 transition-transform">
                       <svg
@@ -387,7 +442,7 @@ const [allProducts, setAllProducts] = useState<ProductState>({
                       </svg>
                     </span>
                   </span>
-                </motion.button>
+                </motion.button> */}
               </motion.div>
 
               {/* Right Column: Scaled-down Card Deck */}
@@ -451,7 +506,27 @@ const [allProducts, setAllProducts] = useState<ProductState>({
                 </motion.div>
 
                 <div className="relative w-[180px] h-[250px] mt-15 md:w-[260px] md:h-[360px] lg:w-[320px] lg:h-[440px] flex justify-center items-center">
-                  {deckConfig.map((card, index) => {
+                  {/* {deckConfig.map((card, index) => {
+                    const isTopCard = index === 0;
+                    const isVisibleInHero = card.id <= 4;
+
+                    return (
+                      <TattooCard
+                        key={card.id}
+                        card={card}
+                        index={index}
+                        isTopCard={isTopCard}
+                        isVisibleInHero={isVisibleInHero}
+                        isScrolled={isScrolled}
+                        isExpanded={isExpanded}
+                        cardIsFalling={cardIsFalling}
+                        topCardReady={topCardReady}
+                        getCircPos={getCircPos}
+                        isDesktop={isDesktop}
+                      />
+                    );
+                  })} */}
+                  {cardsWithProducts.map((card, index) => {
                     const isTopCard = index === 0;
                     const isVisibleInHero = card.id <= 4;
 
