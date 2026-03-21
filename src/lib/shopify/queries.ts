@@ -466,44 +466,6 @@ export const customerRecoverMutation = /* GraphQL */ `
   }
 `;
 
-// src/lib/shopify/queries.ts
-
-// --- CUSTOMER ORDERS ---
-// export const getCustomerOrdersQuery = /* GraphQL */ `
-//   query getCustomerOrders($customerAccessToken: String!, $first: Int = 20) {
-//     customer(customerAccessToken: $customerAccessToken) {
-//       orders(first: $first, sortKey: PROCESSED_AT, reverse: true) {
-//         edges {
-//           node {
-//             id
-//             orderNumber
-//             processedAt
-//             financialStatus
-//             fulfillmentStatus
-//             totalPrice {
-//               amount
-//               currencyCode
-//             }
-//             lineItems(first: 10) {
-//               edges {
-//                 node {
-//                   title
-//                   quantity
-//                   variant {
-//                     image {
-//                       url
-//                       altText
-//                     }
-//                   }
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-// `;
 export const getCustomerOrdersQuery = /* GraphQL */ `
   query getCustomerOrders($customerAccessToken: String!, $first: Int = 20) {
     customer(customerAccessToken: $customerAccessToken) {
@@ -515,11 +477,33 @@ export const getCustomerOrdersQuery = /* GraphQL */ `
             email
             statusUrl
             processedAt
+            canceledAt 
             financialStatus
             fulfillmentStatus
+            subtotalPrice {
+              amount
+              currencyCode
+            }
+            totalTax {
+              amount
+              currencyCode
+            }
+            totalShippingPrice {
+              amount
+              currencyCode
+            }
             totalPrice {
               amount
               currencyCode
+            }
+            shippingAddress {
+              name
+              address1
+              address2
+              city
+              province
+              zip
+              country
             }
             successfulFulfillments {
               trackingCompany
@@ -534,6 +518,10 @@ export const getCustomerOrdersQuery = /* GraphQL */ `
                   title
                   quantity
                   variant {
+                    price {
+                      amount
+                      currencyCode
+                    }
                     image {
                       url
                       altText
