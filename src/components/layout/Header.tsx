@@ -288,8 +288,8 @@ export default function Header() {
                   width={140}
                   height={48}
                   className={cn(
-                    "transition-all duration-300 w-auto",
-                    isScrolled ? "h-8" : "h-10",
+                    "transition-all duration-300 w-auto h-auto max-w-[200px] xl:max-w-[240px]",
+                    isScrolled ? "lg:h-7 xl:h-8" : "lg:h-8 xl:h-10",
                   )}
                   priority
                 />
