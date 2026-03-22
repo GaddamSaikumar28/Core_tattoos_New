@@ -230,34 +230,6 @@ export default function Hero({ initialProducts = [] }: HeroProps) {
     });
   }, [initialProducts]);
 
-
-  // const [products, setProducts] = useState<FormattedProduct[]>([]);
-  //  useEffect(() => {
-  //     let isMounted = true;
-      
-  //     async function fetchShopifyProducts() {
-  //       try {
-  //         // Fetch the first 10 products (adjustable)
-  //         const formattedData = await getHomePageHeroCollections();
-  //         if (isMounted && formattedData) {
-  //           setProducts(formattedData);
-  //         }
-  //         console.log("Home page ");
-  //         console.log(formattedData);
-  //       } catch (error) {
-  //         console.error("Error fetching collection products:", error);
-  //       } finally {
-  //         if (isMounted) {
-  //           setIsLoading(false);
-  //         }
-  //       }
-  //     }
-  //     fetchShopifyProducts();
-  //     return () => {
-  //       isMounted = false;
-  //     };
-  //   }, []);
-
   useEffect(() => {
     const hasSeenSplash =
       typeof window !== "undefined"
