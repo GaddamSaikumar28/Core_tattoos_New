@@ -1,60 +1,42 @@
-'use client';
-
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import SharedHeroBanner from '@/src/components/layout/SharedHeroBanner';
+import { getHowItWorksPageData } from '@/src/lib/shopify'; // Adjust path if needed
 
-const steps = [
-    {
-        id: 1,
-        title: 'Prime',
-        description: 'Grab the Primer Wipe and exfoliate the area you wish to place your tattoo for 30 seconds. Wait until it’s fully dry, like, 60 seconds.',
-        image: '/assets/images/backup-article-385719861295.jpeg',
-        alt: 'Person prepping skin with a primer wipe'
-    },
-    {
-        id: 2,
-        title: 'Place',
-        description: 'Peel off the tattoo backing and place the tattoo on your skin, sticky side down. Find the peelable corner and remove the paper border. Press down to ensure it’s totally adhered. Need a little help? Ask a friend! Then chill for an hour while your ink develops.',
-        image: '/assets/images/temporary_tattoos.webp',
-        alt: 'Applying the temporary tattoo to the skin'
-    },
-    {
-        id: 3,
-        title: 'Peel',
-        description: 'After one hour, peel off the applicator. The ink will initially be blue/green depending on your skin and develop into a blue/black within 24 hours. Now you’re basically your own tattoo artist!',
-        image: '/assets/images/ok-to-remove-second-skin-after-one-day-v0-9mzlf6slt3bd1.webp',
-        alt: 'Peeling off the tattoo applicator to reveal the design'
+export default async function HowItWorks() {
+    // Fetch data directly from Shopify
+    const data = await getHowItWorksPageData('how-it-works');
+
+    if (!data) {
+        return <div className="p-20 text-center">Loading How It Works content...</div>;
     }
-];
 
-export default function HowItWorks() {
     return (
         <main className="w-full mt-10 bg-white text-black overflow-hidden">
             {/* Hero Section */}
             <SharedHeroBanner 
-                title="HOW IT WORKS"
-                image="/assets/images/Tattoo_Peeling-2996730.webp"
-                mobileImage="/assets/images/Tattoo_Peeling-2996730.webp"
+                title={data.heroTitle}
+                image={data.heroImage}
+                mobileImage={data.heroImage}
                 useMobileImage={true}
                 textColor="#FE8204"
             />
 
             {/* Intro Header */}
             <section className="container mx-auto px-6 pt-20 pb-10 md:pt-32 md:pb-16 text-center max-w-3xl">
-                <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 uppercase">
-                    Your Ink, Your Way
+                <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 uppercase whitespace-pre-line">
+                    {data.introHeading}
                 </h2>
-                <p className="text-lg md:text-xl text-gray-500 font-medium leading-relaxed">
-                    Achieving an authentic, ultra-realistic look is easy. Follow these three simple steps to apply your design and let your ink develop flawlessly.
+                <p className="text-lg md:text-xl text-gray-500 font-medium leading-relaxed whitespace-pre-line">
+                    {data.introParagraph}
                 </p>
             </section>
 
             {/* Steps Section */}
             <section className="container mx-auto px-6 pb-24 md:pb-40">
                 <div className="flex flex-col gap-24 md:gap-32">
-                    {steps.map((step, index) => {
+                    {data.steps.map((step, index) => {
                         const isEven = index % 2 !== 0;
 
                         return (
@@ -88,7 +70,7 @@ export default function HowItWorks() {
                                         <h3 className="text-4xl md:text-6xl font-bold tracking-tight">
                                             {step.title}
                                         </h3>
-                                        <p className="text-lg md:text-xl text-gray-600 font-medium leading-relaxed max-w-lg">
+                                        <p className="text-lg md:text-xl text-gray-600 font-medium leading-relaxed max-w-lg whitespace-pre-line">
                                             {step.description}
                                         </p>
                                         

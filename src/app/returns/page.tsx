@@ -83,7 +83,7 @@ export default function Returns() {
                             <p>If you run into an issue with applying your tattoo or if the products you got are damaged/defective, reach out to us! It may be eligible for a one-time resend or credit.</p>
                             
                             <h3 className="text-xl font-bold text-black mt-8 mb-4">How to request a refund or credit:</h3>
-                            <p>It’s super simple! Send us an email at <a href="mailto:info@justtattoos.com" className="text-black font-bold border-b-2 border-[#FE8204] hover:text-[#FE8204] transition-colors">info@justtattoos.com</a> and include the following:</p>
+                            <p>It’s super simple! Send us an email at <a href="mailto:info@justtattoos.com" className="text-black font-bold border-b-2 border-[#FE8204] hover:text-[#FE8204] transition-colors">support@justtattoos.com</a> and include the following:</p>
                             
                             <ul className="bg-gray-50 p-8 rounded-3xl space-y-4 text-black">
                                 <li className="flex items-start gap-3">

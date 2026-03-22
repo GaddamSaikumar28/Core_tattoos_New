@@ -659,40 +659,152 @@ export const customerDefaultAddressUpdateMutation = /* GraphQL */ `
   }
 `;
 
+// Add to the bottom of queries.ts
 
-// export const getCustomerOrdersQuery = /* GraphQL */ `
-//   query getCustomerOrders($customerAccessToken: String!, $first: Int = 20) {
-//     customer(customerAccessToken: $customerAccessToken) {
-//       orders(first: $first, sortKey: PROCESSED_AT, reverse: true) {
-//         edges {
-//           node {
-//             id
-//             orderNumber
-//             processedAt
-//             financialStatus
-//             fulfillmentStatus
-//             totalPrice {
-//               amount
-//               currencyCode
-//             }
-//             lineItems(first: 10) {
-//               edges {
-//                 node {
-//                   title
-//                   quantity
-//                   variant {
-//                     image {
-//                       url
-//                       altText
-//                     }
-//                   }
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-// `;
+export const getAboutPageQuery = /* GraphQL */ `
+  query getAboutPage($handle: String!) {
+    metaobject(handle: {handle: $handle, type: "about_page"}) {
+      # Images
+      hero_image: field(key: "hero_image") { reference { ... on MediaImage { image { url altText } } } }
+      intro_image: field(key: "intro_image") { reference { ... on MediaImage { image { url altText } } } }
+      who_we_are_image: field(key: "who_we_are_image") { reference { ... on MediaImage { image { url altText } } } }
+      
+      # Hero & Intro Text
+      hero_title: field(key: "hero_title") { value }
+      intro_heading: field(key: "intro_heading") { value }
+      intro_paragraph: field(key: "intro_paragraph") { value }
+      
+      # Who We Are Text
+      who_we_are_heading: field(key: "who_we_are_heading") { value }
+      who_we_are_paragraph_1: field(key: "who_we_are_paragraph_1") { value }
+      who_we_are_paragraph_2: field(key: "who_we_are_paragraph_2") { value }
+      who_we_are_button_text: field(key: "who_we_are_button_text") { value }
+      
+      # Commitments Text
+      commitments_title: field(key: "commitments_title") { value }
+      commitments_subtitle: field(key: "commitments_subtitle") { value }
+      
+      # AODA Card
+      aoda_title: field(key: "aoda_title") { value }
+      aoda_paragraph_1: field(key: "aoda_paragraph_1") { value }
+      aoda_paragraph_2: field(key: "aoda_paragraph_2") { value }
+      aoda_contact_label: field(key: "aoda_contact_label") { value }
+      aoda_email: field(key: "aoda_email") { value }
+      
+      # Land Acknowledgement Card
+      land_ack_title: field(key: "land_ack_title") { value }
+      land_ack_paragraph_1: field(key: "land_ack_paragraph_1") { value }
+      land_ack_paragraph_2: field(key: "land_ack_paragraph_2") { value }
+      land_ack_paragraph_3: field(key: "land_ack_paragraph_3") { value }
+    }
+  }
+`;
 
+
+export const getHowItWorksPageQuery = /* GraphQL */ `
+  query getHowItWorksPage($handle: String!) {
+    metaobject(handle: {handle: $handle, type: "how_it_works_page"}) {
+      # Hero & Intro
+      hero_title: field(key: "hero_title") { value }
+      hero_image: field(key: "hero_image") { reference { ... on MediaImage { image { url altText } } } }
+      intro_heading: field(key: "intro_heading") { value }
+      intro_paragraph: field(key: "intro_paragraph") { value }
+      
+      # Step 1
+      step_1_title: field(key: "step_1_title") { value }
+      step_1_description: field(key: "step_1_description") { value }
+      step_1_image: field(key: "step_1_image") { reference { ... on MediaImage { image { url altText } } } }
+      
+      # Step 2
+      step_2_title: field(key: "step_2_title") { value }
+      step_2_description: field(key: "step_2_description") { value }
+      step_2_image: field(key: "step_2_image") { reference { ... on MediaImage { image { url altText } } } }
+      
+      # Step 3
+      step_3_title: field(key: "step_3_title") { value }
+      step_3_description: field(key: "step_3_description") { value }
+      step_3_image: field(key: "step_3_image") { reference { ... on MediaImage { image { url altText } } } }
+    }
+  }
+`;
+
+
+export const getFaqSectionQuery = /* GraphQL */ `
+  query getFaqSection($handle: String!) {
+    metaobject(handle: {handle: $handle, type: "faq_section"}) {
+      header_text: field(key: "header_text") { value }
+      header_highlight: field(key: "header_highlight") { value }
+      subheading: field(key: "subheading") { value }
+      support_title: field(key: "support_title") { value }
+      support_description: field(key: "support_description") { value }
+      support_button_text: field(key: "support_button_text") { value }
+      support_button_link: field(key: "support_button_link") { value }
+      
+      # Fetch the list of linked FAQ Items
+      faqs: field(key: "faqs") {
+        references(first: 50) {
+          edges {
+            node {
+              ... on Metaobject {
+                question: field(key: "question") { value }
+                answer: field(key: "answer") { value }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+
+export const getHelpCenterPageQuery = /* GraphQL */ `
+  query getHelpCenterPage($handle: String!) {
+    metaobject(handle: {handle: $handle, type: "help_center_page"}) {
+      hero_title: field(key: "hero_title") { value }
+      hero_description: field(key: "hero_description") { value }
+      contact_title: field(key: "contact_title") { value }
+      email: field(key: "email") { value }
+      chat_text: field(key: "chat_text") { value }
+      form_title: field(key: "form_title") { value }
+      success_message: field(key: "success_message") { value }
+    }
+  }
+`;
+
+export const getShippingPageQuery = /* GraphQL */ `
+  query getShippingPage($handle: String!) {
+    metaobject(handle: {handle: $handle, type: "shipping_page"}) {
+      hero_title: field(key: "hero_title") { value }
+      hero_image: field(key: "hero_image") { reference { ... on MediaImage { image { url } } } }
+      
+      card_1_title: field(key: "card_1_title") { value }
+      card_1_text: field(key: "card_1_text") { value }
+      card_2_title: field(key: "card_2_title") { value }
+      card_2_text: field(key: "card_2_text") { value }
+      card_3_title: field(key: "card_3_title") { value }
+      card_3_text: field(key: "card_3_text") { value }
+      
+      policies_header: field(key: "policies_header") { value }
+      
+      policy_blocks: field(key: "policy_blocks") {
+        references(first: 10) {
+          edges {
+            node {
+              ... on Metaobject {
+                title: field(key: "title") { value }
+                content: field(key: "content") { value }
+                highlight_note: field(key: "highlight_note") { value }
+              }
+            }
+          }
+        }
+      }
+      
+      cta_title: field(key: "cta_title") { value }
+      cta_text: field(key: "cta_text") { value }
+      cta_button_text: field(key: "cta_button_text") { value }
+      cta_link: field(key: "cta_link") { value }
+    }
+  }
+`;

@@ -2,7 +2,7 @@
 'use server';
 
 
-import { getProductsQuery, getCollectionNamesQuery, searchProductsQuery } from './queries';
+import { getProductsQuery, getCollectionNamesQuery, searchProductsQuery , getAboutPageQuery, getHowItWorksPageQuery, getFaqSectionQuery} from './queries';
 import { getProductByHandleQuery, getProductRecommendationsQuery } from './queries';
 import { getCollectionProductsQuery } from './queries';
 import { 
@@ -883,4 +883,205 @@ export async function setDefaultCustomerAddress(customerAccessToken: string, add
   const data = res.body?.data?.customerDefaultAddressUpdate;
   if (data?.customerUserErrors?.length > 0) throw new Error(data.customerUserErrors[0].message);
   return true;
+}
+
+
+// Add to the bottom of index.ts
+
+export async function getAboutPageData(handle: string = 'about-page-dxkfa8ev') {
+  const res = await shopifyFetch<any>({
+    query: getAboutPageQuery,
+    tags: ['about-page-dxkfa8ev'], // Useful for Next.js cache invalidation
+    variables: { handle }
+  });
+
+  const mo = res.body?.data?.metaobject;
+
+  if (!mo) {
+    console.warn(`About page metaobject with handle "${handle}" not found.`);
+    return null;
+  }
+
+  return {
+    // Images
+    heroImage: mo.hero_image?.reference?.image?.url || '/assets/images/placeholder.jpg',
+    introImage: mo.intro_image?.reference?.image?.url || '/assets/images/placeholder.jpg',
+    whoWeAreImage: mo.who_we_are_image?.reference?.image?.url || '/assets/images/placeholder.jpg',
+
+    // Hero & Intro
+    heroTitle: mo.hero_title?.value || 'ABOUT US',
+    introHeading: mo.intro_heading?.value || 'Tattoos for Every Version of You',
+    introParagraph: mo.intro_paragraph?.value || '',
+
+    // Who We Are
+    whoWeAreHeading: mo.who_we_are_heading?.value || 'Who We Are',
+    whoWeAreParagraph1: mo.who_we_are_paragraph_1?.value || '',
+    whoWeAreParagraph2: mo.who_we_are_paragraph_2?.value || '',
+    whoWeAreButtonText: mo.who_we_are_button_text?.value || 'Shop Now',
+
+    // Commitments
+    commitmentsTitle: mo.commitments_title?.value || 'Our Commitments',
+    commitmentsSubtitle: mo.commitments_subtitle?.value || '',
+
+    // AODA
+    aodaTitle: mo.aoda_title?.value || 'AODA',
+    aodaParagraph1: mo.aoda_paragraph_1?.value || '',
+    aodaParagraph2: mo.aoda_paragraph_2?.value || '',
+    aodaContactLabel: mo.aoda_contact_label?.value || 'Learn more or request accommodations:',
+    aodaEmail: mo.aoda_email?.value || 'support@justtattoos.com',
+
+    // Land Ack
+    landAckTitle: mo.land_ack_title?.value || 'Land Acknowledgement',
+    landAckParagraph1: mo.land_ack_paragraph_1?.value || '',
+    landAckParagraph2: mo.land_ack_paragraph_2?.value || '',
+    landAckParagraph3: mo.land_ack_paragraph_3?.value || '',
+  };
+}
+
+
+export async function getHowItWorksPageData(handle: string = 'how-it-works') {
+  const res = await shopifyFetch<any>({
+    query: getHowItWorksPageQuery,
+    tags: ['how_it_works_page'],
+    variables: { handle },
+    cache: 'no-store' // Keeps it fresh while we test
+  });
+
+  const mo = res.body?.data?.metaobject;
+
+  if (!mo) {
+    console.warn(`How It Works page metaobject with handle "${handle}" not found.`);
+    return null;
+  }
+
+  return {
+    heroTitle: mo.hero_title?.value || 'HOW IT WORKS',
+    heroImage: mo.hero_image?.reference?.image?.url || '/assets/images/Tattoo_Peeling-2996730.webp',
+    introHeading: mo.intro_heading?.value || 'Your Ink, Your Way',
+    introParagraph: mo.intro_paragraph?.value || '',
+    
+    // We combine the individual steps back into an array here
+    steps: [
+      {
+        id: 1,
+        title: mo.step_1_title?.value || 'Prime',
+        description: mo.step_1_description?.value || '',
+        image: mo.step_1_image?.reference?.image?.url || '/assets/images/placeholder.jpg',
+        alt: mo.step_1_image?.reference?.image?.altText || 'Step 1'
+      },
+      {
+        id: 2,
+        title: mo.step_2_title?.value || 'Place',
+        description: mo.step_2_description?.value || '',
+        image: mo.step_2_image?.reference?.image?.url || '/assets/images/placeholder.jpg',
+        alt: mo.step_2_image?.reference?.image?.altText || 'Step 2'
+      },
+      {
+        id: 3,
+        title: mo.step_3_title?.value || 'Peel',
+        description: mo.step_3_description?.value || '',
+        image: mo.step_3_image?.reference?.image?.url || '/assets/images/placeholder.jpg',
+        alt: mo.step_3_image?.reference?.image?.altText || 'Step 3'
+      }
+    ]
+  };
+}
+
+
+export async function getFaqSectionData(handle: string = 'faq-section') {
+  const res = await shopifyFetch<any>({
+    query: getFaqSectionQuery,
+    tags: ['faq_section'],
+    variables: { handle },
+    cache: 'no-store' // Keeps it fresh while testing
+  });
+
+  const mo = res.body?.data?.metaobject;
+  if (!mo) {
+    console.warn(`FAQ Section metaobject with handle "${handle}" not found.`);
+    return null;
+  }
+
+  // Format the nested references into a clean array
+  const faqs = mo.faqs?.references?.edges?.map((edge: any) => ({
+    question: edge.node.question?.value || '',
+    answer: edge.node.answer?.value || ''
+  })) || [];
+
+  return {
+    headerText: mo.header_text?.value || 'Got',
+    headerHighlight: mo.header_highlight?.value || 'Questions?',
+    subheading: mo.subheading?.value || '',
+    supportTitle: mo.support_title?.value || 'Still need help?',
+    supportDescription: mo.support_description?.value || '',
+    supportButtonText: mo.support_button_text?.value || 'Contact Support',
+    supportButtonLink: mo.support_button_link?.value || '/contact',
+    faqs
+  };
+}
+
+
+import { getHelpCenterPageQuery } from './queries';
+
+export async function getHelpCenterPageData(handle: string = 'help-center-page') {
+  const res = await shopifyFetch<any>({
+    query: getHelpCenterPageQuery,
+    tags: ['help_center_page'],
+    variables: { handle },
+    cache: 'no-store'
+  });
+
+  const mo = res.body?.data?.metaobject;
+  if (!mo) return null;
+
+  return {
+    heroTitle: mo.hero_title?.value || 'How can we help?',
+    heroDescription: mo.hero_description?.value || '',
+    contactTitle: mo.contact_title?.value || 'Get in Touch',
+    email: mo.email?.value || 'support@justtattoos.com',
+    chatText: mo.chat_text?.value || 'Available 9am - 5pm EST',
+    formTitle: mo.form_title?.value || 'Send us a message',
+    successMessage: mo.success_message?.value || 'Message sent successfully!',
+  };
+}
+
+
+import { getShippingPageQuery } from './queries';
+
+export async function getShippingPageData(handle: string = 'shipping-page') {
+  const res = await shopifyFetch<any>({
+    query: getShippingPageQuery,
+    tags: ['shipping_page'],
+    variables: { handle },
+    cache: 'no-store' // Keeps it fresh while testing
+  });
+
+  const mo = res.body?.data?.metaobject;
+  if (!mo) return null;
+
+  const policyBlocks = mo.policy_blocks?.references?.edges?.map((edge: any) => ({
+    title: edge.node.title?.value || '',
+    content: edge.node.content?.value || '',
+    highlightNote: edge.node.highlight_note?.value || null
+  })) || [];
+
+  return {
+    heroTitle: mo.hero_title?.value || 'SHIPPING & DELIVERY',
+    heroImage: mo.hero_image?.reference?.image?.url || '/assets/images/fallback.webp',
+    
+    card1Title: mo.card_1_title?.value || 'Fast Processing',
+    card1Text: mo.card_1_text?.value || '',
+    card2Title: mo.card_2_title?.value || 'Where We Ship',
+    card2Text: mo.card_2_text?.value || '',
+    card3Title: mo.card_3_title?.value || 'Order Tracking',
+    card3Text: mo.card_3_text?.value || '',
+    
+    policiesHeader: mo.policies_header?.value || 'Shipping Policy Details',
+    policyBlocks,
+    
+    ctaTitle: mo.cta_title?.value || 'Have a question?',
+    ctaText: mo.cta_text?.value || '',
+    ctaButtonText: mo.cta_button_text?.value || 'Contact Support',
+    ctaLink: mo.cta_link?.value || 'mailto:support@justtattoos.com',
+  };
 }
