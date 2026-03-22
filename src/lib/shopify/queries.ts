@@ -547,6 +547,8 @@ export const customerUpdateMutation = /* GraphQL */ `
         lastName
         email
         phone
+        acceptsMarketing 
+        createdAt        
       }
       customerAccessToken {
         accessToken

@@ -8,7 +8,7 @@ import clsx from 'clsx';
 // Adjust these import paths based on your actual folder structure
 import { getHomePageCollections, FormattedProduct } from '@/src/lib/shopify/index'; 
 import { useCart } from '@/src/context/CartContext';
-
+import Link from 'next/link';
 export default function ShopCollection() {
   // State for dynamic Shopify data
   const [products, setProducts] = useState<FormattedProduct[]>([]);
@@ -121,10 +121,25 @@ return (
       <div className="relative z-10 w-full flex flex-col items-center">
         
         {/* Header */}
-        <div className="flex flex-col items-center text-center w-full max-w-4xl mx-auto mb-5 md:mb-5 px-4">
+        {/* <div className="flex flex-col items-center text-center w-full max-w-4xl mx-auto mb-5 md:mb-5 px-4">
           <h2 className="font-black text-[#fe8204] tracking-tight text-3xl md:text-5xl lg:text-6xl leading-[1.1] uppercase">
             Our Collections
           </h2>
+        </div> */}
+        <div className="flex flex-col items-center text-center w-full max-w-4xl mx-auto mb-8 md:mb-10 px-4">
+          <h2 className="font-black text-[#fe8204] tracking-tight text-3xl md:text-5xl lg:text-6xl leading-[1.1] uppercase mb-4 md:mb-5">
+            Our Collections
+          </h2>
+          
+          <Link 
+            href="/collections"
+            className="group flex items-center gap-3 text-[#fe8204] uppercase tracking-widest text-xs font-bold hover:text-black transition-colors duration-300"
+          >
+            View All Collections
+            <span className="bg-[#fe8204] text-white w-8 h-8 rounded-full flex justify-center items-center group-hover:bg-black group-hover:translate-x-2 transition-all duration-300">
+              →
+            </span>
+          </Link>
         </div>
           
         {/* Loading State */}
@@ -296,227 +311,4 @@ return (
       </div>
     </section>
   );
-  // return (
-  //   <section
-  //     ref={sectionRef} 
-  //     className="relative w-full flex flex-col items-center justify-center py-12 md:py-16 bg-white text-black  selection:bg-[#fe8204] selection:text-white overflow-hidden"
-  //   >
-  //     {/* Background Texture */}
-  //     <div className="absolute inset-0 pointer-events-none flex justify-center z-0">
-  //       <div
-  //         className="absolute inset-0 opacity-[0.03] mix-blend-multiply"
-  //         style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/stardust.png')" }}
-  //       />
-  //     </div>
-
-  //     <div className="relative z-10 w-full flex flex-col items-center">
-        
-  //       {/* Header */}
-  //       <div className="flex flex-col items-center text-center w-full max-w-4xl mx-auto mb-5 md:mb-5 px-4">
-  //         <h2 className="font-black text-[#fe8204] tracking-tight text-3xl md:text-5xl lg:text-6xl leading-[1.1] uppercase">
-  //           Our Collections
-  //         </h2>
-  //       </div>
-          
-  //       {/* Loading State */}
-  //       {isLoading && (
-  //         <div className="flex flex-col items-center justify-center h-[460px] md:h-[480px]">
-  //            <Loader2 className="w-8 h-8 animate-spin text-[#fe8204] mb-4" />
-  //            <p className="text-zinc-500 font-medium uppercase tracking-widest text-sm">Loading Gallery...</p>
-  //         </div>
-  //       )}
-
-  //       {/* Empty State Guard */}
-  //       {!isLoading && totalCards === 0 && (
-  //         <div className="flex flex-col items-center justify-center h-[460px] md:h-[480px]">
-  //            <p className="text-zinc-500 font-medium uppercase tracking-widest text-sm">No products found.</p>
-  //         </div>
-  //       )}
-
-  //       {/* 3D Carousel Gallery */}
-  //       {!isLoading && totalCards > 0 && (
-  //         <div 
-  //           className="relative w-full max-w-[1400px] h-[480px] md:h-[500px] flex justify-center items-center"
-  //           // className={clsx(
-  //           //   "relative w-full mx-auto",
-  //           //   "flex justify-center items-center overflow-hidden",
-  //           //   // Width constraints
-  //           //   "max-w-[1400px] lg:w-[95%] xl:w-full",
-  //           //   "h-[80vh] min-h-[320px] max-h-[600px]",
-  //           //   // Laptop/Desktop Scaling: Return to standard premium hero height
-  //           //   "md:h-[80vh] md:min-h-[650px] md:max-h-[950px] md:max-w-[1400px] lg:w-[95%]",
-  //           //   // Dynamic Height: Mobile (shorter) -> Laptop (taller)
-  //           //   // "h-[60vh] min-h-[400px] max-h-[550px]", 
-  //           //   "md:h-[70vh] md:min-h-[500px] md:max-h-[750px]"
-  //           // )}
-  //           style={{ perspective: "1200px", transformStyle: "preserve-3d" }}
-  //           onMouseEnter={() => setIsPaused(true)}
-  //           onMouseLeave={() => setIsPaused(false)}
-  //         >
-  //           {products.map((product, index) => {
-  //             const isActive = index === activeIndex;
-  //             const { title, checkout, inventory, media, styling } = product;
-  //             const isStocked = inventory.availableForSale && checkout.defaultVariantId;
-              
-  //             return (
-  //               <motion.div
-  //                 key={product.id}
-  //                 initial={false}
-  //                 animate={getCardStyles(index)}
-  //                 transition={springConfig}
-  //                 drag="x"
-  //                 dragConstraints={{ left: 0, right: 0 }}
-  //                 dragElastic={0.1}
-  //                 onDragEnd={(_, info) => {
-  //                   if (info.offset.x < -40) handleNext();
-  //                   if (info.offset.x > 40) handlePrev();
-  //                 }}
-  //                 onClick={() => !isActive && setActiveIndex(index)}
-  //                 className={`absolute origin-center h-[70vh] md:h-[60vh]
-  //                   min-h-[400px] md:min-h-[500px] 
-  //                   max-h-[550px] md:max-h-[670px]
-
-  //                   ${isActive ? 'cursor-default' : 'cursor-pointer hover:brightness-110'} active:cursor-grabbing`}
-  //                 // Added explicit height so all cards are identical in the 3D stack
-  //               //   style={{ width: "310px", height: "500px" }}
-  //               style={{ 
-  //                   width: "min(310px, 80vw)", // Caps width at 310px but shrinks on small screens
-  //                   // maxHeight: "650px",         // Prevents it from getting too tall on monitors
-  //                   // minHeight: "400px"          // Prevents it from collapsing on short phones
-  //               }}
-  //               >
-  //                 {/* Added h-full to the wrapper so it stretches the full 450px */}
-  //                 <div className={`group flex flex-col h-full gap-4 p-4 bg-zinc-900 rounded-2xl shadow-2xl border transition-colors duration-500 ${
-  //                   isActive ? 'border-[#fe8204]/40 shadow-[0_20px_50px_rgba(254,130,4,0.15)]' : 'border-zinc-800'
-  //                 }`}>
-                    
-  //                   {/* Image Box - added shrink-0 so it doesn't get crushed by the flex box */}
-  //                   <div className="relative w-full aspect-[4/5] shrink-0 overflow-hidden bg-black rounded-xl">
-  //                     {/* Badges */}
-  //                     <div className="absolute top-3 left-3 z-20 flex flex-col gap-2 pointer-events-none">
-  //                       {/* {styling?.badges?.map((badge, idx) => (
-  //                         badge && (
-  //                           <div 
-  //                             key={idx} 
-  //                             className="bg-black backdrop-blur-md text-white text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full border shadow-lg"
-  //                           //   style={{ color: badge.color, borderColor: `${badge.color}40` }}
-  //                           >
-  //                             {badge.label}
-  //                           </div>
-  //                         )
-  //                       ))} */}
-  //                       {styling?.badges[0] && (
-  //                           <div 
-  //                             key={0} 
-  //                             className="bg-black backdrop-blur-md text-white text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full border shadow-lg"
-  //                           //   style={{ color: badge.color, borderColor: `${badge.color}40` }}
-  //                           >
-  //                             {styling.badges[0].label}
-  //                           </div>
-  //                       )}
-  //                     </div>
-                      
-  //                     {/* Product Image */}
-  //                     {media?.featuredImage ? (
-  //                       <Image
-  //                         src={media.featuredImage}
-  //                         alt={title}
-  //                         fill
-  //                         sizes="(max-width: 768px) 280px, 280px"
-  //                         className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-110 group-hover:opacity-90 pointer-events-none"
-  //                       />
-  //                     ) : (
-  //                       <div className="w-full h-full flex items-center justify-center text-zinc-600 uppercase text-xs tracking-widest">
-  //                         No Image
-  //                       </div>
-  //                     )}
-  //                   </div>
-
-  //                   {/* Details - Added flex-grow to take up all remaining height */}
-  //                   <div className="flex flex-col flex-grow gap-2 mt-1 px-1">
-  //                     <div className="flex justify-between items-start gap-3 min-h-[3.25rem]">
-  //                       {/* Swapped truncate for line-clamp-2 so it can span 2 lines without cutting off abruptly */}
-  //                       <h3 className="text-sm md:text-base font-semibold tracking-wide uppercase leading-snug text-gray-100 line-clamp-2">
-  //                         {title}
-  //                       </h3>
-                        
-  //                       <div className="flex flex-col items-end shrink-0 ">
-  //                         <span className="text-[#fe8204] font-black text-lg md:text-xl tracking-tight">
-  //                           ${checkout.price.toFixed(2)}
-  //                         </span>
-  //                         {checkout.compareAtPrice && checkout.compareAtPrice > checkout.price && (
-  //                           <span className="text-white line-through text-[15px] md:text-xs font-medium mt-0.5">
-  //                             ${checkout.compareAtPrice.toFixed(2)}
-  //                           </span>
-  //                         )}
-  //                       </div>
-  //                     </div>
-
-  //                     {/* Add to Cart Button - Added mt-auto to push it down permanently */}
-  //                     <button 
-  //                       disabled={!isStocked || isAddingToCart}
-  //                       onClick={async (e) => {
-  //                         e.stopPropagation(); 
-  //                         if (isStocked && checkout.defaultVariantId) {
-  //                           await addToCart(checkout.defaultVariantId, 1);
-  //                         }
-  //                       }}
-  //                       className={`w-full bg-black rounded-full border px-4 py-2  text-xs font-bold tracking-widest transition-all duration-300 uppercase mt-auto
-  //                         ${isActive ? 'pointer-events-auto' : 'pointer-events-none'} 
-  //                         ${(!isStocked || isAddingToCart)
-  //                           ? 'border-zinc-700 text-zinc-500 bg-zinc-800/50 cursor-not-allowed' 
-  //                           : 'border-white/20 text-white bg-transparent hover:border-[#fe8204] hover:bg-[#fe8204] hover:text-black shadow-lg hover:shadow-[#fe8204]/20'
-  //                         }
-  //                       `}
-  //                     >
-  //                       {!isStocked ? "Sold Out" : isAddingToCart ? "Adding..." : "Add to Cart"}
-  //                     </button>
-  //                   </div>
-
-  //                 </div>
-  //               </motion.div>
-  //             );
-  //           })}
-  //         </div>
-  //       )}
-
-  //       {/* Navigation Controls */}
-  //       {!isLoading && totalCards > 0 && (
-  //         <div className="flex items-center gap-4 md:gap-6 mt-6 md:mt-8 z-20">
-  //           <button 
-  //             onClick={handlePrev}
-  //             onMouseEnter={() => setIsPaused(true)}
-  //             onMouseLeave={() => setIsPaused(false)}
-  //             className="p-2.5 md:p-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-[#fe8204] hover:text-black hover:border-[#fe8204] transition-all duration-300 shadow-xl"
-  //             aria-label="Previous Product"
-  //           >
-  //             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
-  //           </button>
-            
-  //           <div className="flex gap-1.5 md:gap-2">
-  //             {products.map((_, idx) => (
-  //               <button
-  //                 key={idx}
-  //                 onClick={() => setActiveIndex(idx)}
-  //                 className={`h-1.5 md:h-2 rounded-full transition-all duration-500 ${
-  //                   activeIndex === idx ? 'bg-[#fe8204] w-6 md:w-8' : 'bg-zinc-300 w-1.5 md:w-2 hover:bg-zinc-400'
-  //                 }`}
-  //                 aria-label={`Go to slide ${idx + 1}`}
-  //               />
-  //             ))}
-  //           </div>
-
-  //           <button 
-  //             onClick={handleNext}
-  //             className="p-2.5 md:p-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-[#fe8204] hover:text-black hover:border-[#fe8204] transition-all duration-300 shadow-xl"
-  //             aria-label="Next Product"
-  //           >
-  //             <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
-  //           </button>
-  //         </div>
-  //       )}
-
-  //     </div>
-  //   </section>
-  // );
 }

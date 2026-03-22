@@ -458,7 +458,7 @@ export default function Hero({ initialProducts = [] }: HeroProps) {
               >
                 {/* Center "Real Tattoo Look" Logo - lowered z-index so cards overlay it appropriately */}
                 <motion.div
-                  className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-[35]"
+                  className="absolute inset-0 mt-15 flex flex-col items-center justify-center pointer-events-none z-[35]"
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{
                     opacity: isScrolled ? 1 : 0,

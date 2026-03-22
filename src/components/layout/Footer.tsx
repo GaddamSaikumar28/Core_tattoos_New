@@ -147,7 +147,7 @@ export default function Footer() {
           </div>
 
           {/* Payment Method Cards */}
-          <div className="flex bg-white  rounded-2xl border border-gray-100 p-2 flex-wrap justify-center items-center gap-3 shadow-sm flex-wrap justify-center items-center gap-3">
+          {/* <div className="flex bg-white  rounded-2xl border border-gray-100 p-2 flex-wrap justify-center items-center gap-3 shadow-sm flex-wrap justify-center items-center gap-3">
             {PAYMENT_METHODS.map((payment) => (
               <div 
                 key={payment.name} 
@@ -160,6 +160,23 @@ export default function Footer() {
                   width={36} 
                   height={22} 
                   className="w-auto h-5 object-contain opacity-80"
+                />
+              </div>
+            ))}
+          </div> */}
+          <div className="flex bg-white rounded-2xl border border-gray-100 p-4 flex-wrap justify-center items-center gap-4 md:gap-6 shadow-sm">
+            {PAYMENT_METHODS.map((payment) => (
+              <div 
+                key={payment.name} 
+                className="flex items-center justify-center transition-transform hover:scale-110 duration-300"
+                title={`Pay with ${payment.name}`}
+              >
+                <Image 
+                  src={payment.src} 
+                  alt={payment.name} 
+                  width={64}  
+                  height={40}
+                  className="w-auto h-7 md:h-8 object-contain opacity-80 hover:opacity-100 transition-opacity"
                 />
               </div>
             ))}

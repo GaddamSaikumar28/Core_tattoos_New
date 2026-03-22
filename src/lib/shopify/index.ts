@@ -688,6 +688,7 @@ export interface Customer {
   lastName: string;
   email: string;
   phone?: string;
+  acceptsMarketing: boolean;
 }
 
 // 1. SIGN UP

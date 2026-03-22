@@ -9,6 +9,7 @@ import {
   getCustomer, 
   recoverCustomerPassword,
   deleteCustomerAccessToken,
+  updateCustomerProfile,
   Customer 
 } from "@/src/lib/shopify";
 import { useCart } from "@/src/context/CartContext";
@@ -22,6 +23,7 @@ interface AuthContextType {
   signup: (firstName: string, lastName: string, email: string, password: string, acceptsMarketing?: boolean) => Promise<boolean>;
   logout: () => Promise<void>;
   recoverPassword: (email: string) => Promise<boolean>;
+  subscribeLoggedInUser: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -123,8 +125,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const subscribeLoggedInUser = async () => {
+    const token = Cookies.get(TOKEN_KEY);
+    if (!token || !customer) return false;
+
+    try {
+      const result = await updateCustomerProfile(token, { acceptsMarketing: true });
+      if (result.customer) {
+        setCustomer(result.customer); 
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update subscription status");
+      return false;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ customer, isLoading, login, signup, logout, recoverPassword }}>
+    <AuthContext.Provider value={{ customer, isLoading, login, signup, logout, recoverPassword, subscribeLoggedInUser}}>
       {children}
     </AuthContext.Provider>
   );
