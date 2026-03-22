@@ -857,3 +857,61 @@ export const getReturnsPageQuery = /* GraphQL */ `
     }
   }
 `;
+
+export const getGlobalSettingsQuery = /* GraphQL */ `
+  query getGlobalSettings {
+    metaobject(handle: {handle: "global-settings", type: "header_and_footer"}) {
+      header_logo: field(key: "header_logo") { reference { ... on MediaImage { image { url } } } }
+      footer_logo: field(key: "footer_logo") { reference { ... on MediaImage { image { url } } } }
+      splash_logo: field(key: "splash_logo") { reference { ... on MediaImage { image { url } } } }
+      splash_left_image: field(key: "splash_left_image") { reference { ... on MediaImage { image { url } } } }
+      splash_right_image: field(key: "splash_right_image") { reference { ... on MediaImage { image { url } } } }
+      
+      instagram_link: field(key: "instagram_link") { value }
+      facebook_link: field(key: "facebook_link") { value }
+      twitter_link: field(key: "twitter_link") { value }
+      youtube_link: field(key: "youtube_link") { value }
+    }
+  }
+`;
+
+export const getHomeFeatureSectionQuery = /* GraphQL */ `
+  query getHomeFeatureSection($handle: String!) {
+    metaobject(handle: {handle: $handle, type: "home_feature_section"}) {
+      header_title_1: field(key: "header_title_1") { value }
+      header_title_2: field(key: "header_title_2") { value }
+      header_description: field(key: "header_description") { value }
+      
+      image_1: field(key: "image_1") { reference { ... on MediaImage { image { url } } } }
+      
+      card_1_title: field(key: "card_1_title") { value }
+      card_1_text: field(key: "card_1_text") { value }
+      card_1_button_text: field(key: "card_1_button_text") { value }
+      card_1_link: field(key: "card_1_link") { value }
+      
+      card_2_title: field(key: "card_2_title") { value }
+      card_2_text: field(key: "card_2_text") { value }
+      card_2_button_text: field(key: "card_2_button_text") { value }
+      card_2_link: field(key: "card_2_link") { value }
+      
+      image_2: field(key: "image_2") { reference { ... on MediaImage { image { url } } } }
+    }
+  }
+`;
+
+export const getHomeFreeGiftSectionQuery = /* GraphQL */ `
+  query getHomeFreeGiftSection($handle: String!) {
+    metaobject(handle: {handle: $handle, type: "home_free_gift_section"}) {
+      header_title: field(key: "header_title") { value }
+      header_description: field(key: "header_description") { value }
+      header_subtext: field(key: "header_subtext") { value }
+      
+      image: field(key: "image") { reference { ... on MediaImage { image { url } } } }
+      
+      card_title: field(key: "card_title") { value }
+      card_text: field(key: "card_text") { value }
+      button_text: field(key: "button_text") { value }
+      button_link: field(key: "button_link") { value }
+    }
+  }
+`;

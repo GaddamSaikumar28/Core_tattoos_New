@@ -1176,3 +1176,99 @@ export async function getReturnsPageData(handle: string = 'returns-page') {
     `
   };
 }
+
+import { getGlobalSettingsQuery } from './queries';
+
+export async function getGlobalSettingsData() {
+  try {
+    const res = await shopifyFetch<any>({
+      query: getGlobalSettingsQuery,
+      tags: ['header_and_footer'],
+      //variables: 'global-settings',
+      cache: 'no-store' 
+    });
+    console.log("in the api call");
+    console.log(res);
+    const mo = res.body?.data?.metaobject;
+    
+    return {
+      headerLogo: mo?.header_logo?.reference?.image?.url || '/assets/icons/DesktopLogo.svg',
+      footerLogo: mo?.footer_logo?.reference?.image?.url || '/assets/icons/DesktopLogo.svg',
+      splashLogo: mo?.splash_logo?.reference?.image?.url || '/assets/icons/DesktopLogo.svg',
+      splashLeftImage: mo?.splash_left_image?.reference?.image?.url || '/assets/icons/butterflys.svg',
+      splashRightImage: mo?.splash_right_image?.reference?.image?.url || '/assets/icons/butterfly2s2.svg',
+      
+      instagramLink: mo?.instagram_link?.value || '#',
+      facebookLink: mo?.facebook_link?.value || '#',
+      twitterLink: mo?.twitter_link?.value || '#',
+      youtubeLink: mo?.youtube_link?.value || '#',
+    };
+  } catch (error) {
+    console.error('[Global Settings] Error fetching global settings:', error);
+    return null;
+  }
+}
+
+
+import { getHomeFeatureSectionQuery } from './queries';
+
+export async function getHomeFeatureSectionData(handle: string = 'home_feature_section') {
+   console.log("in get home feature selection component");
+  const res = await shopifyFetch<any>({
+    query: getHomeFeatureSectionQuery,
+    tags: ['home_feature_section'],
+    variables: { handle },
+    cache: 'no-store'
+  });
+ 
+console.log(res);
+  const mo = res.body?.data?.metaobject;
+  if (!mo) return null;
+
+  return {
+    headerTitle1: mo.header_title_1?.value || 'Real Art.',
+    headerTitle2: mo.header_title_2?.value || 'Real Fast.',
+    headerDescription: mo.header_description?.value || '',
+    
+    image1: mo.image_1?.reference?.image?.url || '/assets/images/placeholder.png',
+    
+    card1Title: mo.card_1_title?.value || '',
+    card1Text: mo.card_1_text?.value || '',
+    card1ButtonText: mo.card_1_button_text?.value || 'Read our story',
+    card1Link: mo.card_1_link?.value || '/about',
+    
+    card2Title: mo.card_2_title?.value || '',
+    card2Text: mo.card_2_text?.value || '',
+    card2ButtonText: mo.card_2_button_text?.value || 'How it works',
+    card2Link: mo.card_2_link?.value || '/how-it-works',
+    
+    image2: mo.image_2?.reference?.image?.url || '/assets/images/placeholder.png',
+  };
+}
+
+import { getHomeFreeGiftSectionQuery } from './queries';
+
+export async function getHomeFreeGiftSectionData(handle: string = 'home_free_gift_section') {
+  const res = await shopifyFetch<any>({
+    query: getHomeFreeGiftSectionQuery,
+    tags: ['home_free_gift_section'],
+    variables: { handle },
+    cache: 'no-store'
+  });
+
+  const mo = res.body?.data?.metaobject;
+  if (!mo) return null;
+
+  return {
+    headerTitle: mo.header_title?.value || 'Free gift with your order',
+    headerDescription: mo.header_description?.value || '',
+    headerSubtext: mo.header_subtext?.value || '',
+    
+    image: mo.image?.reference?.image?.url || '/assets/images/placeholder.png',
+    
+    cardTitle: mo.card_title?.value || 'A Little Something Extra',
+    cardText: mo.card_text?.value || '',
+    buttonText: mo.button_text?.value || 'Shop collections',
+    buttonLink: mo.button_link?.value || '/collections',
+  };
+}

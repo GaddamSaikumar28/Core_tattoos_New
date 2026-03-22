@@ -25,6 +25,10 @@ import { cn } from "@/src/lib/utils";
 import { useCart } from "@/src/context/CartContext";
 import { getCollectionNames, searchShopifyProducts } from "@/src/lib/shopify";
 import { useAuth } from "@/src/context/AuthContext";
+
+interface HeaderProps {
+  logoUrl?: string;
+}
 // Premium How it Works Data
 const HOW_IT_WORKS_DATA = [
   {
@@ -108,7 +112,7 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-export default function Header() {
+export default function Header({ logoUrl = '/assets/icons/DesktopLogo.svg' }: HeaderProps) {
   const pathname = usePathname();
   const { cartCount, setCartOpen } = useCart();
 
@@ -283,7 +287,7 @@ export default function Header() {
                 className="relative z-50 flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-orange)] rounded-sm transition-transform hover:scale-[1.02]"
               >
                 <Image
-                  src="/assets/icons/Fotterlogo2.svg"
+                  src={logoUrl}
                   alt="Just Tattoos"
                   width={140}
                   height={48}
@@ -660,7 +664,8 @@ export default function Header() {
               className="absolute left-1/2 -translate-x-1/2 outline-none"
             >
               <Image
-                src="/assets/icons/Fotterlogo2.svg"
+               src={logoUrl}
+
                 alt="Just Tattoos"
                 width={96}
                 height={32}
@@ -875,7 +880,7 @@ export default function Header() {
               {/* HEADER */}
               <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-white z-10">
                 <Image
-                  src="/assets/icons/Fotterlogo2.svg"
+                 src={logoUrl}
                   alt="Just Tattoos"
                   width={110}
                   height={36}

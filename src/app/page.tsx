@@ -92,8 +92,6 @@ export default function HomePage() {
       <Suspense fallback={<HeroSkeleton />}>
         <HeroWithData />
       </Suspense>
-
-      {/* These components will now render instantly while the Hero data loads */}
       <FeatureSection />
       <NewArrivals />
       <ShopCollection />
