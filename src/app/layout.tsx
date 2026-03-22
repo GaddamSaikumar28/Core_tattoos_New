@@ -140,8 +140,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const settings = await getGlobalSettingsData();
-  console.log("in the layout");
-  console.log(settings);
   // Define a safe fallback just in case the API completely fails
   const globalData = settings || {
     headerLogo: '/assets/icons/DesktopLogo.svg',

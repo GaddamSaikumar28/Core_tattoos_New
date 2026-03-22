@@ -944,7 +944,7 @@ export async function getHowItWorksPageData(handle: string = 'how-it-works') {
     query: getHowItWorksPageQuery,
     tags: ['how_it_works_page'],
     variables: { handle },
-    cache: 'no-store' // Keeps it fresh while we test
+    //cache: 'no-store' // Keeps it fresh while we test
   });
 
   const mo = res.body?.data?.metaobject;
@@ -993,7 +993,7 @@ export async function getFaqSectionData(handle: string = 'faq-section') {
     query: getFaqSectionQuery,
     tags: ['faq_section'],
     variables: { handle },
-    cache: 'no-store' // Keeps it fresh while testing
+    //cache: 'no-store' // Keeps it fresh while testing
   });
 
   const mo = res.body?.data?.metaobject;
@@ -1028,7 +1028,7 @@ export async function getHelpCenterPageData(handle: string = 'help-center-page')
     query: getHelpCenterPageQuery,
     tags: ['help_center_page'],
     variables: { handle },
-    cache: 'no-store'
+   // cache: 'no-store'
   });
 
   const mo = res.body?.data?.metaobject;
@@ -1053,7 +1053,7 @@ export async function getShippingPageData(handle: string = 'shipping-page') {
     query: getShippingPageQuery,
     tags: ['shipping_page'],
     variables: { handle },
-    cache: 'no-store' // Keeps it fresh while testing
+    //cache: 'no-store' // Keeps it fresh while testing
   });
 
   const mo = res.body?.data?.metaobject;
@@ -1095,7 +1095,7 @@ export async function getReturnsPageData(handle: string = 'returns-page') {
     query: getReturnsPageQuery,
     tags: ['returns_page'],
     variables: { handle },
-    cache: 'no-store' 
+    //cache: 'no-store' 
   });
 
   const mo = res.body?.data?.metaobject;
@@ -1185,10 +1185,9 @@ export async function getGlobalSettingsData() {
       query: getGlobalSettingsQuery,
       tags: ['header_and_footer'],
       //variables: 'global-settings',
-      cache: 'no-store' 
+      //cache: 'no-store' 
     });
-    console.log("in the api call");
-    console.log(res);
+
     const mo = res.body?.data?.metaobject;
     
     return {
@@ -1218,10 +1217,8 @@ export async function getHomeFeatureSectionData(handle: string = 'home_feature_s
     query: getHomeFeatureSectionQuery,
     tags: ['home_feature_section'],
     variables: { handle },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
- 
-console.log(res);
   const mo = res.body?.data?.metaobject;
   if (!mo) return null;
 
@@ -1253,7 +1250,7 @@ export async function getHomeFreeGiftSectionData(handle: string = 'home_free_gif
     query: getHomeFreeGiftSectionQuery,
     tags: ['home_free_gift_section'],
     variables: { handle },
-    cache: 'no-store'
+   // cache: 'no-store'
   });
 
   const mo = res.body?.data?.metaobject;
