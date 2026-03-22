@@ -1085,3 +1085,94 @@ export async function getShippingPageData(handle: string = 'shipping-page') {
     ctaLink: mo.cta_link?.value || 'mailto:support@justtattoos.com',
   };
 }
+
+
+// Replace the previous getReturnsPageData function with this:
+import { getReturnsPageQuery } from './queries';
+
+export async function getReturnsPageData(handle: string = 'returns-page') {
+  const res = await shopifyFetch<any>({
+    query: getReturnsPageQuery,
+    tags: ['returns_page'],
+    variables: { handle },
+    cache: 'no-store' 
+  });
+
+  const mo = res.body?.data?.metaobject;
+  if (!mo) return null;
+
+  return {
+    heroTitle: mo.hero_title?.value || 'RETURNS & REFUNDS',
+    heroImage: mo.hero_image?.reference?.image?.url || '/assets/images/ReturnsHero.jpg',
+    heroMobileImage: mo.hero_mobile_image?.reference?.image?.url || '/assets/images/ReturnsHeroMobile.jpg',
+    heroTextColor: mo.hero_text_color?.value || '#FE8204',
+    
+    card1Title: mo.card_1_title?.value || '14-Day Window',
+    card1Text: mo.card_1_text?.value || "Reach out within 14 days of receiving your order for help with a credit or occasional refund.",
+    card2Title: mo.card_2_title?.value || 'Hygiene First',
+    card2Text: mo.card_2_text?.value || "For safety and sanitary reasons, we do not accept physical returns of our products.",
+    card3Title: mo.card_3_title?.value || 'Simple Process',
+    card3Text: mo.card_3_text?.value || "Have an issue? Just email us with photos and your order number. We've got your back.",
+    
+    policyTitle: mo.policy_title?.value || 'The Policy',
+    policyP1: mo.policy_p1?.value || "Not all situations unfold as intended, and we understand completely.",
+    policyP2: mo.policy_p2?.value || "We are happy to help you with any Just Tattoos products within <strong>14 days</strong> from the day it was received. Although physical product returns are not accepted due to hygienic reasons, assistance can still be provided through a Just Tattoos credit, or occasionally a refund.",
+    policyP3: mo.policy_p3?.value || "Refunds requested after 14 days of the received date may still be eligible for a Just Tattoos credit, though we do not accept refunds for orders that are over 90 days old.",
+    policyNote: mo.policy_note?.value || "<strong>Note:</strong> Original shipping charges will not be refunded. Just Tattoos may refuse a refund request if we find evidence of abuse.",
+    
+    issuesTitle: mo.issues_title?.value || 'Issues & Defects',
+    issuesIntro: mo.issues_intro?.value || "If you run into an issue with applying your tattoo or if the products you got are damaged/defective, reach out to us! It may be eligible for a one-time resend or credit.",
+    issuesEmailHeading: mo.issues_email_heading?.value || "How to request a refund or credit:",
+    issuesEmailText: mo.issues_email_text?.value || "It’s super simple! Send us an email at",
+    issuesEmailAddress: mo.issues_email_address?.value || "support@justtattoos.com",
+    issuesList1: mo.issues_list_1?.value || "<strong>Your order number</strong>",
+    issuesList2: mo.issues_list_2?.value || "<strong>Clear photos</strong> of each product you’re reaching out about (with the QR code visible; one group photo is fine as long as all codes are clear).",
+    issuesList3: mo.issues_list_3?.value || "<strong>A brief explanation</strong> of the issue, defect, or reason you're hoping to get a refund.",
+    issuesOutro: mo.issues_outro?.value || "Our team will review your request and get back to you with the next steps! 😊",
+    
+    paymentTitle: mo.payment_title?.value || 'Payment Issues',
+    paymentIntro: mo.payment_intro?.value || "Having trouble checking out? We're sorry to hear that! Keep these 4 things in mind if your payment isn't going through:",
+    paymentItem1Title: mo.payment_item_1_title?.value || "1. Accepted Methods",
+    paymentItem1Text: mo.payment_item_1_text?.value || "Ensure you are using an accepted payment method: <strong>Visa, MasterCard, AMEX, or PayPal</strong>.",
+    paymentItem2Title: mo.payment_item_2_title?.value || "2. Sufficient Balance",
+    paymentItem2Text: mo.payment_item_2_text?.value || "Double-check the funds in your account. Certain prepaid cards (like Visa Pre-Paid Gift cards and Visa Debits) may not work if there isn't sufficient money to cover the total.",
+    paymentItem3Title: mo.payment_item_3_title?.value || "3. Missing CVV Number",
+    paymentItem3Text: mo.payment_item_3_text?.value || "If your card doesn't have a CVV number on the back, your transaction may be unsuccessful.",
+    paymentItem4Title: mo.payment_item_4_title?.value || "4. Billing Address Match",
+    paymentItem4Text: mo.payment_item_4_text?.value || "Check that the Billing Address you entered perfectly matches the one connected to your card. Sometimes autofill programs (like Google Chrome) enter info for another card or format it incorrectly.",
+
+    chargesTitle: mo.charges_title?.value || 'Charges & Cancellations',
+    
+    // Condensed block 1
+    chargesSection1Content: mo.charges_section_1_content?.value || `
+        <h3 class="text-2xl font-bold text-black mb-4">When will I be charged?</h3>
+        <p class="mb-4">Your account is automatically charged at the time of purchase. For security reasons, Just Tattoos does not store your credit card information and uses a one-time authorization during checkout.</p>
+        <div class="space-y-4 mt-6 border-l-2 border-gray-200 pl-6">
+            <div>
+                <h4 class="text-black font-bold">1. Authorization</h4>
+                <p class="text-base">Verifies your card is valid and has funds. The period varies by provider.</p>
+            </div>
+            <div>
+                <h4 class="text-black font-bold">2. Capture</h4>
+                <p class="text-base">Occurs daily at noon. Your charge may appear as “pending” (no interest charged) and may take up to 5 business days to post.</p>
+            </div>
+            <div>
+                <h4 class="text-black font-bold">3. Settlement</h4>
+                <p class="text-base">Happens 2–3 business days after capture. Your bank confirms the charge and it appears on your statement.</p>
+            </div>
+        </div>
+        <p class="mt-4 text-base bg-gray-50 p-4 rounded-xl inline-block"><strong>🛒 PayPal®:</strong> Orders placed using PayPal are charged immediately at checkout.</p>
+    `,
+
+    // Condensed block 2
+    chargesSection2Content: mo.charges_section_2_content?.value || `
+        <h3 class="text-2xl font-bold text-black mb-4">Canceled Orders</h3>
+        <p>If you cancel an order, your card will be refunded in full. An authorization hold may be placed when you order to verify funds; if canceled, the hold expires according to your bank’s policy (usually within 5 days).</p>
+        <ul class="list-disc pl-5 space-y-2 mt-4 text-base">
+            <li><strong>Before Capture:</strong> We can void the order, and no charge will be processed.</li>
+            <li><strong>After Capture / Before Settlement:</strong> We can cancel and issue a refund. This appears after both the charge and refund settle (2–3 business days).</li>
+            <li><strong>After Settlement:</strong> We can still refund your order, unless it has already shipped (in which case standard return protocols apply).</li>
+        </ul>
+    `
+  };
+}

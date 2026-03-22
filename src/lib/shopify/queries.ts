@@ -808,3 +808,52 @@ export const getShippingPageQuery = /* GraphQL */ `
     }
   }
 `;
+
+export const getReturnsPageQuery = /* GraphQL */ `
+  query getReturnsPage($handle: String!) {
+    metaobject(handle: {handle: $handle, type: "returns_page"}) {
+      hero_title: field(key: "hero_title") { value }
+      hero_image: field(key: "hero_image") { reference { ... on MediaImage { image { url } } } }
+      hero_mobile_image: field(key: "hero_mobile_image") { reference { ... on MediaImage { image { url } } } }
+      hero_text_color: field(key: "hero_text_color") { value }
+
+      card_1_title: field(key: "card_1_title") { value }
+      card_1_text: field(key: "card_1_text") { value }
+      card_2_title: field(key: "card_2_title") { value }
+      card_2_text: field(key: "card_2_text") { value }
+      card_3_title: field(key: "card_3_title") { value }
+      card_3_text: field(key: "card_3_text") { value }
+
+      policy_title: field(key: "policy_title") { value }
+      policy_p1: field(key: "policy_p1") { value }
+      policy_p2: field(key: "policy_p2") { value }
+      policy_p3: field(key: "policy_p3") { value }
+      policy_note: field(key: "policy_note") { value }
+
+      issues_title: field(key: "issues_title") { value }
+      issues_intro: field(key: "issues_intro") { value }
+      issues_email_heading: field(key: "issues_email_heading") { value }
+      issues_email_text: field(key: "issues_email_text") { value }
+      issues_email_address: field(key: "issues_email_address") { value }
+      issues_list_1: field(key: "issues_list_1") { value }
+      issues_list_2: field(key: "issues_list_2") { value }
+      issues_list_3: field(key: "issues_list_3") { value }
+      issues_outro: field(key: "issues_outro") { value }
+
+      payment_title: field(key: "payment_title") { value }
+      payment_intro: field(key: "payment_intro") { value }
+      payment_item_1_title: field(key: "payment_item_1_title") { value }
+      payment_item_1_text: field(key: "payment_item_1_text") { value }
+      payment_item_2_title: field(key: "payment_item_2_title") { value }
+      payment_item_2_text: field(key: "payment_item_2_text") { value }
+      payment_item_3_title: field(key: "payment_item_3_title") { value }
+      payment_item_3_text: field(key: "payment_item_3_text") { value }
+      payment_item_4_title: field(key: "payment_item_4_title") { value }
+      payment_item_4_text: field(key: "payment_item_4_text") { value }
+
+      charges_title: field(key: "charges_title") { value }
+      charges_section_1_content: field(key: "charges_section_1_content") { value }
+      charges_section_2_content: field(key: "charges_section_2_content") { value }
+    }
+  }
+`;
