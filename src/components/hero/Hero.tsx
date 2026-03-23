@@ -9,7 +9,7 @@ import Link from "next/link";
 //   formattedData: FormattedProduct[];
 //   pageInfo: any; 
 // }
-
+const MotionLink = motion(Link);
 interface HeroProps {
   initialProducts: FormattedProduct[];
 }
@@ -383,38 +383,6 @@ export default function Hero({ initialProducts = [] }: HeroProps) {
     </span>
   </Link>
 </motion.div>
-                {/* <motion.button
-                  className="relative mt-8 text-white rounded-full hidden md:flex font-bold uppercase tracking-widest text-[12px] lg:text-[14px] group overflow-hidden"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
-                >
-               
-                  <span className="absolute inset-0 bg-black"></span>
-
-                  
-                  <span className="absolute inset-0 bg-[#FE8204] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"></span>
-
-                 
-                 <span className="relative z-10 flex items-center gap-4 px-7 py-3.5 lg:px-8 lg:py-4">
-                    SHOP COLLECTIONS
-                    <span className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M5 12h14"></path>
-                        <path d="m12 5 7 7-7 7"></path>
-                      </svg>
-                    </span>
-                  </span>
-                </motion.button> */}
               </motion.div>
 
               {/* Right Column: Scaled-down Card Deck */}
@@ -478,26 +446,6 @@ export default function Hero({ initialProducts = [] }: HeroProps) {
                 </motion.div>
 
                 <div className="relative w-[180px] h-[250px] mt-15 md:w-[260px] md:h-[360px] lg:w-[320px] lg:h-[440px] flex justify-center items-center">
-                  {/* {deckConfig.map((card, index) => {
-                    const isTopCard = index === 0;
-                    const isVisibleInHero = card.id <= 4;
-
-                    return (
-                      <TattooCard
-                        key={card.id}
-                        card={card}
-                        index={index}
-                        isTopCard={isTopCard}
-                        isVisibleInHero={isVisibleInHero}
-                        isScrolled={isScrolled}
-                        isExpanded={isExpanded}
-                        cardIsFalling={cardIsFalling}
-                        topCardReady={topCardReady}
-                        getCircPos={getCircPos}
-                        isDesktop={isDesktop}
-                      />
-                    );
-                  })} */}
                   {cardsWithProducts.map((card, index) => {
                     const isTopCard = index === 0;
                     const isVisibleInHero = card.id <= 4;
@@ -553,7 +501,7 @@ export default function Hero({ initialProducts = [] }: HeroProps) {
                     realistic design within 24 hours.
                   </span>
                 </motion.p>
-                <motion.button
+                {/* <motion.button
                   className="mt-8 bg-black text-white rounded-full px-8 py-4 flex items-center gap-4 font-bold uppercase tracking-widest text-[13px] hover:bg-gray-800 transition-colors group"
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -575,7 +523,32 @@ export default function Hero({ initialProducts = [] }: HeroProps) {
                       <path d="m12 5 7 7-7 7"></path>
                     </svg>
                   </span>
-                </motion.button>
+                </motion.button> */}
+                <MotionLink
+                  href="/collections"
+                  className="mt-8 bg-black text-white rounded-full px-8 py-4 flex items-center gap-4 font-bold uppercase tracking-widest text-[13px] hover:bg-gray-800 transition-colors group"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+                >
+                  SHOP COLLECTIONS
+                  <span className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M5 12h14"></path>
+                      <path d="m12 5 7 7-7 7"></path>
+                    </svg>
+                  </span>
+                </MotionLink>
+                
               </motion.div>
             </main>
 
