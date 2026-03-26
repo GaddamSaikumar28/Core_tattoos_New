@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const config: NextConfig = {
   images: {
-    unoptimized: true,
+    //unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -10,6 +10,7 @@ const config: NextConfig = {
         pathname: '/s/files/**',
       },
     ],
+    formats: ['image/avif', 'image/webp'],
   },
 };
 

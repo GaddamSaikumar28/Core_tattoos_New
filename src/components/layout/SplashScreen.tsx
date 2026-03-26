@@ -86,7 +86,7 @@ export default function SplashScreen({ logoUrl, leftImageUrl, rightImageUrl }: S
 
   // Anti-flash hydration guard
   if (!isMounted) {
-    return <div className="fixed inset-0 z-[100] bg-[var(--color-white)]" />;
+    return <div suppressHydrationWarning className="fixed inset-0 z-[100] bg-[var(--color-white)]" />;
   }
 
   return (
@@ -99,7 +99,7 @@ export default function SplashScreen({ logoUrl, leftImageUrl, rightImageUrl }: S
           exit="exit"
           aria-hidden="true" // Screen-reader optimization for decorative screens
           // pointer-events-auto during animation, then none so it doesn't block the site while exiting
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--color-white)] overflow-hidden pointer-events-auto"
+          className=" splash-wrapper fixed inset-0 z-[100] flex items-center justify-center bg-[var(--color-white)] overflow-hidden pointer-events-auto"
         >
           <div className="relative w-full h-full max-w-[1440px] mx-auto flex items-center justify-center">
             
@@ -110,9 +110,10 @@ export default function SplashScreen({ logoUrl, leftImageUrl, rightImageUrl }: S
             >
               <Image 
                 src={leftImageUrl} 
-                alt="Butterfly Decoration Left"
+                alt=""
                 width={240}
                 height={240}
+                sizes="(max-width: 768px) 100px, 240px"
                 className="w-[100px] md:w-[150px] lg:w-[200px] xl:w-[240px] h-auto drop-shadow-sm"
                 priority
               />
@@ -128,6 +129,7 @@ export default function SplashScreen({ logoUrl, leftImageUrl, rightImageUrl }: S
                 alt="Core Tattoos Logo"
                 width={360}
                 height={150}
+                sizes="(max-width: 768px) 180px, 360px"
                 className="w-[180px] sm:w-[240px] md:w-[280px] lg:w-[320px] xl:w-[360px] h-auto drop-shadow-md"
                 priority
               />
@@ -143,6 +145,7 @@ export default function SplashScreen({ logoUrl, leftImageUrl, rightImageUrl }: S
                 alt="Butterfly Decoration Right"
                 width={240}
                 height={240}
+                sizes="(max-width: 768px) 100px, 240px"
                 className="w-[100px] md:w-[150px] lg:w-[200px] xl:w-[240px] h-auto scale-x-[-1] drop-shadow-sm"
                 priority
               />

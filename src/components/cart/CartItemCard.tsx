@@ -50,6 +50,7 @@ export function CartItemCard({ item, compact = false }: CartItemCardProps) {
             src={imageUrl}
             alt={product.featuredImage?.altText || productTitle}
             fill
+            loading="lazy"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 768px) 100px, 150px"
           />

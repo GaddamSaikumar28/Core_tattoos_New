@@ -92,6 +92,37 @@
     @apply text-base;
   }
 
+  .splash-completed .splash-wrapper {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+/**
+ * 2. The Container Styling:
+ * Matches the 'fixed inset-0' and 'bg-white' logic in your component.
+ */
+.splash-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff; /* Use your --color-white variable if preferred */
+  overflow: hidden;
+}
+
+/**
+ * 3. Smooth Transitions for non-Framer elements (Optional)
+ * If you want a CSS-based backup for the blur effect
+ */
+.splash-exit-active {
+  filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.8s ease, filter 0.8s ease;
+}
+
   /* Specific fix for Chrome Autofill */
   input:-webkit-autofill,
   input:-webkit-autofill:hover, 

@@ -10,11 +10,13 @@ import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import { Toaster } from "sonner";
 import { CartProvider } from "../context/CartContext";
-import { CartDrawer } from "../components/cart/CartDrawer";
+import FooterWrapper from "../components/layout/FooterWrapper";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+// import { CartDrawer } from "../components/cart/CartDrawer";
 import { AuthProvider } from "../context/AuthContext";
 import Script from "next/script";
 import { getGlobalSettingsData } from "@/src/lib/shopify";
-
+import CartDrawerWrapper from "../components/cart/CartDrawerWrapper";
 const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"], 
@@ -31,9 +33,32 @@ const almarena = localFont({
   display: "swap",
 });
 
+// export const metadata: Metadata = {
+//   title: "Tattoos",
+//   description: "Authentic tattoo lifestyle and apparel.",
+// };
+
 export const metadata: Metadata = {
-  title: "Core Tattoos",
+  title: "Just Tattoos",
   description: "Authentic tattoo lifestyle and apparel.",
+  icons: {
+    // 1. Primary Favicon (SVG)
+    icon: [
+      {
+        url: "/favicon.svg?v=1", // Versioning forces a cache refresh
+        type: "image/svg+xml",
+      },
+    ],
+    // 2. Shortcut icon for older browsers/bookmarks
+    shortcut: ["/favicon.svg?v=1"],
+    // 3. Apple Touch Icon for iPhone home screens
+    apple: [
+      {
+        url: "/favicon.svg?v=1",
+        type: "image/svg+xml",
+      },
+    ],
+  },
 };
 
 
@@ -54,8 +79,30 @@ export default async function RootLayout({
   };
   
   return (
-    <html lang="en" className={`${montserrat.variable} ${almarena.variable}`}>
+    
+    <html lang="en" className={`${montserrat.variable} ${almarena.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Preconnect to Shopify CDN for faster image loading */}
+        {/* <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="anonymous" /> */}
+        <link rel="icon" href="/favicon.svg?v=1" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/favicon.svg?v=1" />
+        <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://cdn.shopify.com" />
+      </head>
       <body className="antialiased flex flex-col min-h-screen">
+        <SpeedInsights />
+        <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  if (sessionStorage.getItem('hasSeenSplash') === 'true') {
+                    document.documentElement.classList.add('splash-completed');
+                  }
+                })();
+              `,
+            }}
+          />
+
         <CartProvider>
           {/* AuthProvider goes immediately inside CartProvider and wraps EVERYTHING else */}
           <AuthProvider>
@@ -73,7 +120,16 @@ export default async function RootLayout({
               {children}
             </main>
             
-            <Footer 
+            {/* <Footer 
+              logoUrl={globalData.footerLogo} 
+              socialLinks={{
+                instagram: globalData.instagramLink,
+                facebook: globalData.facebookLink,
+                twitter: globalData.twitterLink,
+                youtube: globalData.youtubeLink
+              }}
+            /> */}
+            <FooterWrapper 
               logoUrl={globalData.footerLogo} 
               socialLinks={{
                 instagram: globalData.instagramLink,
@@ -82,8 +138,10 @@ export default async function RootLayout({
                 youtube: globalData.youtubeLink
               }}
             />
+
             
-            <CartDrawer />
+            {/* <CartDrawer /> */}
+            <CartDrawerWrapper />
             
           </AuthProvider>
 
