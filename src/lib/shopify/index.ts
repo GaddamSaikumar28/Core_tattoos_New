@@ -188,38 +188,73 @@ export async function getCollectionNames(): Promise<CollectionName[]> {
   return res.body.data.collections.edges.map(({ node }: any) => ({
     title: node.title,
     handle: node.handle
-  }));
+  })).filter((collection: CollectionName) => 
+      !collection.title.toLowerCase().includes('home')
+    );
 }
 
 export async function searchShopifyProducts(searchQuery: string): Promise<SearchResult[]> {
+  const sanitizedQuery = searchQuery.replace(/[^\w\s-]/g, '').trim();
+  if (!sanitizedQuery) return [];
   const variables = {
     // The asterisk (*) acts as a wildcard so 'tat' matches 'tattoo'
-    query: `${searchQuery}*` 
+    //query: `${searchQuery}*` 
+    query: `${sanitizedQuery}*`
   };
 
   try {
     const res = await shopifyFetch<any>({
+      // query: searchProductsQuery,
+      // // We don't want to highly cache search queries as they are highly variable
+      // cache: 'no-store', 
+      // variables
       query: searchProductsQuery,
-      // We don't want to highly cache search queries as they are highly variable
-      cache: 'no-store', 
-      variables
+      // 2. PERFORMANCE: 'no-store' hits the API every keystroke. 
+      // Using 'force-cache' with a short revalidate saves quota and speeds up UI heavily.
+      cache: 'force-cache',
+      tags: ['search'],
+      variables: {
+        ...variables,
+        // Passing 'next' options directly if shopifyFetch supports it
+      }
+
     });
 
     if (!res.body?.data?.products?.edges) return [];
 
-    // Map to the clean interface expected by your Header
-    return res.body.data.products.edges.map(({ node }: any) => ({
-      id: node.id,
-      handle: node.handle,
-      title: node.title,
-      price: parseFloat(node.priceRange?.minVariantPrice?.amount || "0").toFixed(2),
-      image: node.images?.edges?.[0]?.node?.url || '/assets/images/placeholder.png', // Fallback local image if missing
-      category: node.productType || 'Product',
-    }));
+    return res.body.data.products.edges.map(({ node }: any) => {
+      // 3. DEFENSIVE CHECKS: Ensure price and images exist so the UI doesn't crash
+      const minPrice = node.priceRange?.minVariantPrice?.amount || "0";
+      const imageUrl = node.images?.edges?.[0]?.node?.url || '/assets/images/placeholder.png';
+
+      return {
+        id: node.id,
+        handle: node.handle,
+        title: node.title,
+        price: parseFloat(minPrice).toFixed(2),
+        image: imageUrl,
+        category: node.productType || 'Product',
+      };
+    });
+
+    // if (!res.body?.data?.products?.edges) return [];
+
+    // // Map to the clean interface expected by your Header
+    // return res.body.data.products.edges.map(({ node }: any) => ({
+    //   id: node.id,
+    //   handle: node.handle,
+    //   title: node.title,
+    //   price: parseFloat(node.priceRange?.minVariantPrice?.amount || "0").toFixed(2),
+    //   image: node.images?.edges?.[0]?.node?.url || '/assets/images/placeholder.png', // Fallback local image if missing
+    //   category: node.productType || 'Product',
+    // }));
 
   } catch (error) {
-    console.error("Failed to search products:", error);
-    return []; // Graceful failure so the UI dropdown doesn't crash
+    // console.error("Failed to search products:", error);
+    // return []; // Graceful failure so the UI dropdown doesn't crash
+    console.error("Failed to search products in Shopify API:", error);
+    // Throwing instead of returning [] allows the frontend try/catch to actually catch it
+    throw new Error("Search functionality unavailable");
   }
 }
 
@@ -230,32 +265,8 @@ const TATTOO_CATEGORIES = {
   sizes: ["Small", "Medium", "Large"]
 };
  const UI_COLORS = [
-  // --- THE VIBRANT POP ---
-  // High energy, modern tech, and flat-design classics. 
-  // '#FF6B6B', // Soft Coral / Punchy Red
-  // '#4ECDC4', // Electric Teal
-  // '#F7B731', // Rich Mustard Yellow
-  // '#A55EEA', // Vibrant Lilac / Purple
-  // '#2D98DA', // Azure Blue
-  // '#20BF6B', // Emerald Mint
-  // '#FA8231', // Bold Tangerine
 
-  // --- THE MUTED LUXURY ---
-  // Neater, richer, and more grounded. 
-  // '#8FA08D', // Deep Sage Green
-  // '#D47A6A', // Warm Terracotta
-  // '#6B8EAD', // Slate Steel Blue
-  // '#C98A92', // Dusty Rose
-  // '#919191', // Soft Ochre / Clay
-  // '#b2b2b2', // Deep Mauve
-
-  // --- THE RICH GREYS ---
-  // Premium, sophisticated neutrals with subtle undertones.
-  // Perfect for a sleek, heavy, or minimalist tattoo aesthetic.
-  // '#2C3E50', // Midnight Blue-Grey (Very dark, cool)
-  // '#34495E', // Deep Charcoal (Classic dark UI grey)
-  // '#5D6D7E', // Cool Slate (Mid-tone blue-leaning grey)
-  '#7F8C8D', // Classic Ash Grey (Slightly green-tinted neutral)
+  '#7F8C8D', 
   '#95A5A6', // Soft Gunmetal (Lighter, metallic grey)
   '#696969', // Dim Grey (True, balanced mid-dark grey)
   '#7A7571', // Warm Taupe Grey (Brown/red-leaning grey, very organic)

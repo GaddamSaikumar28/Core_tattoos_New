@@ -168,25 +168,48 @@ export default function Header({ logoUrl = '/assets/icons/DesktopLogo.svg' }: He
   }, []);
 
   useEffect(() => {
+    let isActive = true;
+
     const performSearch = async () => {
-      if (!debouncedSearchQuery.trim()) {
+      const cleanQuery = debouncedSearchQuery.trim();
+      // if (!debouncedSearchQuery.trim()) {
+      //   setSearchResults([]);
+      //   return;
+      // }
+      if (!cleanQuery) {
         setSearchResults([]);
         return;
       }
 
+
       setIsSearching(true);
       try {
         const results = await searchShopifyProducts(debouncedSearchQuery);
-        setSearchResults(results || []);
+        // setSearchResults(results || []);
+        if (isActive) {
+          setSearchResults(results || []);
+        }
+
       } catch (error) {
         console.error("Search failed", error);
-        setSearchResults([]);
+        // setSearchResults([]);
+        if (isActive) {
+          setSearchResults([]);
+        }
+
       } finally {
-        setIsSearching(false);
+        // setIsSearching(false);
+        if (isActive) {
+          setIsSearching(false);
+        }
       }
     };
 
     performSearch();
+    return () => {
+      isActive = false;
+    };
+    
   }, [debouncedSearchQuery]);
 
   // --- Event Handlers ---
@@ -806,7 +829,7 @@ export default function Header({ logoUrl = '/assets/icons/DesktopLogo.svg' }: He
                             {searchResults.map((product) => (
                               <Link
                                 key={product.id}
-                                href={`/products/${product.handle}`}
+                                href={`/collections/${product.handle}`}
                                 onClick={closeSearch}
                                 className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 group"
                               >
