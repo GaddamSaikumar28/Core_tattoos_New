@@ -660,7 +660,7 @@ export async function getHomePageCollections(limit: number = 15): Promise<Format
 
 export async function getHomePageHeroCollections(limit: number = 15): Promise<FormattedProduct[]> {
   // The exact handle of your new collection
-  const collectionHandle = 'home-page-hero-collections'; 
+  const collectionHandle = 'home-page-collections'; 
 
   try {
     const res = await shopifyFetch<any>({
