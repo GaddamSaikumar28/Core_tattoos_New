@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, Variants, TargetAndTransition } from "framer-motion";
 import Image from "next/image";
 
@@ -10,55 +10,60 @@ interface SplashScreenProps {
   rightImageUrl: string;
 }
 
-// Fixed: Explicitly typed as a 4-element tuple for Framer Motion's easing
-const easeOutExpo: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const isDev = process.env.NODE_ENV === "development";
+const logWarning = (message: string) => {
+  if (isDev) console.warn(message);
+};
+
+const premiumEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
   visible: { opacity: 1 },
   exit: {
     opacity: 0,
-    transition: { duration: 0.6, ease: easeOutExpo },
+    filter: "blur(10px)",
+    transition: { duration: 0.8, ease: premiumEase },
   },
 };
 
-// Smooth, non-blur structural reveals
 const logoVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.94, y: 5 },
+  hidden: { opacity: 0, scale: 0.85, y: 15, filter: "blur(8px)" },
   visible: {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { duration: 1.2, ease: easeOutExpo, delay: 0.2 },
+    filter: "blur(0px)",
+    transition: { duration: 1.4, ease: premiumEase, delay: 0.1 },
   },
 };
 
 const leftButterflyVariants: Variants = {
-  hidden: { opacity: 0, x: -35, y: 20, rotate: -8 },
+  hidden: { opacity: 0, x: -60, y: 30, rotate: -15 },
   visible: {
     opacity: 1,
     x: 0,
     y: 0,
     rotate: 0,
-    transition: { duration: 1.4, ease: easeOutExpo, delay: 0.5 },
+    transition: { duration: 1.6, ease: premiumEase, delay: 0.3 },
   },
 };
 
 const rightButterflyVariants: Variants = {
-  hidden: { opacity: 0, x: 35, y: 20, rotate: 8 },
+  hidden: { opacity: 0, x: 60, y: 30, rotate: 15 },
   visible: {
     opacity: 1,
     x: 0,
     y: 0,
     rotate: 0,
-    transition: { duration: 1.4, ease: easeOutExpo, delay: 0.6 },
+    transition: { duration: 1.6, ease: premiumEase, delay: 0.45 },
   },
 };
 
-const organicFloat: TargetAndTransition = {
-  y: [0, -8, 0],
+const floatAnimation: TargetAndTransition = {
+  y: [0, -12, 0],
   transition: {
-    duration: 4.5,
+    duration: 5,
     repeat: Infinity,
     ease: "easeInOut",
   },
@@ -69,14 +74,13 @@ export default function SplashScreen({
   leftImageUrl,
   rightImageUrl,
 }: SplashScreenProps) {
-  // FIX 1: Set showIntro to TRUE initially. 
-  // This ensures the server renders the splash screen first, hiding the main website content.
   const [showIntro, setShowIntro] = useState<boolean>(true);
+  const [canFloat, setCanFloat] = useState<boolean>(false);
+  const mountTime = useRef(Date.now());
 
   useEffect(() => {
     const hasSeenSplash = sessionStorage.getItem("hasSeenSplash");
 
-    // If the user has already seen it on a previous page load, update state to false
     if (hasSeenSplash) {
       setShowIntro(false);
       return;
@@ -84,34 +88,40 @@ export default function SplashScreen({
 
     document.body.style.overflow = "hidden";
 
-    // Orchestrates the exact moment the splash screen should drop
+    const floatTimer = setTimeout(() => setCanFloat(true), 1600);
+
     const exitSplash = () => {
       setShowIntro(false);
       sessionStorage.setItem("hasSeenSplash", "true");
       window.dispatchEvent(new Event("splashComplete"));
       
-      // Wait precisely for Framer Motion exit animation lifecycle
       setTimeout(() => {
         document.body.style.overflow = "";
-      }, 600); 
+      }, 800);
     };
 
-    // FIX 2: Removed the forced 2.5-second waiting time.
-    // Listen for the Three.js payload to finish and drop the splash screen INSTANTLY.
-    const handleThreeReady = () => {
+    const failSafeTimer = setTimeout(() => {
+      logWarning("Splash screen fallback: WebGL took too long.");
       exitSplash();
+    }, 4000);
+
+    const handleThreeReady = () => {
+      clearTimeout(failSafeTimer);
+      
+      const elapsed = Date.now() - mountTime.current;
+      const minDisplayTime = 2000; 
+      const remainingTime = Math.max(0, minDisplayTime - elapsed);
+
+      setTimeout(() => {
+        exitSplash();
+      }, remainingTime);
     };
 
     window.addEventListener("threeAssetPipelineReady", handleThreeReady);
 
-    // Fail-safe: If WebGL fails or takes longer than 3 seconds, drop the screen anyway
-    const failSafeTimer = setTimeout(() => {
-      console.warn("Splash screen fallback triggered: WebGL context took too long.");
-      exitSplash();
-    }, 3000);
-
     return () => {
       clearTimeout(failSafeTimer);
+      clearTimeout(floatTimer);
       window.removeEventListener("threeAssetPipelineReady", handleThreeReady);
       document.body.style.overflow = "";
     };
@@ -119,15 +129,9 @@ export default function SplashScreen({
 
   return (
     <>
-      {/* FIX 3: This inline style connects with the script in your layout.tsx.
-          If the user has already seen the splash screen, this instantly hides the component 
-          before React even boots up, completely eliminating the annoying screen flash! */}
       <style dangerouslySetInnerHTML={{ __html: `
         html.splash-completed #core-splash-root {
           display: none !important;
-          opacity: 0 !important;
-          visibility: hidden !important;
-          pointer-events: none !important;
         }
       `}} />
 
@@ -141,18 +145,19 @@ export default function SplashScreen({
             animate="visible"
             exit="exit"
             aria-hidden="true"
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#050505] overflow-hidden select-none touch-none"
-            style={{ willChange: "opacity" }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#050505] overflow-hidden select-none touch-none transform-gpu"
           >
-            <div className="relative w-full h-full max-w-[1440px] mx-auto flex items-center justify-center px-4">
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-40 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_0%,transparent_50%)]" />
+
+            <div className="relative z-10 w-full h-full max-w-[1440px] mx-auto flex items-center justify-center px-4">
               
               {/* Left Decor Layer */}
               <motion.div
                 variants={leftButterflyVariants}
-                className="absolute top-[15%] left-[6%] sm:left-[10%] md:top-[18%]"
-                style={{ willChange: "transform, opacity" }}
+                className="absolute top-[15%] left-[6%] sm:left-[10%] md:top-[18%] transform-gpu"
               >
-                <motion.div animate={organicFloat}>
+                {/* FIXED: Replaced 'undefined' with a valid base target object { y: 0 } */}
+                <motion.div animate={canFloat ? floatAnimation : { y: 0 }}>
                   <Image
                     src={leftImageUrl}
                     alt=""
@@ -161,6 +166,7 @@ export default function SplashScreen({
                     sizes="(max-width: 768px) 90px, 220px"
                     className="w-[90px] sm:w-[140px] md:w-[180px] xl:w-[220px] h-auto opacity-85"
                     priority
+                    quality={80}
                   />
                 </motion.div>
               </motion.div>
@@ -168,8 +174,7 @@ export default function SplashScreen({
               {/* Central Focal Point (Logo) */}
               <motion.div 
                 variants={logoVariants} 
-                className="relative z-10 mx-auto"
-                style={{ willChange: "transform, opacity" }}
+                className="relative z-20 mx-auto transform-gpu"
               >
                 <Image
                   src={logoUrl}
@@ -179,16 +184,17 @@ export default function SplashScreen({
                   sizes="(max-width: 768px) 180px, 340px"
                   className="w-[180px] sm:w-[240px] md:w-[290px] xl:w-[340px] h-auto"
                   priority
+                  quality={90}
                 />
               </motion.div>
 
               {/* Right Decor Layer */}
               <motion.div
                 variants={rightButterflyVariants}
-                className="absolute bottom-[15%] right-[6%] sm:right-[10%] md:bottom-[18%]"
-                style={{ willChange: "transform, opacity" }}
+                className="absolute bottom-[15%] right-[6%] sm:right-[10%] md:bottom-[18%] transform-gpu"
               >
-                <motion.div animate={organicFloat}>
+                {/* FIXED: Replaced 'undefined' with a valid base target object { y: 0 } */}
+                <motion.div animate={canFloat ? floatAnimation : { y: 0 }}>
                   <Image
                     src={rightImageUrl}
                     alt=""
@@ -197,12 +203,11 @@ export default function SplashScreen({
                     sizes="(max-width: 768px) 90px, 220px"
                     className="w-[90px] sm:w-[140px] md:w-[180px] xl:w-[220px] h-auto scale-x-[-1] opacity-85"
                     priority
+                    quality={80}
                   />
                 </motion.div>
               </motion.div>
               
-              {/* FIX 4: Reduced blur from 90px to 40px to save GPU overhead and stop lag */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] md:w-[35vw] md:h-[35vw] rounded-full bg-white/[0.025] blur-[40px] pointer-events-none z-0" />
             </div>
           </motion.div>
         )}

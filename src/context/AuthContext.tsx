@@ -33,6 +33,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Environment-aware logging utility to prevent production console leaks
+const isDev = process.env.NODE_ENV === 'development';
+const logError = (message: string, error?: unknown) => {
+  if (isDev) {
+    console.error(message, error);
+  }
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -124,7 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const token = Cookies.get(TOKEN_KEY);
       if (token) await deleteCustomerAccessToken(token);
     } catch (e) {
-      console.error("Logout error", e);
+      logError("Logout error", e);
     } finally {
       Cookies.remove(TOKEN_KEY);
       setCustomer(null);

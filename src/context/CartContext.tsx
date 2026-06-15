@@ -40,6 +40,15 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 const CART_ID_KEY = "shopify_cart_id";
 
+// Environment-aware logging utility to prevent production console leaks
+const isDev = process.env.NODE_ENV === 'development';
+const logError = (message: string, error?: unknown) => {
+  if (isDev) {
+    console.error(message, error);
+  }
+  // Optional: Add production error tracking here (e.g., Sentry)
+};
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -82,7 +91,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           setCart(null);
         }
       } catch (error) {
-        console.error("Failed to fetch cart", error);
+        logError("Failed to fetch cart", error);
         localStorage.removeItem(CART_ID_KEY);
       }
     }
@@ -236,7 +245,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (trackError) {
         // Fail silently so tracking errors never interrupt the user checkout experience
-        console.error("Klaviyo tracking error:", trackError);
+        logError("Klaviyo tracking error:", trackError);
       }
       // --- END KLAVIYO TRACKING ---
 
@@ -244,7 +253,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setIsCartOpen(true);
       toast.success("Added to cart");
     } catch (error) {
-      console.error("Add to cart error:", error);
+      logError("Add to cart error:", error);
       toast.error("Failed to add to cart");
     } finally {
       setIsAddingToCart(false);
@@ -280,7 +289,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCart(updatedCart);
       }
     } catch (error) {
-      console.error("Update quantity error:", error);
+      logError("Update quantity error:", error);
       setCart(previousCart);
       toast.error("Failed to update quantity");
     }
@@ -292,7 +301,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const updatedCart = await removeFromCart(cart.id, lineId);
       setCart(updatedCart);
     } catch (error) {
-      console.error("Remove from cart error:", error);
+      logError("Remove from cart error:", error);
       toast.error("Failed to remove item");
     }
   };
@@ -326,7 +335,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       
       setCart(updatedCart);
     } catch (error) {
-      console.error("Failed to link cart to user:", error);
+      logError("Failed to link cart to user:", error);
     }
   };
 
@@ -382,7 +391,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setCart(checkoutCart);
       return checkoutCart.checkoutUrl;
     } catch (error) {
-      console.error("Buy Now process failed:", error);
+      logError("Buy Now process failed:", error);
       toast.error("Failed to initialize checkout.");
       return undefined;
     }

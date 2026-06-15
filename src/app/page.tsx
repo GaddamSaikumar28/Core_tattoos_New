@@ -35,46 +35,67 @@ const dummyBookProducts: TattooProduct[] = Array.from({ length: 14 }, (_, i) => 
 
 export const revalidate = 60;
 
-export default function HomePage() {
-  async function fetchNewArrivalsAction() {
-    "use server";
-    return getHomePageNewArrivals(10);
-  }
+// High-performance loading skeleton matching the carousel item frame layout exactly
+function CarouselSkeleton() {
+  return (
+    <section className="bg-[--color-bg-base] w-full py-20 px-6 md:px-12 lg:px-24 overflow-hidden">
+      <div className="max-w-[1600px] mx-auto flex flex-col gap-10">
+        <div className="w-48 h-6 bg-white/5 animate-pulse rounded mb-4" />
+        <div className="flex flex-col md:flex-row items-center md:items-stretch gap-12 md:gap-6 overflow-hidden pb-8 pt-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="w-full max-w-[340px] md:max-w-none md:w-[280px] mx-auto md:mx-0 h-auto min-h-[400px] flex-shrink-0 flex flex-col">
+              <div className="w-full aspect-[4/5] bg-white/5 animate-pulse rounded-[1.5rem] mb-4" />
+              <div className="flex flex-col flex-grow gap-2 px-1">
+                <div className="w-1/3 h-3 bg-white/5 animate-pulse rounded" />
+                <div className="w-2/3 h-5 bg-white/5 animate-pulse rounded" />
+                <div className="w-1/2 h-4 bg-white/5 animate-pulse rounded mt-2" />
+                <div className="w-full h-8 bg-white/5 animate-pulse rounded mt-auto" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
-  async function fetchCollectionsAction() {
-    "use server";
-    return getHomePageCollections(10);
-  }
+export default async function HomePage() {
+  // Fire both API endpoints concurrently on the server to prevent query chaining
+  const [newArrivalsData, collectionsData] = await Promise.all([
+    getHomePageNewArrivals(10),
+    getHomePageCollections(10)
+  ]);
 
   return (
     <div className="w-full flex flex-col items-center overflow-visible bg-[var(--color-bg-base)]">
       <HeroCardCarousel />
 
-      {/* <Suspense fallback={<BookSkeleton />}>
-        <BookWithData />
-      </Suspense> */}
       <div className="w-full h-[800px] relative">
         <BookWrapper products={dummyBookProducts} />
       </div>
 
-      <ShowcaseCarousel
-        overline="JUST DROPPED"
-        titleHighlight="NEW"
-        titleMain="ARRIVALS"
-        viewAllLink="/collections/new-arrival"
-        fetchFunction={fetchNewArrivalsAction}
-        mode="product"
-      />
+      <Suspense fallback={<CarouselSkeleton />}>
+        <ShowcaseCarousel
+          overline="JUST DROPPED"
+          titleHighlight="NEW"
+          titleMain="ARRIVALS"
+          viewAllLink="/collections/new-arrival"
+          initialItems={newArrivalsData}
+          mode="product"
+        />
+      </Suspense>
 
-      <ShowcaseCarousel
-        overline="CURATED FOR YOU"
-        titleHighlight="OUR"
-        titleMain="COLLECTIONS"
-        subtitle="1,000+ premium designs across every style, mood, and placement."
-        viewAllLink="/collections"
-        fetchFunction={fetchCollectionsAction}
-        mode="collection"
-      />
+      <Suspense fallback={<CarouselSkeleton />}>
+        <ShowcaseCarousel
+          overline="CURATED FOR YOU"
+          titleHighlight="OUR"
+          titleMain="COLLECTIONS"
+          subtitle="1,000+ premium designs across every style, mood, and placement."
+          viewAllLink="/collections"
+          initialItems={collectionsData}
+          mode="collection"
+        />
+      </Suspense>
 
       <TattooStudio />
       <CommunityGallerySection />
