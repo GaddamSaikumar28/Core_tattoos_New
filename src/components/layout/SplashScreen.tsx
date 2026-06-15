@@ -1,10 +1,8 @@
-
-
 "use client";
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
-import Image from 'next/image';
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, Variants, TargetAndTransition } from "framer-motion";
+import Image from "next/image";
 
 interface SplashScreenProps {
   logoUrl: string;
@@ -12,147 +10,208 @@ interface SplashScreenProps {
   rightImageUrl: string;
 }
 
-// --- Framer Motion Variants ---
+const isDev = process.env.NODE_ENV === "development";
+const logWarning = (message: string) => {
+  if (isDev) console.warn(message);
+};
+
+const premiumEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
   visible: { opacity: 1 },
-  exit: { 
-    opacity: 0, 
-    // Adds a subtle blur out effect to the whole container on exit
-    filter: 'blur(10px)', 
-    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } // Custom modern cubic-bezier ease
-  }
+  exit: {
+    opacity: 0,
+    filter: "blur(10px)",
+    transition: { duration: 0.8, ease: premiumEase },
+  },
 };
 
 const logoVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.85, filter: 'blur(8px)' },
-  visible: { 
-    opacity: 1, 
-    scale: 1, 
-    filter: 'blur(0px)',
-    transition: { duration: 1.2, ease: "easeOut", delay: 0.2 } 
-  }
+  hidden: { opacity: 0, scale: 0.85, y: 15, filter: "blur(8px)" },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 1.4, ease: premiumEase, delay: 0.1 },
+  },
 };
 
-const butterflyLeftVariants: Variants = {
-  hidden: { opacity: 0, x: -40, y: 40, rotate: -15 },
-  visible: { 
-    opacity: 1, 
-    x: 0, 
-    y: 0, 
+const leftButterflyVariants: Variants = {
+  hidden: { opacity: 0, x: -60, y: 30, rotate: -15 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    y: 0,
     rotate: 0,
-    // Spring physics make it feel organic, like it's settling into place
-    transition: { type: "spring", stiffness: 45, damping: 15, delay: 0.6 }
-  }
+    transition: { duration: 1.6, ease: premiumEase, delay: 0.3 },
+  },
 };
 
-const butterflyRightVariants: Variants = {
-  hidden: { opacity: 0, x: 40, y: 40, rotate: 15 },
-  visible: { 
-    opacity: 1, 
-    x: 0, 
-    y: 0, 
+const rightButterflyVariants: Variants = {
+  hidden: { opacity: 0, x: 60, y: 30, rotate: 15 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    y: 0,
     rotate: 0,
-    transition: { type: "spring", stiffness: 45, damping: 15, delay: 0.8 }
-  }
+    transition: { duration: 1.6, ease: premiumEase, delay: 0.45 },
+  },
 };
 
-export default function SplashScreen({ logoUrl, leftImageUrl, rightImageUrl }: SplashScreenProps) {
+const floatAnimation: TargetAndTransition = {
+  y: [0, -12, 0],
+  transition: {
+    duration: 5,
+    repeat: Infinity,
+    ease: "easeInOut",
+  },
+};
+
+export default function SplashScreen({
+  logoUrl,
+  leftImageUrl,
+  rightImageUrl,
+}: SplashScreenProps) {
   const [showIntro, setShowIntro] = useState<boolean>(true);
-  const [isMounted, setIsMounted] = useState<boolean>(false);
+  const [canFloat, setCanFloat] = useState<boolean>(false);
+  const mountTime = useRef(Date.now());
 
   useEffect(() => {
-    setIsMounted(true);
-    const hasSeenSplash = sessionStorage.getItem('hasSeenSplash');
+    const hasSeenSplash = sessionStorage.getItem("hasSeenSplash");
 
     if (hasSeenSplash) {
       setShowIntro(false);
-    } else {
-      // Lock scrolling while splash is active
-      document.body.style.overflow = 'hidden';
-
-      const timer = setTimeout(() => {
-        setShowIntro(false);
-        sessionStorage.setItem('hasSeenSplash', 'true');
-        document.body.style.overflow = ''; // Unlock scroll
-      }, 3500); 
-      
-      return () => {
-        clearTimeout(timer);
-        document.body.style.overflow = '';
-      };
+      return;
     }
+
+    document.body.style.overflow = "hidden";
+
+    const floatTimer = setTimeout(() => setCanFloat(true), 1600);
+
+    const exitSplash = () => {
+      setShowIntro(false);
+      sessionStorage.setItem("hasSeenSplash", "true");
+      window.dispatchEvent(new Event("splashComplete"));
+      
+      setTimeout(() => {
+        document.body.style.overflow = "";
+      }, 800);
+    };
+
+    const failSafeTimer = setTimeout(() => {
+      logWarning("Splash screen fallback: WebGL took too long.");
+      exitSplash();
+    }, 4000);
+
+    const handleThreeReady = () => {
+      clearTimeout(failSafeTimer);
+      
+      const elapsed = Date.now() - mountTime.current;
+      const minDisplayTime = 2000; 
+      const remainingTime = Math.max(0, minDisplayTime - elapsed);
+
+      setTimeout(() => {
+        exitSplash();
+      }, remainingTime);
+    };
+
+    window.addEventListener("threeAssetPipelineReady", handleThreeReady);
+
+    return () => {
+      clearTimeout(failSafeTimer);
+      clearTimeout(floatTimer);
+      window.removeEventListener("threeAssetPipelineReady", handleThreeReady);
+      document.body.style.overflow = "";
+    };
   }, []);
 
-  // Anti-flash hydration guard
-  if (!isMounted) {
-    return <div suppressHydrationWarning className="fixed inset-0 z-[100] bg-[var(--color-white)]" />;
-  }
   return (
-    <AnimatePresence>
-      {showIntro && (
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          aria-hidden="true" // Screen-reader optimization for decorative screens
-          // pointer-events-auto during animation, then none so it doesn't block the site while exiting
-          className=" splash-wrapper fixed inset-0 z-[100] flex items-center justify-center bg-[var(--color-white)] overflow-hidden pointer-events-auto"
-        >
-          <div className="relative w-full h-full max-w-[1440px] mx-auto flex items-center justify-center">
-            
-            {/* Top-Left Butterfly */}
-            <motion.div 
-              variants={butterflyLeftVariants}
-              className="absolute top-[8%] left-[5%] md:top-[9%] md:left-[5%] lg:top-[10%] lg:left-[7%]"
-            >
-              <Image 
-                src={leftImageUrl} 
-                alt=""
-                width={240}
-                height={240}
-                sizes="(max-width: 768px) 100px, 240px"
-                className="w-[100px] md:w-[150px] lg:w-[200px] xl:w-[240px] h-auto drop-shadow-sm"
-                priority
-              />
-            </motion.div>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        html.splash-completed #core-splash-root {
+          display: none !important;
+        }
+      `}} />
 
-            {/* Dead-Center Logo */}
-            <motion.div 
-              variants={logoVariants}
-              className="relative z-10" 
-            >
-              <Image 
-                src={logoUrl} 
-                alt="Core Tattoos Logo"
-                width={360}
-                height={150}
-                sizes="(max-width: 768px) 180px, 360px"
-                className="w-[180px] sm:w-[240px] md:w-[280px] lg:w-[320px] xl:w-[360px] h-auto drop-shadow-md"
-                priority
-              />
-            </motion.div>
+      <AnimatePresence>
+        {showIntro && (
+          <motion.div
+            id="core-splash-root"
+            key="core-splash-root"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            aria-hidden="true"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#050505] overflow-hidden select-none touch-none transform-gpu"
+          >
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-40 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_0%,transparent_50%)]" />
 
-            {/* Bottom-Right Butterfly */}
-            <motion.div 
-              variants={butterflyRightVariants}
-              className="absolute bottom-[8%] right-[5%] md:bottom-[12%] md:right-[8%] lg:bottom-[15%] lg:right-[12%]"
-            >
-              <Image 
-                src={rightImageUrl} 
-                alt="Butterfly Decoration Right"
-                width={240}
-                height={240}
-                sizes="(max-width: 768px) 100px, 240px"
-                className="w-[100px] md:w-[150px] lg:w-[200px] xl:w-[240px] h-auto scale-x-[-1] drop-shadow-sm"
-                priority
-              />
-            </motion.div>
-            
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            <div className="relative z-10 w-full h-full max-w-[1440px] mx-auto flex items-center justify-center px-4">
+              
+              {/* Left Decor Layer */}
+              <motion.div
+                variants={leftButterflyVariants}
+                className="absolute top-[15%] left-[6%] sm:left-[10%] md:top-[18%] transform-gpu"
+              >
+                {/* FIXED: Replaced 'undefined' with a valid base target object { y: 0 } */}
+                <motion.div animate={canFloat ? floatAnimation : { y: 0 }}>
+                  <Image
+                    src={leftImageUrl}
+                    alt=""
+                    width={220}
+                    height={220}
+                    sizes="(max-width: 768px) 90px, 220px"
+                    className="w-[90px] sm:w-[140px] md:w-[180px] xl:w-[220px] h-auto opacity-85"
+                    priority
+                    quality={80}
+                  />
+                </motion.div>
+              </motion.div>
+
+              {/* Central Focal Point (Logo) */}
+              <motion.div 
+                variants={logoVariants} 
+                className="relative z-20 mx-auto transform-gpu"
+              >
+                <Image
+                  src={logoUrl}
+                  alt="Logo"
+                  width={340}
+                  height={140}
+                  sizes="(max-width: 768px) 180px, 340px"
+                  className="w-[180px] sm:w-[240px] md:w-[290px] xl:w-[340px] h-auto"
+                  priority
+                  quality={90}
+                />
+              </motion.div>
+
+              {/* Right Decor Layer */}
+              <motion.div
+                variants={rightButterflyVariants}
+                className="absolute bottom-[15%] right-[6%] sm:right-[10%] md:bottom-[18%] transform-gpu"
+              >
+                {/* FIXED: Replaced 'undefined' with a valid base target object { y: 0 } */}
+                <motion.div animate={canFloat ? floatAnimation : { y: 0 }}>
+                  <Image
+                    src={rightImageUrl}
+                    alt=""
+                    width={220}
+                    height={220}
+                    sizes="(max-width: 768px) 90px, 220px"
+                    className="w-[90px] sm:w-[140px] md:w-[180px] xl:w-[220px] h-auto scale-x-[-1] opacity-85"
+                    priority
+                    quality={80}
+                  />
+                </motion.div>
+              </motion.div>
+              
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

@@ -15,6 +15,11 @@ import {
 import { useCart } from "@/src/context/CartContext";
 
 const TOKEN_KEY = "shopify_customer_token";
+declare global {
+  interface Window {
+    _learnq: any[];
+  }
+}
 
 interface AuthContextType {
   customer: Customer | null;
@@ -27,6 +32,14 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Environment-aware logging utility to prevent production console leaks
+const isDev = process.env.NODE_ENV === 'development';
+const logError = (message: string, error?: unknown) => {
+  if (isDev) {
+    console.error(message, error);
+  }
+};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -45,6 +58,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (fetchedCustomer) {
             setCustomer(fetchedCustomer);
             await linkCartToUser(token);
+            if (typeof window !== "undefined") {
+              window._learnq = window._learnq || [];
+              window._learnq.push(['identify', {
+                '$email': fetchedCustomer.email,
+                '$first_name': fetchedCustomer.firstName,
+                '$last_name': fetchedCustomer.lastName
+              }]);
+            }
           } else {
             Cookies.remove(TOKEN_KEY);
           }
@@ -70,7 +91,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // 3. Link existing guest cart to the newly logged-in user!
         await linkCartToUser(tokenData.accessToken);
-        
+        if (typeof window !== "undefined") {
+          window._learnq = window._learnq || [];
+          window._learnq.push(['identify', {
+            '$email': fetchedCustomer.email,
+            '$first_name': fetchedCustomer.firstName,
+            '$last_name': fetchedCustomer.lastName
+          }]);
+        }
         toast.success(`Welcome back, ${fetchedCustomer.firstName}!`);
         return true;
       }
@@ -104,7 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const token = Cookies.get(TOKEN_KEY);
       if (token) await deleteCustomerAccessToken(token);
     } catch (e) {
-      console.error("Logout error", e);
+      logError("Logout error", e);
     } finally {
       Cookies.remove(TOKEN_KEY);
       setCustomer(null);

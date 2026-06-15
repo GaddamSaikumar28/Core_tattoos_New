@@ -2,7 +2,7 @@
 'use server';
 
 
-import { getProductsQuery, getCollectionNamesQuery, searchProductsQuery , getAboutPageQuery, getHowItWorksPageQuery, getFaqSectionQuery} from './queries';
+import { getProductsQuery, getCollectionNamesQuery, searchProductsQuery , getAboutPageQuery, getHowItWorksPageQuery, getFaqSectionQuery, getSafeForSkinSectionQuery} from './queries';
 import { getProductByHandleQuery, getProductRecommendationsQuery } from './queries';
 import { getCollectionProductsQuery } from './queries';
 import { 
@@ -14,6 +14,18 @@ import {
   updateCartBuyerIdentityMutation
 } from './queries';
 // --- SHARED TYPES FOR PRODUCTION ---
+// export interface Variant {
+//   variantId: string;
+//   title: string;
+//   price: number;
+//   compareAtPrice: number | null;
+//   currency: string;
+//   sku: string | null;
+//   availableForSale: boolean;
+//   quantityAvailable: number | null;
+//   selectedOptions: { name: string; value: string }[];
+// }
+
 export interface Variant {
   variantId: string;
   title: string;
@@ -24,8 +36,12 @@ export interface Variant {
   availableForSale: boolean;
   quantityAvailable: number | null;
   selectedOptions: { name: string; value: string }[];
+  image?: { url: string; altText: string; width: number; height: number } | null; // ADD THIS LINE
 }
-
+export interface SkinToneSwatch {
+  hexCode: string;
+  imageUrl: string;
+}
 export interface FormattedProduct {
   id: string;
   handle: string;
@@ -51,6 +67,9 @@ export interface FormattedProduct {
     hoverImage: string | null;
     gallery: any[];
     videos: any[];
+    models: any[];
+    arOverlayImage: string | null;
+    angleViews: TattooAngleView[];
   };
   attributes: {
     placements: string[];
@@ -66,9 +85,14 @@ export interface FormattedProduct {
     cardTheme: string;
     aspectRatio: string;
   };
+  skinToneSwatches: SkinToneSwatch[];
   allVariants: Variant[];
 }
-
+export interface TattooAngleView {
+  name: string;
+  degree: number;
+  imageUrl: string | null;
+}
 export interface SearchResult {
   id: string;
   handle: string;
@@ -162,7 +186,7 @@ export async function getProducts({
       sortKey: sortKey || 'CREATED_AT',
       ...(query && { query })
     },
-    cache: 'no-store',
+    //cache: 'no-store',
   });
 
   const productsData = res.body?.data?.products;
@@ -182,7 +206,7 @@ export async function getCollectionNames(): Promise<CollectionName[]> {
     query: getCollectionNamesQuery,
     tags: ['collections'],
     variables: { first: 250 },
-    cache: 'no-store',
+    //cache: 'no-store',
   });
 
   if (!res.body?.data?.collections?.edges) return [];
@@ -208,7 +232,7 @@ export async function searchShopifyProducts(searchQuery: string): Promise<Search
     const res = await shopifyFetch<any>({
       // query: searchProductsQuery,
       // // We don't want to highly cache search queries as they are highly variable
-      // cache: 'no-store', 
+      // //cache: 'no-store', 
       // variables
       query: searchProductsQuery,
       // 2. PERFORMANCE: 'no-store' hits the API every keystroke. 
@@ -239,17 +263,6 @@ export async function searchShopifyProducts(searchQuery: string): Promise<Search
       };
     });
 
-    // if (!res.body?.data?.products?.edges) return [];
-
-    // // Map to the clean interface expected by your Header
-    // return res.body.data.products.edges.map(({ node }: any) => ({
-    //   id: node.id,
-    //   handle: node.handle,
-    //   title: node.title,
-    //   price: parseFloat(node.priceRange?.minVariantPrice?.amount || "0").toFixed(2),
-    //   image: node.images?.edges?.[0]?.node?.url || '/assets/images/placeholder.png', // Fallback local image if missing
-    //   category: node.productType || 'Product',
-    // }));
 
   } catch (error) {
     // console.error("Failed to search products:", error);
@@ -278,37 +291,6 @@ const TATTOO_CATEGORIES = {
   '#919291'
 ];
 
-// const UI_COLORS = [
-//   // --- THE VIBRANT POP ---
-//   // High energy, modern tech, and flat-design classics. 
-//   // These look incredible behind stark white elements.
-//   '#FF6B6B', // Soft Coral / Punchy Red
-//   '#4ECDC4', // Electric Teal
-//   '#F7B731', // Rich Mustard Yellow
-//   '#A55EEA', // Vibrant Lilac / Purple
-//   '#2D98DA', // Azure Blue
-//   '#20BF6B', // Emerald Mint
-//   '#FA8231', // Bold Tangerine
-
-//   // --- THE MUTED LUXURY ---
-//   // Neater, richer, and more grounded. 
-//   // Perfect for a high-end, organic, or neo-traditional tattoo vibe.
-//   '#8FA08D', // Deep Sage Green
-//   '#D47A6A', // Warm Terracotta
-//   '#6B8EAD', // Slate Steel Blue
-//   '#C98A92', // Dusty Rose
-//   '#DDA77B', // Soft Ochre / Clay
-//   '#7A5C61'  // Deep Mauve
-// ];
- //const UI_COLORS = ['#F9F9F9', '#F4F1EA', '#EFEFEF', '#FAFAFA'];
-// const UI_COLORS = [
-//   '#FF5964', // Vibrant Coral Red
-//   '#35A7FF', // Electric Sky Blue
-//   '#38E4AE', // Mint/Neon Green
-//   '#FFD166', // Sunny Yellow
-//   '#9D8DF1', // Soft Purple/Lavender
-//   '#FF9F1C'  // Bright Tangerine
-// ];
 // --- 2. UTILITY FUNCTIONS ---
 const calculateDiscount = (price: number, compareAtPrice: number | null): number | null => {
   if (!compareAtPrice || compareAtPrice <= price) return null;
@@ -327,12 +309,18 @@ export async function mapShopifyProductsForProduction(shopifyJson: any) {
     const allMedia = node.media?.edges?.map((m: any) => m.node) || [];
     const images: any[] = [];
     const videos: any[] = [];
-    
+    const models: any[] = [];
     const legacyImages = node.images?.edges?.map((img: any) => img.node) || [];
     const mediaToProcess = allMedia.length > 0 ? allMedia : legacyImages;
     
     mediaToProcess.forEach((mediaItem: any) => {
-      if (mediaItem.mediaContentType === 'VIDEO' || mediaItem.sources) {
+      if (mediaItem.mediaContentType === 'MODEL_3D') {
+        models.push({
+          sources: mediaItem.sources || [],
+        });
+      }
+
+      else if (mediaItem.mediaContentType === 'VIDEO' || mediaItem.sources) {
         videos.push({
           url: mediaItem.sources?.[0]?.url,
           previewImage: mediaItem.previewImage?.url || null,
@@ -347,6 +335,22 @@ export async function mapShopifyProductsForProduction(shopifyJson: any) {
       }
     });
 
+    const rawSwatches = node.skinToneSwatches?.references?.edges || [];
+    const skinToneSwatches = rawSwatches.map(({ node: swatchNode }: any) => {
+      return {
+        hexCode: swatchNode.hexCode?.value || null,
+        imageUrl: swatchNode.previewImage?.reference?.image?.url || null,
+      };
+    }).filter((swatch: SkinToneSwatch) => swatch.hexCode && swatch.imageUrl);
+    const arOverlayUrl = node.arOverlayImage?.reference?.image?.url || null;
+    const rawAngles = node.tattooAngleViews?.references?.edges || [];
+    const angleViews: TattooAngleView[] = rawAngles.map(({ node: angleNode }: any) => {
+      return {
+        name: angleNode.angleName?.value || "Side View",
+        degree: angleNode.angleDegree?.value ? parseInt(angleNode.angleDegree.value, 10) : 0,
+        imageUrl: angleNode.angleImage?.reference?.image?.url || null,
+      };
+    }).filter((view: TattooAngleView) => view.imageUrl);
     const variants = node.variants?.edges?.map((v: any) => ({
       variantId: v.node.id, 
       title: v.node.title,
@@ -356,7 +360,13 @@ export async function mapShopifyProductsForProduction(shopifyJson: any) {
       sku: v.node.sku || null,
       availableForSale: v.node.availableForSale || false,
       quantityAvailable: v.node.quantityAvailable ?? null,
-      selectedOptions: v.node.selectedOptions || []
+      selectedOptions: v.node.selectedOptions || [],
+      image: v.node.image ? {
+        url: v.node.image.url,
+        altText: v.node.image.altText || v.node.title,
+        width: v.node.image.width,
+        height: v.node.image.height
+      } : null
     })) || [];
 
     const defaultVariant = variants[0] || {};
@@ -393,7 +403,10 @@ export async function mapShopifyProductsForProduction(shopifyJson: any) {
         featuredImage: node.featuredImage?.url || images[0]?.url || null,
         hoverImage: images[1]?.url || null, 
         gallery: images,                    
-        videos: videos,                     
+        videos: videos,  
+        models: models,
+        arOverlayImage: arOverlayUrl,
+        angleViews: angleViews                   
       },
 
       attributes: {
@@ -415,7 +428,7 @@ export async function mapShopifyProductsForProduction(shopifyJson: any) {
         cardTheme: "light",
         aspectRatio: (images[0] && images[0].height > images[0].width * 1.5) ? 'tall' : 'standard',
       },
-      
+      skinToneSwatches: skinToneSwatches,
       allVariants: variants
     };
   });
@@ -447,7 +460,7 @@ export async function getProductRecommendations(productId: string): Promise<Form
     query: getProductRecommendationsQuery,
     tags: ['products', 'recommendations', productId],
     variables: { productId },
-        cache: 'no-store'
+        //cache: 'no-store'
   });
   
 
@@ -500,79 +513,70 @@ const reshapeCart = (cart: any): Cart => {
   };
 };
 
-export async function createCart(variantId: string, quantity: number): Promise<Cart> {
+// export async function createCart(variantId: string, quantity: number): Promise<Cart> {
+//   const res = await shopifyFetch<any>({
+//     query: createCartMutation,
+//     variables: { lineItems: [{ merchandiseId: variantId, quantity }] },
+//     //cache: 'no-store', // Carts should never be cached
+//   });
+//   return reshapeCart(res.body.data.cartCreate.cart);
+// }
+
+export async function createCart(
+  variantId: string, 
+  quantity: number,
+  buyerIdentity?: { customerAccessToken?: string; email?: string; countryCode?: string }
+): Promise<Cart> {
+  if (buyerIdentity) {
+    buyerIdentity.countryCode = "US";
+  }
+  
   const res = await shopifyFetch<any>({
     query: createCartMutation,
-    variables: { lineItems: [{ merchandiseId: variantId, quantity }] },
-    cache: 'no-store', // Carts should never be cached
+    variables: { 
+      lineItems: [{ merchandiseId: variantId, quantity }],
+      ...(buyerIdentity && { buyerIdentity })
+    },
+    //cache: 'no-store', // Carts should never be cached
   });
   return reshapeCart(res.body.data.cartCreate.cart);
 }
 
-export async function getCart(cartId: string): Promise<Cart | null> {
-  const res = await shopifyFetch<any>({
-    query: getCartQuery,
-    variables: { cartId },
-    cache: 'no-store',
-  });
-  if (!res.body.data.cart) return null; // Cart expired or deleted
-  return reshapeCart(res.body.data.cart);
-}
-
-export async function addToCart(cartId: string, variantId: string, quantity: number): Promise<Cart> {
-  const res = await shopifyFetch<any>({
-    query: addToCartMutation,
-    variables: { cartId, lines: [{ merchandiseId: variantId, quantity }] },
-    cache: 'no-store',
-  });
-  return reshapeCart(res.body.data.cartLinesAdd.cart);
-}
-
-export async function updateCartItem(cartId: string, lineId: string, quantity: number): Promise<Cart> {
-  const res = await shopifyFetch<any>({
-    query: updateCartMutation,
-    variables: { cartId, lines: [{ id: lineId, quantity }] },
-    cache: 'no-store',
-  });
-  return reshapeCart(res.body.data.cartLinesUpdate.cart);
-}
-
-export async function removeFromCart(cartId: string, lineId: string): Promise<Cart> {
-  const res = await shopifyFetch<any>({
-    query: removeFromCartMutation,
-    variables: { cartId, lineIds: [lineId] },
-    cache: 'no-store',
-  });
-  return reshapeCart(res.body.data.cartLinesRemove.cart);
-}
-
 // Associates a guest cart with a logged-in user's Shopify Account
-export async function updateCartBuyerIdentity(cartId: string, customerAccessToken: string, email?: string,
-  shippingAddress?: ShopifyAddress): Promise<Cart> {
-    const buyerIdentity: any = { customerAccessToken };
+export async function updateCartBuyerIdentity(
+  cartId: string, 
+  customerAccessToken: string, 
+  email?: string,
+  shippingAddress?: ShopifyAddress,
+  countryCode?: string
+): Promise<Cart> {
+  const buyerIdentity: any = { customerAccessToken };
 
-  // 1. Explicitly attach the email so it pre-fills the checkout contact field
-    if (email) {
-      buyerIdentity.email = email;
-    }
+  // Explicitly attach the email so it pre-fills the checkout contact field
+  if (email) buyerIdentity.email = email;
+  
+  // Explicitly attach countryCode for abandoned cart tracking
+  // if (countryCode) buyerIdentity.countryCode = countryCode;
+  buyerIdentity.countryCode = "US";
 
-  // 2. Map the saved customer address to Shopify's expected DeliveryAddressInput
-    if (shippingAddress) {
-      buyerIdentity.deliveryAddressPreferences = [{
-        deliveryAddress: {
-          firstName: shippingAddress.firstName,
-          lastName: shippingAddress.lastName,
-          address1: shippingAddress.address1,
-          address2: shippingAddress.address2 || "",
-          city: shippingAddress.city,
-          province: shippingAddress.province,
-          country: shippingAddress.country,
-          zip: shippingAddress.zip,
-          phone: shippingAddress.phone || "",
-          company: shippingAddress.company || ""
-        }
-      }];
-    }
+  // Map the saved customer address to Shopify's expected DeliveryAddressInput
+  if (shippingAddress) {
+    buyerIdentity.deliveryAddressPreferences = [{
+      deliveryAddress: {
+        firstName: shippingAddress.firstName,
+        lastName: shippingAddress.lastName,
+        address1: shippingAddress.address1,
+        address2: shippingAddress.address2 || "",
+        city: shippingAddress.city,
+        province: shippingAddress.province,
+        // country: shippingAddress.country,
+        country: "US",
+        zip: shippingAddress.zip,
+        phone: shippingAddress.phone || "",
+        company: shippingAddress.company || ""
+      }
+    }];
+  }
 
   const res = await shopifyFetch<any>({
     query: updateCartBuyerIdentityMutation,
@@ -584,6 +588,97 @@ export async function updateCartBuyerIdentity(cartId: string, customerAccessToke
   });
   return reshapeCart(res.body.data.cartBuyerIdentityUpdate.cart);
 }
+// export async function createCart(
+//   variantId: string,
+//   quantity: number,
+//   buyerIdentity?: { customerAccessToken?: string; email?: string; countryCode?: string }
+// ): Promise<Cart> {
+//   const res = await shopifyFetch<any>({
+//     query: createCartMutation,
+//     variables: {
+//       lineItems: [{ merchandiseId: variantId, quantity }],
+//       ...(buyerIdentity && { buyerIdentity }),
+//     },
+//     cache: 'no-store',
+//   });
+//   return reshapeCart(res.body.data.cartCreate.cart);
+// }
+
+export async function getCart(cartId: string): Promise<Cart | null> {
+  const res = await shopifyFetch<any>({
+    query: getCartQuery,
+    variables: { cartId },
+    //cache: 'no-store',
+  });
+  if (!res.body.data.cart) return null; // Cart expired or deleted
+  return reshapeCart(res.body.data.cart);
+}
+
+export async function addToCart(cartId: string, variantId: string, quantity: number): Promise<Cart> {
+  const res = await shopifyFetch<any>({
+    query: addToCartMutation,
+    variables: { cartId, lines: [{ merchandiseId: variantId, quantity }] },
+    //cache: 'no-store',
+  });
+  return reshapeCart(res.body.data.cartLinesAdd.cart);
+}
+
+export async function updateCartItem(cartId: string, lineId: string, quantity: number): Promise<Cart> {
+  const res = await shopifyFetch<any>({
+    query: updateCartMutation,
+    variables: { cartId, lines: [{ id: lineId, quantity }] },
+    //cache: 'no-store',
+  });
+  return reshapeCart(res.body.data.cartLinesUpdate.cart);
+}
+
+export async function removeFromCart(cartId: string, lineId: string): Promise<Cart> {
+  const res = await shopifyFetch<any>({
+    query: removeFromCartMutation,
+    variables: { cartId, lineIds: [lineId] },
+    //cache: 'no-store',
+  });
+  return reshapeCart(res.body.data.cartLinesRemove.cart);
+}
+
+// Associates a guest cart with a logged-in user's Shopify Account
+// export async function updateCartBuyerIdentity(cartId: string, customerAccessToken: string, email?: string,
+//   shippingAddress?: ShopifyAddress): Promise<Cart> {
+//     const buyerIdentity: any = { customerAccessToken };
+
+//   // 1. Explicitly attach the email so it pre-fills the checkout contact field
+//     if (email) {
+//       buyerIdentity.email = email;
+//     }
+
+//   // 2. Map the saved customer address to Shopify's expected DeliveryAddressInput
+//     if (shippingAddress) {
+//       buyerIdentity.deliveryAddressPreferences = [{
+//         deliveryAddress: {
+//           firstName: shippingAddress.firstName,
+//           lastName: shippingAddress.lastName,
+//           address1: shippingAddress.address1,
+//           address2: shippingAddress.address2 || "",
+//           city: shippingAddress.city,
+//           province: shippingAddress.province,
+//           country: shippingAddress.country,
+//           zip: shippingAddress.zip,
+//           phone: shippingAddress.phone || "",
+//           company: shippingAddress.company || ""
+//         }
+//       }];
+//     }
+
+//   const res = await shopifyFetch<any>({
+//     query: updateCartBuyerIdentityMutation,
+//     variables: { 
+//       cartId, 
+//       buyerIdentity
+//     },
+//     cache: 'no-store',
+//   });
+//   return reshapeCart(res.body.data.cartBuyerIdentityUpdate.cart);
+// }
 
 
 export async function getHomePageNewArrivals(limit: number = 4): Promise<FormattedProduct[]> {
@@ -598,7 +693,7 @@ export async function getHomePageNewArrivals(limit: number = 4): Promise<Formatt
         handle: collectionHandle,
         first: limit,
       },
-      cache: 'no-store',
+      //cache: 'no-store',
     });
 
     // The data shape for a collection query nests the products array
@@ -634,7 +729,7 @@ export async function getHomePageCollections(limit: number = 15): Promise<Format
         handle: collectionHandle,
         first: limit,
       },
-      cache: 'no-store',
+      // cache: 'no-store',
     });
 
     // Extract the nested products array from the collection response
@@ -658,22 +753,53 @@ export async function getHomePageCollections(limit: number = 15): Promise<Format
 
 
 
+// export async function getHomePageHeroCollections(limit: number = 15): Promise<FormattedProduct[]> {
+//   // The exact handle of your new collection
+//   const collectionHandle = 'home-page-hero-collections'; 
+
+//   try {
+//     const res = await shopifyFetch<any>({
+//       query: getCollectionProductsQuery,
+//       tags: ['collections', 'products', collectionHandle], // Caches based on this specific collection
+//       variables: {
+//         handle: collectionHandle,
+//         first: limit,
+//       },
+//       cache: 'no-store',
+//     });
+
+//     // Extract the nested products array from the collection response
+//     const productsData = res.body?.data?.collection?.products;
+
+//     if (!productsData?.edges) {
+//       console.warn(`No products found in collection: ${collectionHandle}`);
+//       return [];
+//     }
+
+//     // Run the raw Shopify data through your production mapper
+//     const formattedProducts = await mapShopifyProductsForProduction(productsData);
+    
+//     return formattedProducts as FormattedProduct[];
+
+//   } catch (error) {
+//     console.error(`Error fetching collection ${collectionHandle}:`, error);
+//     return [];
+//   }
+// }
+// Paste this into your NEW index.ts file
 export async function getHomePageHeroCollections(limit: number = 15): Promise<FormattedProduct[]> {
-  // The exact handle of your new collection
   const collectionHandle = 'home-page-collections'; 
 
   try {
     const res = await shopifyFetch<any>({
       query: getCollectionProductsQuery,
-      tags: ['collections', 'products', collectionHandle], // Caches based on this specific collection
+      tags: ['collections', 'products', collectionHandle], 
       variables: {
         handle: collectionHandle,
         first: limit,
       },
-       cache: 'no-store',
     });
 
-    // Extract the nested products array from the collection response
     const productsData = res.body?.data?.collection?.products;
 
     if (!productsData?.edges) {
@@ -681,9 +807,7 @@ export async function getHomePageHeroCollections(limit: number = 15): Promise<Fo
       return [];
     }
 
-    // Run the raw Shopify data through your production mapper
     const formattedProducts = await mapShopifyProductsForProduction(productsData);
-    
     return formattedProducts as FormattedProduct[];
 
   } catch (error) {
@@ -715,7 +839,7 @@ export async function createCustomer(input: any) {
   const res = await shopifyFetch<any>({
     query: customerCreateMutation,
     variables: { input },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
   
   const data = res.body?.data?.customerCreate;
@@ -730,7 +854,7 @@ export async function createCustomerAccessToken(input: any) {
   const res = await shopifyFetch<any>({
     query: customerAccessTokenCreateMutation,
     variables: { input },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
 
   const data = res.body?.data?.customerAccessTokenCreate;
@@ -745,7 +869,7 @@ export async function getCustomer(customerAccessToken: string) {
   const res = await shopifyFetch<any>({
     query: getCustomerQuery,
     variables: { customerAccessToken },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
   return res.body?.data?.customer;
 }
@@ -755,7 +879,7 @@ export async function recoverCustomerPassword(email: string) {
   const res = await shopifyFetch<any>({
     query: customerRecoverMutation,
     variables: { email },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
   const data = res.body?.data?.customerRecover;
   if (data?.customerUserErrors?.length > 0) {
@@ -769,7 +893,7 @@ export async function deleteCustomerAccessToken(customerAccessToken: string) {
   await shopifyFetch<any>({
     query: customerAccessTokenDeleteMutation,
     variables: { customerAccessToken },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
   return true;
 }
@@ -783,7 +907,7 @@ export async function getCustomerOrders(customerAccessToken: string) {
   const res = await shopifyFetch<any>({
     query: getCustomerOrdersQuery,
     variables: { customerAccessToken },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
   
   const orders = res.body?.data?.customer?.orders?.edges?.map((edge: any) => edge.node) || [];
@@ -798,7 +922,7 @@ export async function updateCustomerProfile(customerAccessToken: string, custome
       customerAccessToken,
       customer: customerData 
     },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
 
   const data = res.body?.data?.customerUpdate;
@@ -842,7 +966,7 @@ export async function getCustomerAddresses(customerAccessToken: string) {
   const res = await shopifyFetch<any>({
     query: getCustomerAddressesQuery,
     variables: { customerAccessToken },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
   
   const customer = res.body?.data?.customer;
@@ -857,7 +981,7 @@ export async function createCustomerAddress(customerAccessToken: string, address
   const res = await shopifyFetch<any>({
     query: customerAddressCreateMutation,
     variables: { customerAccessToken, address },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
 
   const data = res.body?.data?.customerAddressCreate;
@@ -870,7 +994,7 @@ export async function updateCustomerAddress(customerAccessToken: string, id: str
   const res = await shopifyFetch<any>({
     query: customerAddressUpdateMutation,
     variables: { customerAccessToken, id, address },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
 
   const data = res.body?.data?.customerAddressUpdate;
@@ -883,7 +1007,7 @@ export async function deleteCustomerAddress(customerAccessToken: string, id: str
   const res = await shopifyFetch<any>({
     query: customerAddressDeleteMutation,
     variables: { customerAccessToken, id },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
 
   const data = res.body?.data?.customerAddressDelete;
@@ -896,7 +1020,7 @@ export async function setDefaultCustomerAddress(customerAccessToken: string, add
   const res = await shopifyFetch<any>({
     query: customerDefaultAddressUpdateMutation,
     variables: { customerAccessToken, addressId },
-    cache: 'no-store'
+    //cache: 'no-store'
   });
 
   const data = res.body?.data?.customerDefaultAddressUpdate;
@@ -963,7 +1087,7 @@ export async function getHowItWorksPageData(handle: string = 'how-it-works') {
     query: getHowItWorksPageQuery,
     tags: ['how_it_works_page'],
     variables: { handle },
-    //cache: 'no-store' // Keeps it fresh while we test
+    ////cache: 'no-store' // Keeps it fresh while we test
   });
 
   const mo = res.body?.data?.metaobject;
@@ -1012,7 +1136,7 @@ export async function getFaqSectionData(handle: string = 'faq-section') {
     query: getFaqSectionQuery,
     tags: ['faq_section'],
     variables: { handle },
-    //cache: 'no-store' // Keeps it fresh while testing
+    ////cache: 'no-store' // Keeps it fresh while testing
   });
 
   const mo = res.body?.data?.metaobject;
@@ -1047,7 +1171,7 @@ export async function getHelpCenterPageData(handle: string = 'help-center-page')
     query: getHelpCenterPageQuery,
     tags: ['help_center_page'],
     variables: { handle },
-   // cache: 'no-store'
+   // //cache: 'no-store'
   });
 
   const mo = res.body?.data?.metaobject;
@@ -1072,7 +1196,7 @@ export async function getShippingPageData(handle: string = 'shipping-page') {
     query: getShippingPageQuery,
     tags: ['shipping_page'],
     variables: { handle },
-    //cache: 'no-store' // Keeps it fresh while testing
+    ////cache: 'no-store' // Keeps it fresh while testing
   });
 
   const mo = res.body?.data?.metaobject;
@@ -1114,7 +1238,7 @@ export async function getReturnsPageData(handle: string = 'returns-page') {
     query: getReturnsPageQuery,
     tags: ['returns_page'],
     variables: { handle },
-    //cache: 'no-store' 
+    ////cache: 'no-store' 
   });
 
   const mo = res.body?.data?.metaobject;
@@ -1204,7 +1328,7 @@ export async function getGlobalSettingsData() {
       query: getGlobalSettingsQuery,
       tags: ['header_and_footer'],
       //variables: 'global-settings',
-      //cache: 'no-store' 
+      ////cache: 'no-store' 
     });
 
     const mo = res.body?.data?.metaobject;
@@ -1236,7 +1360,7 @@ export async function getHomeFeatureSectionData(handle: string = 'home_feature_s
     query: getHomeFeatureSectionQuery,
     tags: ['home_feature_section'],
     variables: { handle },
-    //cache: 'no-store'
+    ////cache: 'no-store'
   });
   const mo = res.body?.data?.metaobject;
   if (!mo) return null;
@@ -1269,7 +1393,7 @@ export async function getHomeFreeGiftSectionData(handle: string = 'home_free_gif
     query: getHomeFreeGiftSectionQuery,
     tags: ['home_free_gift_section'],
     variables: { handle },
-   // cache: 'no-store'
+   // //cache: 'no-store'
   });
 
   const mo = res.body?.data?.metaobject;
@@ -1297,7 +1421,7 @@ export async function getBlogArticles(blogHandle: string = 'news') {
   const res = await shopifyFetch<any>({
     query: getBlogArticlesQuery,
     variables: { blogHandle },
-    cache: 'no-store',
+    ////cache: 'no-store',
     tags: ['blog', blogHandle],
   });
  // console.log('Shopify Response: of blog handles', JSON.stringify(res.body?.data, null, 2));
@@ -1319,7 +1443,7 @@ export async function getBlogs() {
   const res = await shopifyFetch<any>({
     query: getBlogsQuery,
     tags: ['blogs'],
-    //cache: 'no-store',
+    ////cache: 'no-store',
   });
   
   // Return a clean array of blog nodes
@@ -1334,7 +1458,7 @@ export async function getMenu(handle: string) {
     query: getMenuQuery,
     variables: { handle },
     tags: ['menu', handle],
-    cache: 'no-store',
+    ////cache: 'no-store',
   });
   //console.log(`Fetched menu in index file"${handle}":`, res.body?.data?.menu);
   return res.body?.data?.menu;
@@ -1343,23 +1467,48 @@ export async function getMenu(handle: string) {
 export async function getCollectionProducts({
   handle,
   first = 12,
-  after
+  after,
+  sortKey,
+  reverse
 }: {
   handle: string;
   first?: number;
   after?: string;
+  sortKey?: string;
+  reverse?: boolean;
 }) {
+  // 1. Safe cursor check for production Next.js route params
+  const safeAfter = (after && after !== 'undefined' && after !== 'null' && after.trim() !== '') 
+    ? after 
+    : undefined;
+
+  // 2. Build the variables object dynamically. 
+  // If sortKey or reverse are missing, they simply won't exist in this object, 
+  // and GraphQL will safely ignore them since they are optional.
+  const queryVariables: any = {
+    handle,
+    first,
+  };
+
+  if (safeAfter) queryVariables.after = safeAfter;
+  if (sortKey) queryVariables.sortKey = sortKey;
+  if (reverse !== undefined) queryVariables.reverse = reverse;
 
   const res = await shopifyFetch<any>({
     query: getCollectionProductsQuery,
-    variables: { handle, first, after },
+    variables: queryVariables,
     cache: 'no-store'
   });
+
   const collectionData = res.body?.data?.collection;
   const productsData = res.body?.data?.collection?.products;
 
   if (!productsData?.edges) {
-    return { formattedData: [], pageInfo: { hasNextPage: false, endCursor: null }, collectionImage: collectionData?.image || null };
+    return { 
+      formattedData: [], 
+      pageInfo: { hasNextPage: false, endCursor: null }, 
+      collectionImage: collectionData?.image || null 
+    };
   }
 
   return {
@@ -1368,6 +1517,43 @@ export async function getCollectionProducts({
     collectionImage: collectionData?.image || null
   };
 }
+// export async function getCollectionProducts({
+//   handle,
+//   first = 12,
+//   after,
+//   sortKey,
+//   reverse
+// }: {
+//   handle: string;
+//   first?: number;
+//   after?: string;
+//   sortKey?: string;
+//   reverse?: boolean;
+// }) {
+// const safeAfter = (after && after !== 'undefined' && after !== 'null' && after.trim() !== '') 
+//     ? after 
+//     : undefined;
+
+//   const res = await shopifyFetch<any>({
+//     query: getCollectionProductsQuery,
+//     variables: { handle, first, after: safeAfter,
+//       ...(sortKey && { sortKey }),
+//       ...(reverse !== undefined && { reverse }) },
+//     cache: 'no-store'
+//   });
+//   const collectionData = res.body?.data?.collection;
+//   const productsData = res.body?.data?.collection?.products;
+
+//   if (!productsData?.edges) {
+//     return { formattedData: [], pageInfo: { hasNextPage: false, endCursor: null }, collectionImage: collectionData?.image || null };
+//   }
+
+//   return {
+//     formattedData: await mapShopifyProductsForProduction(productsData),
+//     pageInfo: productsData.pageInfo,
+//     collectionImage: collectionData?.image || null
+//   };
+// }
 
 import { getCollectionQuery } from './queries';
 
@@ -1377,9 +1563,118 @@ export async function getCollection(handle: string) {
     query: getCollectionQuery,
     variables: { handle },
     tags: ['collections', handle],
-    cache: 'no-store',
+    //cache: 'no-store',
     // Notice we DO NOT use 'no-store' here so Next.js can cache the SEO data instantly
   });
 
   return res.body?.data?.collection || null;
+}
+
+
+// src/lib/shopify/index.ts
+import { getCommunityGallerySectionQuery } from './queries';
+export async function getCommunityGallerySectionData(handle: string = 'community_gallery_section') {
+  const res = await shopifyFetch<any>({
+    query: getCommunityGallerySectionQuery,
+    tags: ['community_gallery_section'],
+    variables: { handle },
+    // //cache: 'no-store',
+  });
+
+  //console.log(res);
+  //console.log("Fetched Community Gallery MO:", JSON.stringify(res.body?.data?.metaobject, null, 2));
+  const mo = res.body?.data?.metaobject;
+  if (!mo) return null;
+
+  // Map over the references edges to cleanly extract just the image data
+  const rawImages = mo.images?.references?.edges || [];
+  const parsedImages = rawImages
+    .map((edge: any) => {
+      const img = edge.node?.image;
+      if (!img) return null;
+      return {
+        url: img.url,
+        alt: img.altText || 'Community image',
+        width: img.width,
+        height: img.height,
+      };
+    })
+    .filter(Boolean);
+
+  return {
+    tagText: mo.tag_text?.value || '@COMMUNITY',
+    tagLink: mo.tag_link?.value || '#',
+    subtitle: mo.subtitle?.value || '',
+    titleWhite: mo.title_white?.value || 'COMMUNITY',
+    titleColored: mo.title_colored?.value || 'GALLERY',
+    footerText: mo.footer_text?.value || '',
+    buttonText: mo.button_text?.value || 'Share Your Look',
+    buttonLink: mo.button_link?.value || '#',
+    images: parsedImages,
+  };
+}
+
+
+import { getHowItWorksSectionQuery } from './queries';
+export async function getHowItWorksData(handle: string = 'how_it_works_section') {
+  const res = await shopifyFetch<any>({
+    query: getHowItWorksSectionQuery,
+    tags: ['how_it_works_section'],
+    variables: { handle },
+     //cache: 'no-store',
+  });
+
+  const mo = res.body?.data?.metaobject;
+  if (!mo) return null;
+
+  const rawSteps = mo.steps?.references?.edges || [];
+  const parsedSteps = rawSteps.map((edge: any) => {
+    const node = edge.node;
+    const img = node.image?.reference?.image;
+    return {
+      title: node.title?.value || '',
+      description: node.description?.value || '',
+      image: img ? { url: img.url, alt: img.altText || '', width: img.width, height: img.height } : null,
+    };
+  });
+
+  return {
+    tagText: mo.tag_text?.value || 'SIMPLE PROCESS',
+    subtitle: mo.subtitle?.value || 'Four effortless steps to premium body art.',
+    titleWhite: mo.title_white?.value || 'HOW IT',
+    titleColored: mo.title_colored?.value || 'WORKS',
+    buttonText: mo.button_text?.value || 'Start Your Journey',
+    buttonLink: mo.button_link?.value || '#',
+    steps: parsedSteps,
+  };
+}
+
+
+export async function getSafeForSkinData(handle: string = 'safe_for_skin_section') {
+  const res = await shopifyFetch<any>({
+    query: getSafeForSkinSectionQuery,
+    tags: ['safe_for_skin_section'],
+    variables: { handle },
+  });
+
+  const mo = res.body?.data?.metaobject;
+  if (!mo) return null;
+
+  // Safely parse JSON fields
+  const parseJSON = (str: string | undefined, fallback: any) => {
+    try { return str ? JSON.parse(str) : fallback; } 
+    catch (e) { return fallback; }
+  };
+
+  return {
+    tagText: mo.tag_text?.value || 'SAFETY & ETHICS',
+    titleWhite: mo.title_white?.value || 'SAFE FOR YOUR',
+    titleColored: mo.title_colored?.value || 'SKIN.',
+    description: mo.description?.value || '',
+    formulaTitle: mo.formula_title?.value || 'Our Formula',
+    complianceText: mo.compliance_text?.value || '',
+    features: parseJSON(mo.features?.value, []),
+    ingredients: parseJSON(mo.ingredients?.value, []),
+    stats: parseJSON(mo.stats?.value, []),
+  };
 }

@@ -4,7 +4,8 @@ import TattooProductDetail from '@/src/components/sections/TattooProductDetail';
 import { RelatedProducts } from '@/src/components/sections/RelatedProducts';
 import { Breadcrumbs } from '@/src/components/shared/Breadcrumbs';
 import { Metadata } from 'next';
-
+import TattooProductAngleView from '@/src/components/sections/TattooProductAngleView';
+import Advanced24HourReveal from '@/src/components/shared/Advanced24HourReveal';
 type Props = { params: Promise<{ handle: string }> };
 
 // =========================================================
@@ -47,7 +48,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function GlobalProductPage({ params }: Props) {
   const resolvedParams = await params;
   const product = await getProduct(resolvedParams.handle);
-
   if (!product) notFound();
 
   const relatedProducts = await getProductRecommendations(product.id);
@@ -85,23 +85,19 @@ export default async function GlobalProductPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
-
-      {/* --- 3. Render Breadcrumbs (UI + Schema) --- */}
-      <div className="container mx-auto px-4 pt-6">
-        <Breadcrumbs 
-          items={[
-            { label: 'Home', url: '/' },
-            { label: 'Temporary Tattoos', url: '/collections' },
-            { label: product.title, url: `/products/${product.handle}` }
-          ]} 
-        />
-      </div>
+       
 
       <TattooProductDetail product={product} />
-
+      {/* <TattooProductAngleView product={product} /> */}
+      {product.media?.angleViews && product.media.angleViews.length > 0 && 
+        product.media?.models && product.media.models.length > 0 && (
+          <TattooProductAngleView product={product} />
+      )}
       {relatedProducts && relatedProducts.length > 0 && (
         <RelatedProducts products={relatedProducts} />
       )}
+
+      {/* <Advanced24HourReveal /> */}
     </div>
   );
 }

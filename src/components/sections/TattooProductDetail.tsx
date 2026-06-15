@@ -1,300 +1,538 @@
 "use client";
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import {
+  Plus,
+  Minus,
+  X,
+  Star,
+  Droplets,
+  ShieldCheck,
+  Loader2,
+  Clock,
+  Sparkles,
+  ShoppingBag,
+  AlertCircle,
+  Camera,
+  Box,
+  Heart,
+  Lock,
+  Truck,
+  RotateCcw,
+  Leaf,
+  Focus,
+  Navigation,
+  RefreshCcw,
+} from "lucide-react";
+import clsx from "clsx";
+import { createPortal } from "react-dom";
+import { TattooProductDetailProps } from "./types";
+import { useProductDetail } from "./useProductDetail";
+import InteractiveTattoo from "./InteractiveTattoo";
+import AccordionItem from "./AccordionItem";
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
-import { 
-  Plus, Minus, ZoomIn, X, Star,
-  Droplets, ChevronDown, ShieldCheck, Loader2,
-  Clock, Sparkles, ShoppingBag, Info, AlertCircle
-} from 'lucide-react';
-import clsx from 'clsx';
-import { toast } from 'sonner';
-import { useCart } from '@/src/context/CartContext';
-import { FormattedProduct, Variant } from '@/src/lib/shopify';
-
-interface TattooProductDetailProps {
-  product: FormattedProduct;
+// Bypass React's strict custom element checks for Model Viewer.
+const ModelViewer = "model-viewer" as any;
+interface CameraStateOverlayProps {
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  isCameraOpen: boolean;
+  facingMode: "user" | "environment";
 }
 
-export default function TattooProductDetail({ product }: TattooProductDetailProps) {
-  const { addToCart, buyNow } = useCart();
-  
-  // UI States
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [activeAccordion, setActiveAccordion] = useState<string | null>('description');
-  
-  // Cart States
-  const [quantity, setQuantity] = useState(1);
-  const [isAdding, setIsAdding] = useState(false);
-  const [isBuyingNow, setIsBuyingNow] = useState(false);
+function CameraStateOverlay({ videoRef, isCameraOpen, facingMode }: CameraStateOverlayProps) {
+  const [status, setStatus] = React.useState<"checking" | "active" | "denied" | "unsupported">("checking");
 
-  // Variant State
-  const variants = product.allVariants || [];
-  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
-    variants.find(v => v.availableForSale) || variants[0] || null
-  );
+  React.useEffect(() => {
+    if (!isCameraOpen) return;
 
-  // Derived Values from your robust mapper
-  const price = selectedVariant ? Number(selectedVariant.price) : product.checkout.price;
-  const compareAtPrice = selectedVariant?.compareAtPrice ? Number(selectedVariant.compareAtPrice) : product.checkout.compareAtPrice;
-  const isOnSale = compareAtPrice && compareAtPrice > price;
-  
-  // Utilize the pre-calculated discount percentage or fallback
-  const discount = product.checkout.discountPercentage || (isOnSale ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100) : 0);
-  console.log(product," in the product detail page of tattoos.");
-  // Media (Using mapped gallery array)
-  console.log(product,"in the product detail page")
-  const rawGallery = product.media?.gallery || [];
-  const featuredUrl = product.media?.featuredImage;
-
-  // 1. Filter out the featured image from the rest of the gallery to prevent duplicates
-  const filteredGallery = rawGallery.filter((img: any) => img.url !== featuredUrl);
-
-  // 2. Build the new array: Featured Image first, followed by the rest
-  const images = [
-    ...(featuredUrl ? [{ url: featuredUrl, altText: product.title }] : []),
-    ...filteredGallery
-  ];
-  //const images = product.media?.gallery?.length > 0 
-   // ? product.media.gallery 
-   // : [{ url: product.media?.featuredImage || '/assets/images/placeholder-tattoo.png', altText: product.title }];
-
-  // Lock body scroll when Zoom Modal is open
-  useEffect(() => {
-    if (isZoomed) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => { document.body.style.overflow = 'unset'; };
-  }, [isZoomed]);
-
-  // Handlers
-  const handleQuantityChange = (type: 'increase' | 'decrease') => {
-    setQuantity(prev => {
-      if (type === 'increase') return prev + 1;
-      return prev > 1 ? prev - 1 : 1;
-    });
-  };
-
-  const handleAddToCart = async () => {
-    if (!selectedVariant?.variantId) {
-      toast.error("Please select an option");
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setStatus("unsupported");
       return;
     }
-    
-    setIsAdding(true);
-    try {
-      await addToCart(selectedVariant.variantId, quantity);
-      toast.success("Added to cart");
-    } catch (error) {
-      console.error("Add to cart error:", error);
-      toast.error("Failed to add to cart");
-    } finally {
-      setIsAdding(false);
-    }
-  };
 
-  const handleBuyNow = async () => {
-    if (!selectedVariant?.variantId) {
-      toast.error("Please select an option");
-      return;
-    }
-    
-    setIsBuyingNow(true);
-    try {
-      const checkoutUrl = await buyNow(selectedVariant.variantId, quantity);
-      if (checkoutUrl) {
-        window.location.href = checkoutUrl;
-      }
-    } catch (error) {
-      console.error("Buy now error:", error);
-    } finally {
-      setIsBuyingNow(false);
-    }
-  };
+    setStatus("checking");
 
-  const toggleAccordion = (id: string) => {
-    setActiveAccordion(prev => prev === id ? null : id);
-  };
+    // Intercept permission check to update UI states dynamically
+    navigator.mediaDevices.getUserMedia({ video: { facingMode } })
+      .then((stream) => {
+        setStatus("active");
+        // Ensure stream tracks are cleaned up after checking
+        stream.getTracks().forEach(track => track.stop());
+      })
+      .catch((err) => {
+        console.warn("Camera access state warning:", err);
+        if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+          setStatus("denied");
+        } else {
+          setStatus("unsupported");
+        }
+      });
+  }, [isCameraOpen, facingMode]);
+
+  if (status === "active") return null;
 
   return (
-    <div className="bg-white min-h-screen pt-24 pb-20 selection:bg-[#fe8204] selection:text-white">
-      <div className="container max-w-[1400px] mx-auto px-4">
-        
-        {/* BREADCRUMBS */}
-        <nav className="flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 lg:mb-8">
-          <a href="/" className="hover:text-gray-900 transition-colors">Home</a>
-          <span>/</span>
-          <a href="/collections/" className="hover:text-gray-900 transition-colors">Shop ALL</a>
-          <span>/</span>
-          <span className="text-gray-900 truncate max-w-[150px] sm:max-w-none">{product.title}</span>
+    <div className="absolute inset-0 z-40 bg-neutral-900 flex flex-col items-center justify-center p-6 text-center select-none">
+      <div className="max-w-sm w-full space-y-6">
+        {status === "checking" && (
+          <div className="flex flex-col items-center space-y-4">
+            <Loader2 className="w-8 h-8 text-[#FF5A24] animate-spin" />
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/60">
+              Initializing Secure Camera Stream...
+            </p>
+          </div>
+        )}
+
+        {status === "denied" && (
+          <div className="flex flex-col items-center space-y-4 animate-fadeIn">
+            <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 mb-2">
+              <Camera className="w-5 h-5" />
+            </div>
+            <h3 className="text-white font-black uppercase tracking-wider text-[14px]">
+              Camera Access Blocked
+            </h3>
+            <p className="text-neutral-400 text-[12px] leading-relaxed">
+              To use the Virtual Try-On studio, please click the camera/lock icon in your browser's URL address bar and change the permission toggle to <span className="text-white font-semibold">"Allow"</span>.
+            </p>
+          </div>
+        )}
+
+        {status === "unsupported" && (
+          <div className="flex flex-col items-center space-y-4 animate-fadeIn">
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-2">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <h3 className="text-white font-black uppercase tracking-wider text-[14px]">
+              Hardware Initialization Failed
+            </h3>
+            <p className="text-neutral-400 text-[12px] leading-relaxed">
+              Could not secure a video track feed. Please verify your device camera is turned on, unblocked by system privacy hardware toggles, and running through a secure connection (<span className="text-white">HTTPS</span>).
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+// =========================================================
+export default function TattooProductDetail({ product }: TattooProductDetailProps) {
+
+  // Pull everything from the completely upgraded hook
+  const {
+    models, sortedSwatches, standardImages, angleViews,
+    isMounted,
+    viewState, setViewState,
+    activeSkinTone, setActiveSkinTone,
+    currentImageSrc, thumbnails,
+    isZoomed, setIsZoomed,
+    isCameraAROpen, setIsCameraAROpen,
+    modelViewerRef, videoRef,
+    modelLoaded,
+    facingMode, handleSwitchCamera,
+    activeAccordion,
+    isWishlisted, setIsWishlisted,
+    quantity, isAdding, isBuyingNow,
+    variants, selectedVariant, setSelectedVariant,
+    price, compareAtPrice, isOnSale, discount, savingsAmount,
+    viewingNow, stockLevel, soldThisWeek, scarcityPct,
+    handleQuantityChange,
+    handleAddToCart,
+    handleBuyNow,
+    handleTriggerAR,
+    toggleAccordion,
+  } = useProductDetail(product);
+
+  React.useEffect(() => {
+    if (!isCameraAROpen && videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject = null;
+    }
+  }, [isCameraAROpen, videoRef]);
+
+  // Prevent SSR/hydration mismatch — render nothing until client-mounted.
+  if (!isMounted) return null;
+
+
+
+  // =========================================================
+  return (
+    <div className="bg-[#080808] min-h-screen pt-[130px] lg:pt-[150px] pb-12 selection:bg-[#fe8204] selection:text-white">
+      <div className="container max-w-[1400px] mx-auto px-4 lg:px-8">
+
+        {/* ══════════════════════════════════════════════════
+            BREADCRUMBS
+        ══════════════════════════════════════════════════ */}
+        <nav className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-neutral-600 mb-8">
+          <a href="/" className="hover:text-white transition-colors">Home</a>
+          <span className="text-neutral-700">/</span>
+          <a href="/collections/" className="hover:text-white transition-colors">Shop All</a>
+          <span className="text-neutral-700">/</span>
+          <span className="text-neutral-400 truncate max-w-[160px] sm:max-w-none">{product.title}</span>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-12 xl:gap-16">
-          
-          {/* ========================================================= */}
-          {/* LEFT: IMAGE GALLERY (Thumbnails at Bottom, Reduced Height)*/}
-          {/* ========================================================= */}
-          <div className="flex flex-col gap-4 lg:sticky lg:top-28 lg:h-fit">
-            
-            {/* Main Image Viewer */}
-            <div className="relative w-full aspect-square md:aspect-[4/3] max-h-[500px] rounded-2xl bg-[#0a0a0a] border border-gray-100 overflow-hidden flex items-center justify-center group">
+        {/* ══════════════════════════════════════════════════
+            TWO-COLUMN GRID
+        ══════════════════════════════════════════════════ */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-12 xl:gap-20 items-start">
+
+          {/* ════════════════════════════════════════════════
+              LEFT — MEDIA VIEWER
+          ════════════════════════════════════════════════ */}
+          <div className="flex flex-col gap-5 lg:sticky lg:top-28 min-w-0">
+
+            {/* ── MAIN CANVAS ─────────────────────────────── */}
+            <div className="relative w-full aspect-[4/5] rounded-3xl bg-[#0d0d0d] border border-white/[0.06] overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.6)]">
+
+              {/* ── Floating top row: social proof + wishlist ─ */}
+              <div className="absolute top-5 left-5 right-5 z-20 flex justify-between items-start pointer-events-none">
+                <div className="flex flex-col gap-2.5">
+
+                  {/* Live viewer count */}
+                  <div className="bg-black/70 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-2 border border-white/10 w-fit shadow-lg pointer-events-auto">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#4ade80]" />
+                    <span className="text-[10px] font-semibold text-neutral-300">
+                      {viewingNow.toLocaleString()} viewing now
+                    </span>
+                  </div>
+
+                  {/* "Limited Drop" pill + product badges */}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="bg-[#fe8204] text-black px-3.5 py-1.5 rounded-full text-[9px] font-black tracking-[0.15em] uppercase w-fit shadow-[0_4px_14px_rgba(254,130,4,0.35)] pointer-events-auto">
+                      Limited Drop
+                    </div>
+                    {product.styling?.badges?.filter(Boolean).map((badge: any, i: number) => (
+                      <span
+                        key={i}
+                        className="px-3.5 py-1.5 text-[9px] font-black uppercase tracking-widest text-black rounded-full shadow-sm w-fit pointer-events-auto"
+                        style={{ backgroundColor: badge.color || "#fff" }}
+                      >
+                        {badge.label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Wishlist toggle */}
+                <button
+                  onClick={() => setIsWishlisted((w) => !w)}
+                  className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/80 transition-colors shadow-lg pointer-events-auto"
+                >
+                  <Heart
+                    className={clsx(
+                      "w-4 h-4 transition-all duration-300",
+                      isWishlisted ? "fill-[#fe8204] text-[#fe8204]" : "text-white",
+                    )}
+                  />
+                </button>
+              </div>
+
+              {/* ── DYNAMIC MEDIA PANEL ───────────────────── */}
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={activeImageIndex}
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  key={viewState.type + (viewState.type === "gallery" || viewState.type === "angle" ? viewState.index : "")}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative w-full h-full p-6 md:p-8"
+                  transition={{ duration: 0.35 }}
+                  // className="relative w-full h-full"
+                  className="relative w-full aspect-square md:aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-900/40"
                 >
-                  <Image 
-                    src={images[activeImageIndex].url} 
-                    alt={images[activeImageIndex].altText || product.title}
-                    fill
-                    priority = {true}
-                    className="object-contain"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                  {/* ── 3D Model panel ────────────────────── */}
+                  {viewState.type === "3d" && (
+                    <div className="absolute inset-0 w-full h-full">
+                      {!modelLoaded && (
+                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0d0d0d]">
+                          <Loader2 className="w-8 h-8 text-[#fe8204] animate-spin" />
+                        </div>
+                      )}
+                      <ModelViewer
+                        ref={modelViewerRef}
+                        src={viewState.source.sources?.find((s: any) => s.format === "glb")?.url}
+                        ios-src={viewState.source.sources?.find((s: any) => s.format === "usdz")?.url}
+                        alt="3D product model"
+                        ar="true"
+                        ar-modes="webxr scene-viewer quick-look"
+                        camera-controls="true"
+                        auto-rotate="true"
+                        rotation-per-second="30deg"
+                        shadow-intensity="1"
+                        environment-image="neutral"
+                        style={{ width: "100%", height: "100%", backgroundColor: "transparent" }}
+                      >
+                        <button slot="ar-button" className="hidden">AR</button>
+                      </ModelViewer>
+                    </div>
+                  )}
 
-                  />
+                  {/* ── 2D Image panel (skin-tone, gallery, or angle) */}
+                  {(viewState.type === "skintone" || viewState.type === "gallery" || viewState.type === "angle") && (
+                    <div
+                      className="absolute inset-0 w-full h-full cursor-zoom-in"
+                      onClick={() => setIsZoomed(true)}
+                    >
+                      <Image
+                        src={currentImageSrc}
+                        alt={product.title}
+                        fill
+                        priority
+                        className="object-cover object-center"
+                        sizes="(max-width: 1024px) 100vw, 55vw"
+                      />
+                    </div>
+                  )}
                 </motion.div>
               </AnimatePresence>
-              
-              {/* Badges Overlay (Safely utilizing the mapper's output) */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-                {product.styling?.badges?.filter(Boolean).map((badge: any, i: number) => (
-                  <span 
-                    key={i} 
-                    className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white rounded-md shadow-sm"
-                    style={{ backgroundColor: badge.color }}
-                  >
-                    {badge.label}
-                  </span>
-                ))}
+
+              {/* Bottom vignette overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent opacity-80 pointer-events-none" />
+
+              {/* ── SCARCITY PROGRESS BAR ─────────────────── */}
+              <div className="absolute bottom-[68px] left-5 right-5 z-20 pointer-events-none">
+                <div className="flex justify-between text-[10px] font-semibold text-neutral-500 mb-1.5">
+                  <span>{soldThisWeek.toLocaleString()} sold this week</span>
+                  <span className="text-[#fe8204]">Only {stockLevel} left!</span>
+                </div>
+                <div className="w-full h-[3px] bg-white/10 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${scarcityPct}%` }}
+                    transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
+                    className="h-full bg-gradient-to-r from-[#fe8204] to-[#ffb347] rounded-full"
+                  />
+                </div>
               </div>
 
-              {/* Magnifier / Zoom Button */}
-              <button 
-                onClick={() => setIsZoomed(true)}
-                className="absolute bottom-4 right-4 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
-                aria-label="Zoom image"
-              >
-                <ZoomIn className="w-5 h-5" />
-              </button>
-            </div>
+              {/* ── BOTTOM ACTION ROW: AR button + zoom ───── */}
+              <div className="absolute bottom-5 left-5 right-5 z-20 flex items-center justify-between">
+                <button
+                  onClick={handleTriggerAR}
+                  className="flex items-center gap-2.5 px-6 py-3 bg-black/60 hover:bg-black/90 backdrop-blur-xl border border-white/15 rounded-full text-white text-[10px] font-black uppercase tracking-widest transition-all duration-300 hover:border-[#fe8204]/50 shadow-lg"
+                >
+                  <Camera className="w-3.5 h-3.5 text-[#fe8204]" />
+                  {viewState.type === "3d" ? "AR View" : "Try On"}
+                </button>
 
-            {/* Horizontal Thumbnails at Bottom */}
-            {images.length > 1 && (
-              <div className="flex flex-row gap-3 overflow-x-auto no-scrollbar pb-2">
-                {images.map((img, index) => (
-                  <button 
-                    key={index}
-                    onClick={() => setActiveImageIndex(index)}
-                    className={clsx(
-                      "relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-[#0a0a0a] border-2 transition-all duration-300",
-                      activeImageIndex === index ? "border-[#fe8204]" : "border-transparent hover:border-gray-400"
-                    )}
+                {(viewState.type === "skintone" || viewState.type === "gallery" || viewState.type === "angle") && (
+                  <button
+                    onClick={() => setIsZoomed(true)}
+                    className="w-11 h-11 bg-black/60 hover:bg-black/90 backdrop-blur-xl border border-white/15 rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-lg"
+                    aria-label="Zoom image"
                   >
-                    <Image 
-                      src={img.url} 
-                      alt={img.altText || `Thumbnail ${index + 1}`} 
-                      fill 
-                      className="object-contain p-2"
-                      sizes="80px"
-                    />
+                    <Focus className="w-4 h-4" />
                   </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* ========================================================= */}
-          {/* RIGHT: PRODUCT INFO (Maximized Data Display)              */}
-          {/* ========================================================= */}
-          <div className="flex flex-col py-2">
-            
-            {/* Vendor, Type & Stars */}
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3 flex-wrap">
-                <span className="text-[10px] font-black text-[#fe8204] uppercase tracking-widest bg-[#fe8204]/10 px-2.5 py-1 rounded-md">
-                  {product.vendor}
-                </span>
-                {product.styling?.tattooColorType && (
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest bg-gray-100 px-2.5 py-1 rounded-md">
-                    {product.styling.tattooColorType}
-                  </span>
                 )}
               </div>
+            </div>
+            {/* END MAIN CANVAS */}
 
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tight text-gray-900 leading-[1.1] mb-4">
+            {/* ── THUMBNAIL STRIP + SKIN-TONE SWATCHES ROW ─ */}
+            {(thumbnails.length > 1 || sortedSwatches.length > 0) && (
+              // <div className="flex flex-row items-center gap-6 overflow-x-auto no-scrollbar pb-2 mt-2 w-full">
+                <div className="flex flex-row items-center gap-6 overflow-x-auto no-scrollbar pb-2 mt-2 w-full max-w-full">
+                {/* Left: thumbnail buttons */}
+                {thumbnails.length > 1 && (
+                  <div className="flex flex-row gap-3 shrink-0">
+                    {thumbnails.map((thumb: any, idx: number) => {
+                      const isActive =
+                        (thumb.type === "3d" && viewState.type === "3d") ||
+                        (thumb.type === "skintone" && viewState.type === "skintone") ||
+                        (thumb.type === "gallery" && viewState.type === "gallery" && viewState.index === thumb.index); 
+                        // ||
+                        // (thumb.type === "angle" && viewState.type === "angle" && viewState.index === thumb.index);
+
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() =>
+                            setViewState(
+                              (thumb.type === "gallery")
+                                ? { type: thumb.type, source: thumb.source, index: thumb.index }
+                                : { type: thumb.type as any, source: thumb.source },
+                            )
+                          }
+                          className={clsx(
+                            "relative w-[72px] h-[90px] shrink-0 rounded-2xl overflow-hidden bg-[#111] border transition-all duration-300",
+                            isActive
+                              ? "border-[#fe8204] shadow-[0_0_15px_rgba(254,130,4,0.3)]"
+                              : "border-white/[0.05] hover:border-white/20 opacity-50 hover:opacity-100",
+                          )}
+                        >
+                          {/* 3D icon overlay */}
+                          {thumb.type === "3d" && (
+                            <div className="absolute inset-0 bg-black/50 z-10 flex flex-col items-center justify-center gap-1.5">
+                              <Box className="w-4 h-4 text-[#fe8204]" />
+                              <span className="text-[7px] font-black text-white uppercase tracking-wider">3D</span>
+                            </div>
+                          )}
+
+                          {/* Angle view overlay */}
+                          {/* {thumb.type === "angle" && (
+                            <div className="absolute inset-0 bg-black/20 z-10 flex flex-col items-center justify-end pb-2 pointer-events-none">
+                              <div className="bg-black/60 rounded-full px-2 py-0.5 text-[8px] font-bold text-white flex items-center gap-1 backdrop-blur-md border border-white/10">
+                                <Navigation className="w-2 h-2 text-[#fe8204]" />
+                                {thumb.source.degree}°
+                              </div>
+                            </div>
+                          )} */}
+
+                          <Image
+                            src={thumb.thumbUrl}
+                            alt="Thumbnail"
+                            fill
+                            className="object-cover"
+                            sizes="72px"
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Right: skin-tone swatch circles (dynamically sorted) */}
+                {sortedSwatches.length > 0 && (
+                  <div className="flex flex-row items-center gap-3.5 shrink-0 ml-2 border-l border-white/10 pl-6">
+                    {sortedSwatches.map((swatch: any) => (
+                      <button
+                        key={swatch.hexCode}
+                        onClick={() => {
+                          setActiveSkinTone(swatch.hexCode);
+                          setViewState({ type: "skintone", source: swatch });
+                        }}
+                        className={clsx(
+                          "w-8 h-8 rounded-full border-2 transition-all duration-300",
+                          activeSkinTone === swatch.hexCode
+                            ? "border-white scale-110 shadow-[0_0_12px_rgba(255,255,255,0.2)]"
+                            : "border-transparent hover:scale-110 hover:border-white/30 opacity-50 hover:opacity-100",
+                        )}
+                        style={{ backgroundColor: swatch.hexCode }}
+                        aria-label={`Skin tone ${swatch.hexCode}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {/* END THUMBNAIL STRIP */}
+
+          </div>
+          {/* END LEFT COLUMN */}
+
+          {/* ════════════════════════════════════════════════
+              RIGHT — PRODUCT INFO
+          ════════════════════════════════════════════════ */}
+          <div className="flex flex-col py-2">
+
+            {/* ── HEADER: vendor · stars · title · description */}
+            <div className="mb-5">
+              <div className="flex items-center justify-between mb-3">
+
+                {/* Vendor + color-type pills */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[9px] font-black text-[#fe8204] uppercase tracking-[0.15em] bg-[#fe8204]/10 px-2.5 py-1 rounded-md border border-[#fe8204]/15">
+                    {product.vendor}
+                  </span>
+                  {product.styling?.tattooColorType && (
+                    <span className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.15em] bg-white/[0.04] px-2.5 py-1 rounded-md border border-white/5">
+                      {product.styling.tattooColorType}
+                    </span>
+                  )}
+                </div>
+
+                {/* Star rating */}
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-[#fe8204] text-[#fe8204]" />
+                  ))}
+                  <span className="text-[10px] text-neutral-400 font-bold ml-1.5">4.9 (3,241)</span>
+                </div>
+              </div>
+
+              <h1 className="text-[34px] md:text-[42px] lg:text-[46px] font-bold text-white leading-[1.05] tracking-tight mb-3">
                 {product.title}
               </h1>
-              
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex items-center gap-1 text-[#fe8204]">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
-                </div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest pt-0.5">
-                  4.9 (120 Reviews)
-                </p>
-              </div>
+              <p className="text-[14px] text-neutral-400 leading-relaxed font-medium line-clamp-3">
+                {product.description}
+              </p>
             </div>
-            
-            {/* Price & Inventory Alert */}
-            <div className="mb-8 border-b border-gray-100 pb-8">
-              <div className="flex items-end gap-4 mb-2">
-                <span className="text-3xl font-black text-gray-900 tracking-tight">
+
+            {/* ── TRUST MICRO-BADGES ───────────────────────── */}
+            <div className="flex items-center justify-between pb-5 mb-5 border-b border-white/[0.06]">
+              {[
+                { icon: Lock, label: "Secure Pay" },
+                { icon: Truck, label: "Ships in 24h" },
+                { icon: RotateCcw, label: "Free Returns" },
+                { icon: Leaf, label: "Plant-Based" },
+              ].map((badge, i) => (
+                <div key={i} className="flex items-center gap-1.5 text-neutral-500">
+                  <badge.icon className="w-3.5 h-3.5" />
+                  <span className="text-[9px] font-bold uppercase tracking-wider">{badge.label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* ── PRICE & INVENTORY STATUS ─────────────────── */}
+            <div className="mb-5 pb-5 border-b border-white/[0.06]">
+              {isOnSale && (
+                <div className="mb-2">
+                  <span className="inline-block bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-md text-[10px] font-bold tracking-widest uppercase border border-emerald-500/15">
+                    Save ${savingsAmount}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-end gap-4 flex-wrap">
+                <span className="text-[48px] font-bold text-white tracking-tight leading-none">
                   ${price.toFixed(2)}
                 </span>
                 {isOnSale && (
-                  <>
-                    <span className="text-xl font-bold text-gray-400 line-through mb-0.5">
-                      ${compareAtPrice.toFixed(2)}
-                    </span>
-                    <span className="bg-red-100 text-red-600 px-2.5 py-1 text-xs font-black uppercase tracking-widest rounded-md mb-1.5">
-                      {discount}% OFF
-                    </span>
-                  </>
+                  <span className="bg-red-500/10 text-red-400 px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-md mb-2 border border-red-500/15">
+                    {discount}% OFF
+                  </span>
                 )}
               </div>
 
-              {/* Dynamic Inventory Notice from Mapper */}
-              {product.inventory?.stockLevel > 0 && product.inventory.stockLevel < 10 ? (
-                <div className="flex items-center gap-1.5 text-red-500 mt-2">
-                  <AlertCircle className="w-4 h-4" />
-                  <span className="text-[11px] font-bold uppercase tracking-widest">
-                    Low Stock: Only {product.inventory.stockLevel} left!
+              {/* Stock status */}
+              <div className="mt-2.5">
+                {stockLevel > 0 && stockLevel < 10 ? (
+                  <div className="flex items-center gap-1.5 text-red-400">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      Low Stock — Only {stockLevel} left!
+                    </span>
+                  </div>
+                ) : product.inventory?.inStock ? (
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+                    ✓ In Stock & Ready to Ship
                   </span>
-                </div>
-              ) : product.inventory?.inStock ? (
-                <span className="text-[11px] font-bold uppercase tracking-widest text-green-600 mt-2 block">
-                  ✓ In Stock & Ready to Ship
-                </span>
-              ) : null}
+                ) : null}
+              </div>
             </div>
 
-            {/* Variants (Size/Style Selection Pills) */}
+            {/* ── VARIANT SELECTOR ─────────────────────────── */}
             {variants.length > 1 && (
-              <div className="mb-8">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-gray-900">Select Option</h3>
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2.5">
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-neutral-500">
+                    Select Option
+                  </h3>
                   {selectedVariant && !selectedVariant.availableForSale && (
-                     <span className="text-xs font-bold text-red-500 uppercase tracking-widest">Out of Stock</span>
+                    <span className="text-[10px] font-bold text-red-400 uppercase tracking-widest">
+                      Out of Stock
+                    </span>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2.5">
                   {variants.map((v) => (
                     <button
                       key={v.variantId}
                       onClick={() => setSelectedVariant(v)}
                       className={clsx(
-                        "px-6 py-3.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-200 border-2",
-                        selectedVariant?.variantId === v.variantId 
-                          ? "border-[#fe8204] bg-[#fe8204] text-white shadow-md" 
-                          : "border-gray-200 bg-white text-gray-900 hover:border-gray-900"
+                        "px-5 py-3.5 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all duration-200 border-2",
+                        selectedVariant?.variantId === v.variantId
+                          ? "border-[#fe8204] bg-[#fe8204]/10 text-[#fe8204] shadow-[0_0_15px_rgba(254,130,4,0.15)]"
+                          : "border-white/5 bg-transparent text-neutral-400 hover:border-white/20 hover:text-white",
                       )}
                     >
                       {v.title}
@@ -304,253 +542,424 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
               </div>
             )}
 
-            {/* Quick Features */}
-            <div className="grid grid-cols-2 gap-4 mb-8">
+            {/* ── FEATURE GRID (4 icons) ────────────────────── */}
+            <div className="grid grid-cols-2 gap-3 mb-5 pb-5 border-b border-white/[0.06]">
               {[
-                { icon: Droplets, text: "Waterproof" },
-                { icon: Clock, text: "Lasts 1-2 Weeks" },
-                { icon: ShieldCheck, text: "Skin Safe" },
-                { icon: Sparkles, text: "Realistic Look" }
+                { icon: Droplets, text: "Waterproof 12–14 Days" },
+                { icon: Clock, text: "Lasts 1–2 Weeks" },
+                { icon: ShieldCheck, text: "Skin Safe Formula" },
+                { icon: Sparkles, text: "Realistic Look" },
               ].map((feat, idx) => (
-                <div key={idx} className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 border border-gray-100">
-                  <feat.icon className="w-5 h-5 text-[#fe8204]" />
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-gray-700">{feat.text}</span>
+                <div
+                  key={idx}
+                  className="flex items-center gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] transition-colors"
+                >
+                  <feat.icon className="w-4 h-4 text-[#fe8204] shrink-0" />
+                  <span className="text-[11px] font-semibold text-neutral-300">{feat.text}</span>
                 </div>
               ))}
             </div>
 
-            {/* Action Area (Quantity + Buttons) */}
-            <div className="flex flex-col gap-4 mb-12">
-              <div className="flex flex-col sm:flex-row items-stretch gap-4">
-                
-                {/* Quantity Selector */}
-                <div className="flex items-center justify-between border-2 border-gray-200 rounded-xl bg-white h-[60px] w-full sm:w-[140px] shrink-0">
-                  <button 
-                    onClick={() => handleQuantityChange('decrease')} 
-                    className="w-12 h-full flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors"
+            {/* ── TATTOO SPECS ROW ──────────────────────────── */}
+            {(product.attributes?.placements?.length > 0 || product.styling?.tattooColorType) && (
+              <div className="flex items-center justify-between py-4 border-b border-white/[0.06] mb-4">
+                {product.styling?.tattooColorType && (
+                  <>
+                    <div className="text-left flex-1">
+                      <span className="block text-[#fe8204] text-[13px] font-semibold mb-1">
+                        {product.styling.tattooColorType}
+                      </span>
+                      <span className="block text-[9px] text-neutral-600 uppercase tracking-widest font-bold">Style</span>
+                    </div>
+                    <div className="w-px h-8 bg-white/10" />
+                  </>
+                )}
+                <div className="text-center flex-1">
+                  <span className="block text-[#fe8204] text-[13px] font-semibold mb-1">12–14 Days</span>
+                  <span className="block text-[9px] text-neutral-600 uppercase tracking-widest font-bold">Duration</span>
+                </div>
+                <div className="w-px h-8 bg-white/10" />
+                <div className="text-right flex-1">
+                  <span className="block text-[#fe8204] text-[13px] font-semibold mb-1">Plant-Based</span>
+                  <span className="block text-[9px] text-neutral-600 uppercase tracking-widest font-bold">Formula</span>
+                </div>
+              </div>
+            )}
+
+            {/* ── QUANTITY + CTA BUTTONS ───────────────────── */}
+            <div className="flex flex-col gap-3 mb-6">
+
+              {/* Row: quantity stepper + Add to Cart */}
+              <div className="flex items-stretch gap-3">
+
+                {/* Quantity stepper */}
+                <div className="flex items-center justify-between border border-white/10 bg-white/[0.02] rounded-2xl h-[60px] w-[140px] shrink-0">
+                  <button
+                    onClick={() => handleQuantityChange("decrease")}
+                    className="w-12 h-full flex items-center justify-center text-neutral-500 hover:text-white transition-colors"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
-                  <span className="text-base font-black text-gray-900">{quantity}</span>
-                  <button 
-                    onClick={() => handleQuantityChange('increase')} 
-                    className="w-12 h-full flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors"
+                  <span className="text-sm font-bold text-white">{quantity}</span>
+                  <button
+                    onClick={() => handleQuantityChange("increase")}
+                    className="w-12 h-full flex items-center justify-center text-neutral-500 hover:text-white transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
 
-                {/* Add To Cart */}
-                <button 
+                {/* Add to Cart */}
+                <button
                   onClick={handleAddToCart}
                   disabled={isAdding || !selectedVariant?.availableForSale}
-                  className="flex-1 h-[60px] border-2 p-5 border-gray-900 bg-white text-gray-900 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 h-[60px] border-2 border-white text-white rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-white"
                 >
-                  {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingBag className="w-5 h-5" />}
+                  {isAdding
+                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                    : <ShoppingBag className="w-4 h-4" />
+                  }
                   Add to Cart
                 </button>
               </div>
 
               {/* Buy Now */}
-              <button 
+              <button
                 onClick={handleBuyNow}
                 disabled={isBuyingNow || !selectedVariant?.availableForSale}
-                className="w-full h-[60px] bg-[#fe8204] text-white rounded-xl text-sm font-black uppercase tracking-widest hover:bg-[#e07103] transition-colors duration-300 flex items-center justify-center gap-3 shadow-lg shadow-[#fe8204]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-[60px] bg-[#fe8204] text-black rounded-2xl text-[12px] font-black uppercase tracking-widest hover:bg-[#e07103] transition-colors duration-300 flex items-center justify-center gap-2.5 shadow-[0_0_24px_rgba(254,130,4,0.25)] disabled:opacity-40"
               >
-                {isBuyingNow ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                {selectedVariant?.availableForSale ? "Buy It Now" : "Out of Stock"}
+                {isBuyingNow && <Loader2 className="w-4 h-4 animate-spin" />}
+                {selectedVariant?.availableForSale ? "Buy It Now →" : "Out of Stock"}
               </button>
+
+              {/* AR Try-On button (only if overlay image exists) */}
+              {product.media?.arOverlayImage && (
+                <button
+                  onClick={() => setIsCameraAROpen(true)}
+                  className="w-full h-[56px] bg-transparent border border-[#fe8204]/30 text-[#fe8204] hover:bg-[#fe8204]/10 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2.5 mt-2"
+                >
+                  <Camera className="w-4 h-4" />
+                  Try On with AR Camera
+                </button>
+              )}
             </div>
 
-            {/* Accordions (Maximizing mapped data) */}
-            <div className="border-t-2 border-gray-100">
-              <AccordionItem 
-                title="Description" 
-                isOpen={activeAccordion === 'description'} 
-                onToggle={() => toggleAccordion('description')}
+            {/* ── ACCORDION PANELS ─────────────────────────── */}
+            <div className="border-t border-white/[0.06] mt-2">
+
+              {/* Description */}
+              <AccordionItem
+                title="Description"
+                isOpen={activeAccordion === "description"}
+                onToggle={() => toggleAccordion("description")}
               >
-                <div 
-                  className="prose prose-sm prose-gray max-w-none text-gray-600 font-medium leading-relaxed"
+                <div
+                  className="prose prose-sm prose-invert max-w-none text-neutral-400 font-medium leading-relaxed text-[14px]"
                   dangerouslySetInnerHTML={{ __html: product.descriptionHtml || product.description }}
                 />
               </AccordionItem>
 
-              {/* Specific Product Attributes extracted from mapper */}
-              <AccordionItem 
-                title="Tattoo Details" 
-                isOpen={activeAccordion === 'details'} 
-                onToggle={() => toggleAccordion('details')}
+              {/* Tattoo Details */}
+              <AccordionItem
+                title="Tattoo Details"
+                isOpen={activeAccordion === "details"}
+                onToggle={() => toggleAccordion("details")}
               >
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {product.attributes?.themes?.length > 0 && (
                     <div>
-                      <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Themes</span>
+                      <span className="block text-[9px] font-black uppercase tracking-widest text-neutral-600 mb-1.5">Themes</span>
                       <div className="flex flex-wrap gap-2">
-                        {product.attributes.themes.map((theme, i) => (
-                          <span key={i} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-[11px] font-bold uppercase">{theme}</span>
+                        {product.attributes.themes.map((theme: string, i: number) => (
+                          <span key={i} className="bg-white/[0.04] text-neutral-300 px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase border border-white/[0.05]">
+                            {theme}
+                          </span>
                         ))}
                       </div>
                     </div>
                   )}
                   {product.attributes?.placements?.length > 0 && (
                     <div>
-                      <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Best Placements</span>
+                      <span className="block text-[9px] font-black uppercase tracking-widest text-neutral-600 mb-1.5">Best Placements</span>
                       <div className="flex flex-wrap gap-2">
-                        {product.attributes.placements.map((placement, i) => (
-                          <span key={i} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-md text-[11px] font-bold uppercase">{placement}</span>
+                        {product.attributes.placements.map((p: string, i: number) => (
+                          <span key={i} className="bg-white/[0.04] text-neutral-300 px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase border border-white/[0.05]">
+                            {p}
+                          </span>
                         ))}
                       </div>
                     </div>
                   )}
                   {product.attributes?.tags?.length > 0 && (
                     <div>
-                      <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Tags</span>
-                      <div className="flex flex-wrap gap-2">
-                        {product.attributes.tags.map((tag, i) => (
-                          <span key={i} className="bg-white border border-gray-200 text-gray-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase">{tag}</span>
+                      <span className="block text-[9px] font-black uppercase tracking-widest text-neutral-600 mb-2.5">Tags</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {product.attributes.tags.map((tag: string, i: number) => (
+                          <span key={i} className="border border-white/10 text-neutral-500 px-2.5 py-1 rounded text-[10px] font-bold uppercase">
+                            {tag}
+                          </span>
                         ))}
                       </div>
                     </div>
                   )}
                 </div>
               </AccordionItem>
-              
-              <AccordionItem 
-                title="How To Apply" 
-                isOpen={activeAccordion === 'apply'} 
-                onToggle={() => toggleAccordion('apply')}
+
+              {/* How To Apply */}
+              <AccordionItem
+                title="How To Apply"
+                isOpen={activeAccordion === "apply"}
+                onToggle={() => toggleAccordion("apply")}
               >
-                <ol className="space-y-3 text-sm text-gray-600 font-medium list-decimal pl-4">
+                <ol className="space-y-3 text-[13px] text-neutral-400 font-medium list-decimal pl-4 leading-relaxed">
                   <li>Ensure your skin is clean, dry, and free of makeup or lotions.</li>
                   <li>Remove the clear protective top sheet.</li>
                   <li>Press the tattoo design firmly onto your skin.</li>
-                  <li>Hold a wet cloth or sponge against the back of the tattoo for 30 seconds.</li>
+                  <li>Hold a wet cloth or sponge against the back for 30 seconds.</li>
                   <li>Gently peel off the paper backing. Let it dry!</li>
                 </ol>
               </AccordionItem>
 
-              <AccordionItem 
-                title="Shipping & Returns" 
-                isOpen={activeAccordion === 'shipping'} 
-                onToggle={() => toggleAccordion('shipping')}
+              {/* Shipping & Returns */}
+              <AccordionItem
+                title="Shipping & Returns"
+                isOpen={activeAccordion === "shipping"}
+                onToggle={() => toggleAccordion("shipping")}
               >
-                <p className="text-sm text-gray-600 font-medium leading-relaxed">
-                  Orders process within 1-2 business days. Free shipping on orders over $50. 
+                <p className="text-[13px] text-neutral-400 font-medium leading-relaxed">
+                  Orders process within 1–2 business days. Free shipping on orders over $50.
                   Not completely satisfied? We accept returns within 30 days of purchase for a full refund.
                 </p>
               </AccordionItem>
             </div>
+            {/* END ACCORDION PANELS */}
 
           </div>
+          {/* END RIGHT COLUMN */}
+
         </div>
+        {/* END TWO-COLUMN GRID */}
+
       </div>
 
-      {/* ========================================================= */}
-      {/* MAGNIFIER / ZOOM MODAL                                    */}
-      {/* ========================================================= */}
+      {/* ══════════════════════════════════════════════════════
+          ZOOM LIGHTBOX MODAL
+      ══════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {isZoomed && (viewState.type === "skintone" || viewState.type === "gallery" || viewState.type === "angle") && (
+          <motion.div
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(16px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
+            onClick={() => setIsZoomed(false)}
+          >
+            {/* Close button */}
+            <button
+              onClick={(e) => { e.stopPropagation(); setIsZoomed(false); }}
+              className="absolute top-7 right-7 z-10 w-12 h-12 bg-white/5 hover:bg-white/10 backdrop-blur-xl rounded-full flex items-center justify-center text-white transition-colors border border-white/10"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Full-size image */}
+            <div className="relative flex items-center justify-center w-full h-full max-h-[88vh]">
+              <Image
+                src={currentImageSrc}
+                alt={product.title}
+                width={1400}
+                height={1400}
+                className="w-auto h-full max-h-full object-contain rounded-2xl drop-shadow-2xl cursor-default"
+                onClick={(e) => e.stopPropagation()}
+                priority
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* ── Fullscreen AR Camera Overlay ──────────────── */}
+      {isMounted && typeof document !== 'undefined' && createPortal(
+        <AnimatePresence mode="wait">
+          {isCameraAROpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[99999] bg-neutral-950 flex flex-col overflow-hidden select-none"
+            >
+              {/* ── Camera State Watcher & Permission UI ────── */}
+              <CameraStateOverlay 
+                videoRef={videoRef} 
+                isCameraOpen={isCameraAROpen}
+                facingMode={facingMode}
+              />
+
+              {/* ── AR Modal Header ───────────────────────────── */}
+              <div className="absolute top-0 left-0 w-full h-[96px] bg-gradient-to-b from-black/90 via-black/50 to-transparent z-50 flex items-center justify-between px-6 pt-4 pointer-events-none">
+                <button
+                  onClick={() => setIsCameraAROpen(false)}
+                  className="px-5 py-2.5 bg-black/40 hover:bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center gap-2 text-white border border-white/10 transition-colors pointer-events-auto shadow-lg"
+                >
+                  <X className="w-4 h-4" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Back</span>
+                </button>
+
+                <span className="text-white font-black uppercase tracking-[0.3em] text-[10px] drop-shadow-md">
+                  Studio AR
+                </span>
+
+                <button
+                  onClick={handleSwitchCamera}
+                  className="w-11 h-11 bg-black/40 hover:bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center text-white border border-white/10 transition-colors pointer-events-auto shadow-lg"
+                  aria-label="Switch Camera"
+                >
+                  <RefreshCcw className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* ── Live camera feed ──────────────────────────── */}
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className={clsx(
+                  "absolute inset-0 w-full h-full object-cover z-10",
+                  facingMode === "user" ? "scale-x-[-1]" : ""
+                )}
+              />
+
+              {/* ── Interactive tattoo overlay ────────────────── */}
+              {product.media?.arOverlayImage && (
+                <div className="absolute inset-0 z-20">
+                  <InteractiveTattoo
+                    src={product.media.arOverlayImage}
+                    videoRef={videoRef}
+                  />
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+
+      {/* ══════════════════════════════════════════════════════
+          2D CAMERA AR MODAL  (WebRTC Virtual Try-On)
+      ══════════════════════════════════════════════════════ */}
       {/* <AnimatePresence>
-        {isZoomed && (
-          <motion.div 
+        {isCameraAROpen && isMounted && typeof document !== 'undefined' && createPortal(
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed mt-20 inset-0 z-[100] bg-black/95 flex flex-col overflow-y-auto cursor-zoom-out"
-            onClick={() => setIsZoomed(false)}
+            className="fixed inset-0 z-[99999] bg-black flex flex-col overflow-hidden"
           >
-            <button 
-              onClick={(e) => { e.stopPropagation(); setIsZoomed(false); }}
-              className="fixed top-6 right-6 z-[101] w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-colors"
-              aria-label="Close zoom"
-            >
-              <X className="w-6 h-6" />
-            </button>
             
-            <div className="min-h-screen w-full flex items-center justify-center mt-50 px-10 p-4 py-20">
-              <Image 
-                src={images[activeImageIndex].url} 
-                alt={images[activeImageIndex].altText || product.title}
-                width={1200}
-                height={1200}
-                className="w-auto max-w-full mt-20 h-auto max-h-none object-contain rounded-xl"
-                onClick={(e) => e.stopPropagation()} 
-              />
+            <div className="absolute top-0 left-0 w-full h-[88px] bg-gradient-to-b from-black/90 to-transparent z-50 flex items-center justify-between px-6 pt-safe pointer-events-none">
+
+              <button
+                onClick={() => setIsCameraAROpen(false)}
+                className="px-5 py-2.5 bg-black/40 hover:bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center gap-2 text-white border border-white/10 transition-colors pointer-events-auto shadow-lg"
+              >
+                <X className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Back</span>
+              </button>
+
+              <span className="text-white font-black uppercase tracking-[0.3em] text-[10px] drop-shadow-md">
+                Studio AR
+              </span>
+
+              <button
+                onClick={handleSwitchCamera}
+                className="w-11 h-11 bg-black/40 hover:bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center text-white border border-white/10 transition-colors pointer-events-auto shadow-lg"
+                aria-label="Switch Camera"
+              >
+                <RefreshCcw className="w-4 h-4" />
+              </button>
+
             </div>
+
+          
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={clsx(
+                "absolute inset-0 w-full h-full object-cover",
+                facingMode === "user" ? "scale-x-[-1]" : ""
+              )}
+            />
+
+            {product.media?.arOverlayImage && (
+              <InteractiveTattoo
+                src={product.media.arOverlayImage}
+                videoRef={videoRef}
+              />
+            )}
           </motion.div>
+          document.body
         )}
       </AnimatePresence> */}
-      <AnimatePresence>
-        {isZoomed && (
-          <motion.div 
-            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
-            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            // 1. z-[9999] ensures it sits above ANY global header.
-            // 2. Removed mt-20 and overflow-y-auto to lock it to the viewport perfectly.
-            className="fixed inset-0 z-[9999] bg-black/95 flex flex-col items-center justify-center p-4 md:p-8 mt-20 cursor-zoom-out"
-            onClick={() => setIsZoomed(false)}
-          >
-            <button 
-              onClick={(e) => { e.stopPropagation(); setIsZoomed(false); }}
-              // Changed to absolute positioning relative to the fixed modal container
-              className="absolute top-6 right-6 md:top-8 md:right-8 z-10 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-colors"
-              aria-label="Close zoom"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            
-            {/* Container constraints dynamically adjust based on the viewport */}
-            <div className="relative flex items-center justify-center w-full h-full max-h-[85vh]">
-              <Image 
-                src={images[activeImageIndex].url} 
-                alt={images[activeImageIndex].altText || product.title}
-                width={1200}
-                height={1200}
-                // h-full and object-contain will natively scale the Next.js image to fit the container bounds
-                className="w-auto h-full max-h-full object-contain rounded-xl drop-shadow-2xl cursor-default"
-                onClick={(e) => e.stopPropagation()}
-                //priority // Recommended for LCP images inside modals
-                priority={true}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// =========================================================
-// CLEAN ACCORDION COMPONENT
-// =========================================================
-function AccordionItem({ title, isOpen, onToggle, children }: { title: string; isOpen: boolean; onToggle: () => void; children: React.ReactNode }) {
-  return (
-    <div className="border-b-2 border-gray-100 last:border-0">
-      <button 
-        onClick={onToggle}
-        className="w-full py-6 flex items-center justify-between group outline-none"
-      >
-        <span className="text-xs font-black uppercase tracking-widest text-gray-900 group-hover:text-[#fe8204] transition-colors">
-          {title}
-        </span>
-        <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-[#fe8204] transition-colors" />
-        </motion.div>
-      </button>
-      <AnimatePresence initial={false}>
-        {isOpen && (
+      {/* ── Fullscreen AR Camera Overlay ──────────────── */}
+      {/* <AnimatePresence>
+        {isCameraAROpen && isMounted && typeof document !== 'undefined' && createPortal(
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[99999] bg-black flex flex-col overflow-hidden"
           >
-            <div className="pb-6">
-              {children}
+            
+            <div className="absolute top-0 left-0 w-full h-[88px] bg-gradient-to-b from-black/90 to-transparent z-50 flex items-center justify-between px-6 pt-safe pointer-events-none">
+
+              <button
+                onClick={() => setIsCameraAROpen(false)}
+                className="px-5 py-2.5 bg-black/40 hover:bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center gap-2 text-white border border-white/10 transition-colors pointer-events-auto shadow-lg"
+              >
+                <X className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Back</span>
+              </button>
+
+              <span className="text-white font-black uppercase tracking-[0.3em] text-[10px] drop-shadow-md">
+                Studio AR
+              </span>
+
+              <button
+                onClick={handleSwitchCamera}
+                className="w-11 h-11 bg-black/40 hover:bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center text-white border border-white/10 transition-colors pointer-events-auto shadow-lg"
+                aria-label="Switch Camera"
+              >
+                <RefreshCcw className="w-4 h-4" />
+              </button>
+
             </div>
-          </motion.div>
+
+      
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={clsx(
+                "absolute inset-0 w-full h-full object-cover",
+                facingMode === "user" ? "scale-x-[-1]" : ""
+              )}
+            />
+
+            {product.media?.arOverlayImage && (
+              <InteractiveTattoo
+                src={product.media.arOverlayImage}
+                videoRef={videoRef}
+              />
+            )}
+          </motion.div>,
+          document.body
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
+
     </div>
   );
 }
