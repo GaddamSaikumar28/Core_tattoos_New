@@ -190,19 +190,19 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
                 <div className="flex flex-col gap-2.5">
 
                   {/* Live viewer count */}
-                  <div className="bg-black/70 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-2 border border-white/10 w-fit shadow-lg pointer-events-auto">
+                  {/* <div className="bg-black/70 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-2 border border-white/10 w-fit shadow-lg pointer-events-auto">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#4ade80]" />
                     <span className="text-[10px] font-semibold text-neutral-300">
                       {viewingNow.toLocaleString()} viewing now
                     </span>
-                  </div>
+                  </div> */}
 
                   {/* "Limited Drop" pill + product badges */}
                   <div className="flex flex-col gap-1.5">
                     <div className="bg-[#fe8204] text-black px-3.5 py-1.5 rounded-full text-[9px] font-black tracking-[0.15em] uppercase w-fit shadow-[0_4px_14px_rgba(254,130,4,0.35)] pointer-events-auto">
                       Limited Drop
                     </div>
-                    {product.styling?.badges?.filter(Boolean).map((badge: any, i: number) => (
+                    {/* {product.styling?.badges?.filter(Boolean).map((badge: any, i: number) => (
                       <span
                         key={i}
                         className="px-3.5 py-1.5 text-[9px] font-black uppercase tracking-widest text-black rounded-full shadow-sm w-fit pointer-events-auto"
@@ -210,7 +210,32 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
                       >
                         {badge.label}
                       </span>
-                    ))}
+                    ))} */}
+                    {product.styling?.badges
+                          ?.filter((badge: any) => {
+                            // 1. Ensure the badge exists
+                            if (!badge) return false;
+
+                            // 2. Filter out blank text/strings (ignores strings that are just empty spaces)
+                            if (!badge.label || String(badge.label).trim() === "") return false;
+
+                            // 3. Filter out black backgrounds (catches common hex and name formats)
+                            const bgColor = (badge.color || "").toLowerCase().trim();
+                            if (bgColor === "#000000" || bgColor === "#000" || bgColor === "black") {
+                              return false;
+                            }
+
+                            return true;
+                          })
+                          .map((badge: any, i: number) => (
+                            <span
+                              key={i}
+                              className="px-3.5 py-1.5 text-[9px] font-black uppercase tracking-widest text-black rounded-full shadow-sm w-fit pointer-events-auto"
+                              style={{ backgroundColor: badge.color || "#fff" }}
+                            >
+                              {badge.label}
+                            </span>
+                          ))}
                   </div>
                 </div>
 
@@ -288,8 +313,12 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
               {/* Bottom vignette overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent opacity-80 pointer-events-none" />
 
-              {/* ── SCARCITY PROGRESS BAR ─────────────────── */}
-              <div className="absolute bottom-[68px] left-5 right-5 z-20 pointer-events-none">
+              {/* ── SCARCITY PROGRESS BAR ─────────────────────────────────────────
+                  On mobile: raised to bottom-[84px] to clear the 44px zoom/try-on
+                  action row (anchored at bottom-5) without any visual overlap.
+                  On desktop (lg+): restored to the original bottom-[68px].
+              ──────────────────────────────────────────────────────────────────── */}
+              <div className="absolute bottom-[74px] lg:bottom-[68px] left-5 right-5 z-20 pointer-events-none">
                 <div className="flex justify-between text-[10px] font-semibold text-neutral-500 mb-1.5">
                   <span>{soldThisWeek.toLocaleString()} sold this week</span>
                   <span className="text-[#fe8204]">Only {stockLevel} left!</span>
@@ -327,20 +356,60 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
             </div>
             {/* END MAIN CANVAS */}
 
-            {/* ── THUMBNAIL STRIP + SKIN-TONE SWATCHES ROW ─ */}
+            {/* ── THUMBNAIL STRIP + SKIN-TONE SWATCHES ──────────────────────────
+                MOBILE  : flex-col — swatches shown FIRST (order-1), then
+                          thumbnails (order-2) with their own horizontal scroll.
+                DESKTOP : flex-row — thumbnails on the left, swatches on the
+                          right separated by a vertical rule (unchanged).
+            ──────────────────────────────────────────────────────────────────── */}
             {(thumbnails.length > 1 || sortedSwatches.length > 0) && (
-              // <div className="flex flex-row items-center gap-6 overflow-x-auto no-scrollbar pb-2 mt-2 w-full">
-                <div className="flex flex-row items-center gap-6 overflow-x-auto no-scrollbar pb-2 mt-2 w-full max-w-full">
-                {/* Left: thumbnail buttons */}
+              <div className="flex flex-col gap-3 mt-2 w-full max-w-full lg:flex-row lg:items-center lg:gap-6 lg:overflow-x-auto lg:no-scrollbar lg:pb-2 lg:mt-2 lg:gap-0">
+
+                {/* ── Skin-tone swatch circles ──────────────────
+                    • Mobile  : order-1  — first visible block,
+                                full-width row, no left border.
+                    • Desktop : order-2  — right side of the row,
+                                left border separator as before.
+                ─────────────────────────────────────────────── */}
+                {sortedSwatches.length > 0 && (
+                  <div className="flex flex-row items-center gap-3.5 w-full order-1 lg:order-2 lg:w-auto lg:shrink-0 lg:ml-2 lg:border-l lg:border-white/10 mb-5 mb:mb-0 lg:pl-6">
+                    {/* "Skin Tone" label — mobile only, aids discoverability */}
+                    <span className="text-[9px] font-black uppercase tracking-widest text-neutral-500 shrink-0 lg:hidden">
+                      Skin Tone
+                    </span>
+                    {sortedSwatches.map((swatch: any) => (
+                      <button
+                        key={swatch.hexCode}
+                        onClick={() => {
+                          setActiveSkinTone(swatch.hexCode);
+                          setViewState({ type: "skintone", source: swatch });
+                        }}
+                        className={clsx(
+                          "w-8 h-8 rounded-full border-2 transition-all duration-300 shrink-0",
+                          activeSkinTone === swatch.hexCode
+                            ? "border-white scale-110 shadow-[0_0_12px_rgba(255,255,255,0.2)]"
+                            : "border-transparent hover:scale-110 hover:border-white/30 opacity150 md:opacity-70 hover:opacity-100",
+                        )}
+                        style={{ backgroundColor: swatch.hexCode }}
+                        aria-label={`Skin tone ${swatch.hexCode}`}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* ── Thumbnail image buttons ───────────────────
+                    • Mobile  : order-2  — second block, with its
+                                own horizontal overflow scroll.
+                    • Desktop : order-1  — left side of the row,
+                                shrink-0 as before.
+                ─────────────────────────────────────────────── */}
                 {thumbnails.length > 1 && (
-                  <div className="flex flex-row gap-3 shrink-0">
+                  <div className="flex flex-row gap-3 overflow-x-auto no-scrollbar pb-1 order-2 lg:order-1 lg:shrink-0 lg:pb-0 lg:overflow-visible">
                     {thumbnails.map((thumb: any, idx: number) => {
                       const isActive =
                         (thumb.type === "3d" && viewState.type === "3d") ||
                         (thumb.type === "skintone" && viewState.type === "skintone") ||
-                        (thumb.type === "gallery" && viewState.type === "gallery" && viewState.index === thumb.index); 
-                        // ||
-                        // (thumb.type === "angle" && viewState.type === "angle" && viewState.index === thumb.index);
+                        (thumb.type === "gallery" && viewState.type === "gallery" && viewState.index === thumb.index);
 
                       return (
                         <button
@@ -367,16 +436,6 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
                             </div>
                           )}
 
-                          {/* Angle view overlay */}
-                          {/* {thumb.type === "angle" && (
-                            <div className="absolute inset-0 bg-black/20 z-10 flex flex-col items-center justify-end pb-2 pointer-events-none">
-                              <div className="bg-black/60 rounded-full px-2 py-0.5 text-[8px] font-bold text-white flex items-center gap-1 backdrop-blur-md border border-white/10">
-                                <Navigation className="w-2 h-2 text-[#fe8204]" />
-                                {thumb.source.degree}°
-                              </div>
-                            </div>
-                          )} */}
-
                           <Image
                             src={thumb.thumbUrl}
                             alt="Thumbnail"
@@ -390,31 +449,9 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
                   </div>
                 )}
 
-                {/* Right: skin-tone swatch circles (dynamically sorted) */}
-                {sortedSwatches.length > 0 && (
-                  <div className="flex flex-row items-center gap-3.5 shrink-0 ml-2 border-l border-white/10 pl-6">
-                    {sortedSwatches.map((swatch: any) => (
-                      <button
-                        key={swatch.hexCode}
-                        onClick={() => {
-                          setActiveSkinTone(swatch.hexCode);
-                          setViewState({ type: "skintone", source: swatch });
-                        }}
-                        className={clsx(
-                          "w-8 h-8 rounded-full border-2 transition-all duration-300",
-                          activeSkinTone === swatch.hexCode
-                            ? "border-white scale-110 shadow-[0_0_12px_rgba(255,255,255,0.2)]"
-                            : "border-transparent hover:scale-110 hover:border-white/30 opacity-50 hover:opacity-100",
-                        )}
-                        style={{ backgroundColor: swatch.hexCode }}
-                        aria-label={`Skin tone ${swatch.hexCode}`}
-                      />
-                    ))}
-                  </div>
-                )}
               </div>
             )}
-            {/* END THUMBNAIL STRIP */}
+            {/* END THUMBNAIL STRIP + SKIN-TONE SWATCHES */}
 
           </div>
           {/* END LEFT COLUMN */}
@@ -844,122 +881,6 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
         </AnimatePresence>,
         document.body
       )}
-
-      {/* ══════════════════════════════════════════════════════
-          2D CAMERA AR MODAL  (WebRTC Virtual Try-On)
-      ══════════════════════════════════════════════════════ */}
-      {/* <AnimatePresence>
-        {isCameraAROpen && isMounted && typeof document !== 'undefined' && createPortal(
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[99999] bg-black flex flex-col overflow-hidden"
-          >
-            
-            <div className="absolute top-0 left-0 w-full h-[88px] bg-gradient-to-b from-black/90 to-transparent z-50 flex items-center justify-between px-6 pt-safe pointer-events-none">
-
-              <button
-                onClick={() => setIsCameraAROpen(false)}
-                className="px-5 py-2.5 bg-black/40 hover:bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center gap-2 text-white border border-white/10 transition-colors pointer-events-auto shadow-lg"
-              >
-                <X className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Back</span>
-              </button>
-
-              <span className="text-white font-black uppercase tracking-[0.3em] text-[10px] drop-shadow-md">
-                Studio AR
-              </span>
-
-              <button
-                onClick={handleSwitchCamera}
-                className="w-11 h-11 bg-black/40 hover:bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center text-white border border-white/10 transition-colors pointer-events-auto shadow-lg"
-                aria-label="Switch Camera"
-              >
-                <RefreshCcw className="w-4 h-4" />
-              </button>
-
-            </div>
-
-          
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className={clsx(
-                "absolute inset-0 w-full h-full object-cover",
-                facingMode === "user" ? "scale-x-[-1]" : ""
-              )}
-            />
-
-            {product.media?.arOverlayImage && (
-              <InteractiveTattoo
-                src={product.media.arOverlayImage}
-                videoRef={videoRef}
-              />
-            )}
-          </motion.div>
-          document.body
-        )}
-      </AnimatePresence> */}
-      {/* ── Fullscreen AR Camera Overlay ──────────────── */}
-      {/* <AnimatePresence>
-        {isCameraAROpen && isMounted && typeof document !== 'undefined' && createPortal(
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[99999] bg-black flex flex-col overflow-hidden"
-          >
-            
-            <div className="absolute top-0 left-0 w-full h-[88px] bg-gradient-to-b from-black/90 to-transparent z-50 flex items-center justify-between px-6 pt-safe pointer-events-none">
-
-              <button
-                onClick={() => setIsCameraAROpen(false)}
-                className="px-5 py-2.5 bg-black/40 hover:bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center gap-2 text-white border border-white/10 transition-colors pointer-events-auto shadow-lg"
-              >
-                <X className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Back</span>
-              </button>
-
-              <span className="text-white font-black uppercase tracking-[0.3em] text-[10px] drop-shadow-md">
-                Studio AR
-              </span>
-
-              <button
-                onClick={handleSwitchCamera}
-                className="w-11 h-11 bg-black/40 hover:bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center text-white border border-white/10 transition-colors pointer-events-auto shadow-lg"
-                aria-label="Switch Camera"
-              >
-                <RefreshCcw className="w-4 h-4" />
-              </button>
-
-            </div>
-
-      
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className={clsx(
-                "absolute inset-0 w-full h-full object-cover",
-                facingMode === "user" ? "scale-x-[-1]" : ""
-              )}
-            />
-
-            {product.media?.arOverlayImage && (
-              <InteractiveTattoo
-                src={product.media.arOverlayImage}
-                videoRef={videoRef}
-              />
-            )}
-          </motion.div>,
-          document.body
-        )}
-      </AnimatePresence> */}
-
     </div>
   );
 }
