@@ -8,41 +8,49 @@ import TattooProductAngleView from '@/src/components/sections/TattooProductAngle
 import Advanced24HourReveal from '@/src/components/shared/Advanced24HourReveal';
 type Props = { params: Promise<{ handle: string }> };
 
-// =========================================================
-// 1. STRICT SEO METADATA & CANONICAL ENFORCEMENT
-// =========================================================
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
+  
+  // Fetch the product using your exact function
   const product = await getProduct(resolvedParams.handle);
 
   if (!product) {
     return { title: 'Product Not Found | Just Tattoos' };
   }
 
-  // const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://justtattoos.com';
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
   const canonicalUrl = `${siteUrl}/products/${product.handle}`;
-  const plainTextDescription = product.description.replace(/<[^>]+>/g, '').substring(0, 155) + '...';
+
+  // 1. Read strictly from dedicated SEO fields, falling back to requested format if blank
+  const metaTitle = product.seoTitle || `${product.title} | Just Tattoos`;
+  
+  // 2. Leave description completely blank if no SEO description exists (do NOT copy product body)
+  const metaDescription = product.seoDescription || ''; 
 
   return {
-    title: `${product.title} | Just Tattoos`,
-    description: plainTextDescription,
+    title: metaTitle,
+    description: metaDescription,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: product.title,
-      description: plainTextDescription,
+      title: metaTitle,
+      description: metaDescription,
       url: canonicalUrl,
-      images: product.media.featuredImage ? [{ url: product.media.featuredImage, width: 800, height: 800, alt: product.title }] : [],
+      images: product.media?.featuredImage 
+        ? [{ url: product.media.featuredImage, width: 800, height: 800, alt: metaTitle }] 
+        : [],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
+      title: metaTitle,
+      description: metaDescription,
+      images: product.media?.featuredImage ? [product.media.featuredImage] : [],
     }
   };
 }
-
 
 
 export default async function GlobalProductPage({ params }: Props) {

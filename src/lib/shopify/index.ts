@@ -50,6 +50,8 @@ export interface FormattedProduct {
   vendor: string;
   description: string;
   descriptionHtml: string;
+  seoTitle: string | null;
+  seoDescription: string | null;
   checkout: {
     defaultVariantId: string | null;
     price: number;
@@ -384,6 +386,9 @@ export async function mapShopifyProductsForProduction(shopifyJson: any) {
       vendor: node.vendor || "Unknown Artist",
       description: node.description,
       descriptionHtml: node.descriptionHtml,
+      
+      seoTitle: node.seo?.title || null,
+      seoDescription: node.seo?.description || null,
 
       checkout: {
         defaultVariantId: defaultVariant.variantId || null, 
