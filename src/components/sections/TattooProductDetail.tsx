@@ -31,7 +31,7 @@ import { TattooProductDetailProps } from "./types";
 import { useProductDetail } from "./useProductDetail";
 import InteractiveTattoo from "./InteractiveTattoo";
 import AccordionItem from "./AccordionItem";
-
+import { Breadcrumbs } from '@/src/components/shared/Breadcrumbs';
 // Bypass React's strict custom element checks for Model Viewer.
 const ModelViewer = "model-viewer" as any;
 interface CameraStateOverlayProps {
@@ -151,11 +151,6 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
     }
   }, [isCameraAROpen, videoRef]);
 
-  // Prevent SSR/hydration mismatch — render nothing until client-mounted.
-  if (!isMounted) return null;
-
-
-
   // =========================================================
   return (
     <div className="bg-[#080808] min-h-screen pt-[130px] lg:pt-[150px] pb-12 selection:bg-[#fe8204] selection:text-white">
@@ -164,13 +159,20 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
         {/* ══════════════════════════════════════════════════
             BREADCRUMBS
         ══════════════════════════════════════════════════ */}
-        <nav className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-neutral-600 mb-8">
+        {/* <nav className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-neutral-600 mb-8">
           <a href="/" className="hover:text-white transition-colors">Home</a>
           <span className="text-neutral-700">/</span>
           <a href="/collections/" className="hover:text-white transition-colors">Shop All</a>
           <span className="text-neutral-700">/</span>
           <span className="text-neutral-400 truncate max-w-[160px] sm:max-w-none">{product.title}</span>
-        </nav>
+        </nav> */}
+        <div className="mb-8">
+          <Breadcrumbs items={[
+            { label: 'Home', url: '/' },
+            { label: 'Shop All', url: '/collections' },
+            { label: product.title, url: `/products/${product.handle}` },
+          ]} />
+        </div>
 
         {/* ══════════════════════════════════════════════════
             TWO-COLUMN GRID
@@ -212,30 +214,30 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
                       </span>
                     ))} */}
                     {product.styling?.badges
-                          ?.filter((badge: any) => {
-                            // 1. Ensure the badge exists
-                            if (!badge) return false;
+                      ?.filter((badge: any) => {
+                        // 1. Ensure the badge exists
+                        if (!badge) return false;
 
-                            // 2. Filter out blank text/strings (ignores strings that are just empty spaces)
-                            if (!badge.label || String(badge.label).trim() === "") return false;
+                        // 2. Filter out blank text/strings (ignores strings that are just empty spaces)
+                        if (!badge.label || String(badge.label).trim() === "") return false;
 
-                            // 3. Filter out black backgrounds (catches common hex and name formats)
-                            const bgColor = (badge.color || "").toLowerCase().trim();
-                            if (bgColor === "#000000" || bgColor === "#000" || bgColor === "black") {
-                              return false;
-                            }
+                        // 3. Filter out black backgrounds (catches common hex and name formats)
+                        const bgColor = (badge.color || "").toLowerCase().trim();
+                        if (bgColor === "#000000" || bgColor === "#000" || bgColor === "black") {
+                          return false;
+                        }
 
-                            return true;
-                          })
-                          .map((badge: any, i: number) => (
-                            <span
-                              key={i}
-                              className="px-3.5 py-1.5 text-[9px] font-black uppercase tracking-widest text-black rounded-full shadow-sm w-fit pointer-events-auto"
-                              style={{ backgroundColor: badge.color || "#fff" }}
-                            >
-                              {badge.label}
-                            </span>
-                          ))}
+                        return true;
+                      })
+                      .map((badge: any, i: number) => (
+                        <span
+                          key={i}
+                          className="px-3.5 py-1.5 text-[9px] font-black uppercase tracking-widest text-black rounded-full shadow-sm w-fit pointer-events-auto"
+                          style={{ backgroundColor: badge.color || "#fff" }}
+                        >
+                          {badge.label}
+                        </span>
+                      ))}
                   </div>
                 </div>
 
@@ -264,31 +266,45 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
                   // className="relative w-full h-full"
                   className="relative w-full aspect-square md:aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-900/40"
                 >
-                  {/* ── 3D Model panel ────────────────────── */}
+                  {/* ── 3D Model panel (gated by isMounted to prevent SSR crashes) ────────────────────── */}
                   {viewState.type === "3d" && (
-                    <div className="absolute inset-0 w-full h-full">
-                      {!modelLoaded && (
-                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0d0d0d]">
-                          <Loader2 className="w-8 h-8 text-[#fe8204] animate-spin" />
-                        </div>
-                      )}
-                      <ModelViewer
-                        ref={modelViewerRef}
-                        src={viewState.source.sources?.find((s: any) => s.format === "glb")?.url}
-                        ios-src={viewState.source.sources?.find((s: any) => s.format === "usdz")?.url}
-                        alt="3D product model"
-                        ar="true"
-                        ar-modes="webxr scene-viewer quick-look"
-                        camera-controls="true"
-                        auto-rotate="true"
-                        rotation-per-second="30deg"
-                        shadow-intensity="1"
-                        environment-image="neutral"
-                        style={{ width: "100%", height: "100%", backgroundColor: "transparent" }}
-                      >
-                        <button slot="ar-button" className="hidden">AR</button>
-                      </ModelViewer>
-                    </div>
+                    isMounted ? (
+                      <div className="absolute inset-0 w-full h-full">
+                        {!modelLoaded && (
+                          <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0d0d0d]">
+                            <Loader2 className="w-8 h-8 text-[#fe8204] animate-spin" />
+                          </div>
+                        )}
+                        <ModelViewer
+                          ref={modelViewerRef}
+                          src={viewState.source.sources?.find((s: any) => s.format === "glb")?.url}
+                          ios-src={viewState.source.sources?.find((s: any) => s.format === "usdz")?.url}
+                          alt="3D product model"
+                          ar="true"
+                          ar-modes="webxr scene-viewer quick-look"
+                          camera-controls="true"
+                          auto-rotate="true"
+                          rotation-per-second="30deg"
+                          shadow-intensity="1"
+                          environment-image="neutral"
+                          style={{ width: "100%", height: "100%", backgroundColor: "transparent" }}
+                        >
+                          <button slot="ar-button" className="hidden">AR</button>
+                        </ModelViewer>
+                      </div>
+                    ) : (
+                      // Server-side fallback: show featured image placeholder
+                      <div className="absolute inset-0 w-full h-full">
+                        <Image
+                          src={standardImages[0]?.url || "/placeholder.png"}
+                          alt={product.title}
+                          fill
+                          priority
+                          className="object-cover object-center"
+                          sizes="(max-width: 1024px) 100vw, 55vw"
+                        />
+                      </div>
+                    )
                   )}
 
                   {/* ── 2D Image panel (skin-tone, gallery, or angle) */}
@@ -826,8 +842,8 @@ export default function TattooProductDetail({ product }: TattooProductDetailProp
               className="fixed inset-0 z-[99999] bg-neutral-950 flex flex-col overflow-hidden select-none"
             >
               {/* ── Camera State Watcher & Permission UI ────── */}
-              <CameraStateOverlay 
-                videoRef={videoRef} 
+              <CameraStateOverlay
+                videoRef={videoRef}
                 isCameraOpen={isCameraAROpen}
                 facingMode={facingMode}
               />

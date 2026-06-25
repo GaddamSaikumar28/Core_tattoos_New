@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
 import { Check, ChevronDown } from 'lucide-react';
 
@@ -25,6 +27,7 @@ interface FilterSidebarProps {
 }
 
 export function FilterSidebar({ filters, activeFilters, onToggle }: FilterSidebarProps) {
+  const pathname = usePathname();
   const hasAnyActive = Object.values(activeFilters).some((arr) => arr.length > 0);
 
   return (
@@ -33,6 +36,7 @@ export function FilterSidebar({ filters, activeFilters, onToggle }: FilterSideba
       {filters.collections && filters.collections.length > 0 && (
         <FilterGroup
           title="Categories"
+          groupKey="collections"
           items={filters.collections}
           activeItems={activeFilters.collections}
           onToggle={(v) => onToggle('collections', v)}
@@ -42,6 +46,7 @@ export function FilterSidebar({ filters, activeFilters, onToggle }: FilterSideba
       {filters.styles && filters.styles.length > 0 && (
         <FilterGroup
           title="Style"
+          groupKey="styles"
           items={filters.styles}
           activeItems={activeFilters.styles}
           onToggle={(v) => onToggle('styles', v)}
@@ -51,6 +56,7 @@ export function FilterSidebar({ filters, activeFilters, onToggle }: FilterSideba
       {filters.sizes && filters.sizes.length > 0 && (
         <FilterGroup
           title="Size"
+          groupKey="sizes"
           items={filters.sizes}
           activeItems={activeFilters.sizes}
           onToggle={(v) => onToggle('sizes', v)}
@@ -60,6 +66,7 @@ export function FilterSidebar({ filters, activeFilters, onToggle }: FilterSideba
       {filters.placements && filters.placements.length > 0 && (
         <FilterGroup
           title="Placement"
+          groupKey="placements"
           items={filters.placements}
           activeItems={activeFilters.placements}
           onToggle={(v) => onToggle('placements', v)}
@@ -68,31 +75,41 @@ export function FilterSidebar({ filters, activeFilters, onToggle }: FilterSideba
 
       {hasAnyActive && (
         <div className="pt-4">
-          <button
-            onClick={() => onToggle('RESET')}
-            className="w-full py-2.5 rounded-lg border border-zinc-700 text-zinc-400 text-[9px] font-black uppercase tracking-[0.25em] hover:border-[var(--color-brand-orange)] hover:text-[var(--color-brand-orange)] transition-all duration-200"
+          {/* 🚀 SEO FIX: Converted reset button to a semantic crawlable link */}
+          <Link
+            href={pathname}
+            onClick={(e) => {
+              e.preventDefault();
+              onToggle('RESET');
+            }}
+            scroll={false}
+            className="w-full flex items-center justify-center py-2.5 rounded-lg border border-zinc-700 text-zinc-400 text-[9px] font-black uppercase tracking-[0.25em] hover:border-[var(--color-brand-orange)] hover:text-[var(--color-brand-orange)] transition-all duration-200"
           >
             Clear All Filters
-          </button>
+          </Link>
         </div>
       )}
     </div>
   );
 }
 
-// ─── Collapsible filter group — no max-height cap so all items always show ────
+// ─── Collapsible filter group ─────────────────────────────────────────────
 function FilterGroup({
   title,
+  groupKey,
   items,
   activeItems,
   onToggle,
 }: {
   title: string;
+  groupKey: keyof FilterOptions;
   items: string[];
   activeItems: string[];
   onToggle: (val: string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(true);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const activeCount = activeItems.length;
 
   return (
@@ -122,25 +139,44 @@ function FilterGroup({
         />
       </button>
 
-      {/* Items — rendered in DOM always, hidden via display so nothing is clipped */}
+      {/* Items Container */}
       <div className={clsx('pb-3', isOpen ? 'block' : 'hidden')}>
         <div className="space-y-0.5">
           {items.map((item) => {
             const isActive = activeItems.includes(item);
-            return (
-              <label
-                key={item}
-                className="flex items-center gap-3 px-1 py-2 rounded-lg cursor-pointer group/item hover:bg-zinc-800/40 transition-colors duration-150 select-none"
-              >
-                {/* Hidden native checkbox — keeps onChange logic identical to original */}
-                <input
-                  type="checkbox"
-                  className="sr-only"
-                  checked={isActive}
-                  onChange={() => onToggle(item)}
-                />
 
-                {/* Custom checkbox */}
+            // 🚀 SEO FIX: Construct semantic URLs for crawlers while preserving existing queries
+            let href = pathname;
+            if (groupKey !== 'collections') {
+              const params = new URLSearchParams(searchParams.toString());
+              const newVals = isActive
+                ? activeItems.filter((i) => i !== item)
+                : [...activeItems, item];
+
+              if (newVals.length > 0) {
+                params.set(groupKey, newVals.join(','));
+              } else {
+                params.delete(groupKey);
+              }
+              
+              const qs = params.toString();
+              href = qs ? `${pathname}?${qs}` : pathname;
+            }
+
+            return (
+              <Link
+                key={item}
+                href={href}
+                onClick={(e) => {
+                  e.preventDefault(); // Intercepts click so we don't hard reload
+                  onToggle(item);     // Uses parent's fast state-routing
+                }}
+                scroll={false}
+                role="checkbox"
+                aria-checked={isActive}
+                className="flex items-center gap-3 px-1 py-2 rounded-lg group/item hover:bg-zinc-800/40 transition-colors duration-150 select-none"
+              >
+                {/* 🚀 SEO FIX: Replaced <input type="checkbox"> with standard div to clean up DOM */}
                 <div
                   className={clsx(
                     'w-4 h-4 rounded-sm border flex items-center justify-center shrink-0 transition-all duration-150',
@@ -165,7 +201,7 @@ function FilterGroup({
                 >
                   {item}
                 </span>
-              </label>
+              </Link>
             );
           })}
         </div>

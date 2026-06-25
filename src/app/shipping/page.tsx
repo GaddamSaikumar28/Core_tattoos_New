@@ -1,11 +1,61 @@
-
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image'; // Added for the premium hero banner
-import { getShippingPageData } from '@/src/lib/shopify'; // Update path if needed
+import Image from 'next/image'; 
+import { getShippingPageData } from '@/src/lib/shopify'; 
+import { Metadata } from 'next'; 
 
+// =========================================================
+// 1. STRICT SEO METADATA
+// =========================================================
+export async function generateMetadata(): Promise<Metadata> {
+  // 1. Fetch data safely from the server
+  const data = await getShippingPageData('shipping-page');
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
+
+  // 2. Generate a clean title using the dynamic Shopify hero title if it exists
+  const cleanTitle = data?.heroTitle 
+    ? `${data.heroTitle.replace(/\b\w/g, (c: string) => c.toUpperCase())} | Just Tattoos`
+    : 'Shipping Policy | Just Tattoos';
+
+  // 3. Fallback description optimizing for organic clicks
+  const defaultDescription = 'Learn about Just Tattoos order processing times, shipping rates, delivery estimates, and domestic shipping policies.';
+
+  return {
+    title: cleanTitle,
+    description: defaultDescription,
+    alternates: {
+      canonical: `${siteUrl}/shipping`, // Matches your actual client route
+    },
+    openGraph: {
+      title: cleanTitle,
+      description: 'Read our complete shipping and delivery policies.',
+      url: `${siteUrl}/shipping`,
+      type: 'website',
+      images: data?.heroImage 
+        ? [
+            {
+              url: data.heroImage,
+              width: 1200,
+              height: 630,
+              alt: data.heroTitle || 'Just Tattoos Shipping Policy',
+            },
+          ]
+        : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: cleanTitle,
+      description: defaultDescription,
+      images: data?.heroImage ? [data.heroImage] : [],
+    }
+  };
+}
+
+// =========================================================
+// 2. MAIN SHIPPING SERVER COMPONENT
+// =========================================================
 export default async function ShippingPage() {
-    // 1. Fetch dynamic data from Shopify
+    // Fetch dynamic data from Shopify on the server (0% DOM Parity Discrepancy)
     const data = await getShippingPageData('shipping-page');
 
     if (!data) {

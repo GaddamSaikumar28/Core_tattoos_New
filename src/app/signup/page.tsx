@@ -39,15 +39,15 @@ export default function SignupPage() {
 
     setIsSubmitting(true);
     const success = await signup(
-      formData.firstName, 
-      formData.lastName, 
-      formData.email, 
-      formData.password, 
+      formData.firstName,
+      formData.lastName,
+      formData.email,
+      formData.password,
       acceptsMarketing
     );
     setIsSubmitting(false);
     if (success) {
-      router.push("/account"); 
+      router.push("/login");
     }
   };
 

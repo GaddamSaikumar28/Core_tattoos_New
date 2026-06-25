@@ -2,16 +2,55 @@
 
 import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import Link from 'next/link'; // 🚀 SEO FIX: Imported Link for semantic crawling
 import { SlidersHorizontal, LayoutGrid, List, X, RefreshCcw, Loader2 } from 'lucide-react';
 import clsx from 'clsx';
 
 // Components
+import { Breadcrumbs } from '@/src/components/shared/Breadcrumbs'; // 🚀 SEO FIX: Imported Breadcrumbs
 import { FilterSidebar, ActiveFilters, FilterOptions } from '@/src/components/shared/FilterSidebar';
 import { ProductCard } from '@/src/components/shared/ProductLayout';
 import { getProducts, getCollectionProducts, getMenu, FormattedProduct } from '@/src/lib/shopify'; 
 
+// 🚀 SEO FIX: Added Sort Option Types to support missing UI
+export type SortOptionValue = 'newest' | 'price-asc' | 'price-desc' | 'alpha-asc';
+const getSortSettings = (sort: SortOptionValue) => {
+  switch (sort) {
+    case 'price-asc':
+      return { productSortKey: 'PRICE', collectionSortKey: 'PRICE', reverse: false };
+    case 'price-desc':
+      return { productSortKey: 'PRICE', collectionSortKey: 'PRICE', reverse: true };
+    case 'alpha-asc':
+      return { productSortKey: 'TITLE', collectionSortKey: 'TITLE', reverse: false };
+    default:
+      return { productSortKey: 'CREATED_AT', collectionSortKey: 'CREATED', reverse: true };
+  }
+};
+const sortOptions: { value: SortOptionValue; label: string }[] = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'alpha-asc', label: 'A → Z' },
+];
+
+// 🚀 SEO FIX: Define the InitialData interface to accept pre-rendered server data
+interface InitialData {
+  products: FormattedProduct[];
+  pageInfo: { hasNextPage: boolean; endCursor: string | null };
+  filters: FilterOptions;
+  collectionMap: Record<string, string>;
+  bannerImage?: string;
+  activeFilters?: ActiveFilters;
+  sortOption?: SortOptionValue; // Added sortOption
+}
+
+interface NewArrivalsPageProps {
+  collection?: any;
+  initialData?: InitialData;
+}
+
 // 1. Content component with all the logic
-function NewArrivalsContent({ collection }: { collection?: any }) {
+function NewArrivalsContent({ collection, initialData }: NewArrivalsPageProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -20,35 +59,66 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
   const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [itemsPerPage] = useState(12);
 
-  const [products, setProducts] = useState<FormattedProduct[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // 🚀 SEO FIX: Initialize state directly with server-provided data to ensure DOM parity
+  const [products, setProducts] = useState<FormattedProduct[]>(initialData?.products || []);
+  const [isLoading, setIsLoading] = useState(!initialData); // Skip loading state if we have SSR data
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [pageInfo, setPageInfo] = useState({ hasNextPage: false, endCursor: null as string | null });
-  const [bannerImage, setBannerImage] = useState<string>('/assets/images/temporary_tattoos.webp');
+  const [pageInfo, setPageInfo] = useState(initialData?.pageInfo || { hasNextPage: false, endCursor: null as string | null });
+  const [bannerImage, setBannerImage] = useState<string>(initialData?.bannerImage || '/assets/images/temporary_tattoos.webp');
   
   // STATE INITIALIZATION
-  const [collectionMap, setCollectionMap] = useState<Record<string, string>>({});
+  const [collectionMap, setCollectionMap] = useState<Record<string, string>>(initialData?.collectionMap || {});
   
-  const [dynamicFilters, setDynamicFilters] = useState<FilterOptions>({
+  const [dynamicFilters, setDynamicFilters] = useState<FilterOptions>(initialData?.filters || {
     collections: [],
     styles: [],
     sizes: [],
     placements: []
   });
 
-  // 🚀 SEO FIX: Initialize active filters directly from the URL query parameters
-  const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
-    collections: [], 
-    styles: searchParams.get('styles')?.split(',') || [],
-    sizes: searchParams.get('sizes')?.split(',') || [],
-    placements: searchParams.get('placements')?.split(',') || []
-  });
+  const [sortOption, setSortOption] = useState<SortOptionValue>(initialData?.sortOption ?? 'newest');
 
-  // 🚀 FIX: Track if we are paginating a fallback query to prevent cursor contamination
+  // Initialize active filters directly from the URL query parameters
+  const [activeFilters, setActiveFilters] = useState<ActiveFilters>(
+    initialData?.activeFilters ?? {
+      collections: [],
+      styles: searchParams.get('styles')?.split(',') || [],
+      sizes: searchParams.get('sizes')?.split(',') || [],
+      placements: searchParams.get('placements')?.split(',') || []
+    }
+  );
+
+  useEffect(() => {
+    setActiveFilters(prev => ({
+      collections: prev.collections, // Preserve the active collection context
+      styles: searchParams.get('styles')?.split(',').filter(Boolean) || [],
+      sizes: searchParams.get('sizes')?.split(',').filter(Boolean) || [],
+      placements: searchParams.get('placements')?.split(',').filter(Boolean) || []
+    }));
+    
+    const urlSort = searchParams.get('sort') as SortOptionValue;
+    if (urlSort) {
+      setSortOption(urlSort);
+    }
+  }, [searchParams]);
+
+  // useEffect(() => {
+  //   if (initialData?.activeFilters) {
+  //     setActiveFilters(initialData.activeFilters);
+  //   }
+  //   if (initialData?.sortOption) {
+  //     setSortOption(initialData.sortOption);
+  //   }
+  // }, [initialData?.activeFilters, initialData?.sortOption]);
+
+  // Track if we are paginating a fallback query to prevent cursor contamination
   const fallbackModeRef = useRef<'none' | 'global_fallback'>('none');
+  const isFirstRender = useRef(true);
 
   // 2. FETCH ALL DYNAMIC DATA
   useEffect(() => {
+    if (initialData) return; // 🚀 FIX: Skip fetching if the server already provided the menu
+
     async function loadFilterData() {
       try {
         const menuData = await getMenu('menu-custom');
@@ -107,7 +177,7 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
       }
     }
     loadFilterData();
-  }, []);
+  }, [initialData]);
 
   // 3. HYBRID PRODUCT FETCHING LOGIC
   const fetchProducts = useCallback(async (cursor: string | null = null) => {
@@ -129,25 +199,30 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
       const selectedCollection = activeFilters.collections[0];
       const baseHandle = (selectedCollection && collectionMap[selectedCollection]) 
         ? collectionMap[selectedCollection] 
-        : 'new-arrival';
+        : 'new-arrival'; // ⚠️ Note: If pasting this into the Sale page, change this string to 'sale'
 
       let result;
+
+      // 🚀 THE FIX: Calculate the active sort settings based on the dropdown state
+      const sortSettings = getSortSettings(sortOption);
 
       if (!hasSecondaryFilters) {
         // SCENARIO A: Strict Collection Fetch OR Fallback
         if (fallbackModeRef.current === 'global_fallback') {
-          // If we fell back previously, continue paginating the fallback query (Newest First)
+          // If we fell back previously, continue paginating the fallback query
           result = await getProducts({ 
             first: itemsPerPage, 
             after: safeCursor,
-            sortKey: 'CREATED_AT',
-            reverse: true 
+            sortKey: sortSettings.productSortKey, // 🚀 APPLIED
+            reverse: sortSettings.reverse         // 🚀 APPLIED
           });
         } else {
           result = await getCollectionProducts({
             handle: baseHandle, 
             first: itemsPerPage,
-            after: safeCursor
+            after: safeCursor,
+            sortKey: sortSettings.collectionSortKey, // 🚀 APPLIED
+            reverse: sortSettings.reverse            // 🚀 APPLIED
           });
 
           // UPDATE BANNER IMAGE IF IT EXISTS
@@ -157,14 +232,14 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
             setBannerImage('/assets/images/temporary_tattoos.webp'); 
           }
 
-          // 🚨 FALLBACK: If collection is empty, fetch general products sorted by newest
+          // 🚨 FALLBACK: If collection is empty, fetch general products
           if (result.formattedData.length === 0 && !safeCursor) {
             console.warn(`Collection '${baseHandle}' is empty. Falling back to global latest products.`);
             fallbackModeRef.current = 'global_fallback';
             result = await getProducts({ 
               first: itemsPerPage,
-              sortKey: 'CREATED_AT',
-              reverse: true 
+              sortKey: sortSettings.productSortKey, // 🚀 APPLIED
+              reverse: sortSettings.reverse         // 🚀 APPLIED
             });
           }
         }
@@ -181,8 +256,8 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
           query: queryParts.join(' AND '),
           first: itemsPerPage,
           after: safeCursor,
-          sortKey: 'CREATED_AT',
-          reverse: true
+          sortKey: sortSettings.productSortKey, // 🚀 APPLIED
+          reverse: sortSettings.reverse         // 🚀 APPLIED
         });
 
         // 🚨 FALLBACK: If the filtered collection query returns nothing, try general filters without strict collection binding
@@ -192,8 +267,8 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
           result = await getProducts({
               query: fallbackQuery || undefined,
               first: itemsPerPage,
-              sortKey: 'CREATED_AT',
-              reverse: true
+              sortKey: sortSettings.productSortKey, // 🚀 APPLIED
+              reverse: sortSettings.reverse         // 🚀 APPLIED
           });
         }
       }
@@ -211,11 +286,24 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [activeFilters, itemsPerPage, collectionMap]);
-
+  }, [activeFilters, itemsPerPage, collectionMap, sortOption]); // 🚀 FIX: Added sortOption to dependency array
+  // 🚀 FIX: Prevent double-fetching on the initial mount if we already have SSR data
   useEffect(() => {
+    if (isFirstRender.current && initialData) {
+      isFirstRender.current = false;
+      return; 
+    }
     fetchProducts(null);
-  }, [activeFilters, fetchProducts]);
+  }, [activeFilters, fetchProducts, initialData]);
+
+  // Handle Sort changes
+  const handleSortChange = (value: SortOptionValue) => {
+    setSortOption(value);
+    setIsLoading(true);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('sort', value);
+    router.push(`${pathname || '/collections/new-arrival'}?${params.toString()}`, { scroll: false });
+  };
 
   // 4. TOGGLE LOGIC WITH URL PUSH
   const handleToggleFilter = (group: keyof ActiveFilters | 'RESET', value?: string) => {
@@ -256,9 +344,18 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
     if (newState.placements.length > 0) params.set('placements', newState.placements.join(','));
     else params.delete('placements');
     
+    params.set('sort', sortOption);
+
     const queryString = params.toString();
     
     router.push(`${pathname || '/collections/new-arrival'}${queryString ? `?${queryString}` : ''}`, { scroll: false });
+  };
+
+  // 🚀 SEO FIX: Helper function to build Semantic Links for Pagination crawlers
+  const getPaginationHref = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (pageInfo.endCursor) params.set('cursor', pageInfo.endCursor);
+    return `${pathname || '/collections/new-arrival'}?${params.toString()}`;
   };
   
   const activeFiltersCount = 
@@ -332,7 +429,13 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
           <div className="flex-1 min-w-0 relative min-h-[500px]">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-6 border-b border-zinc-800/60 gap-4">
               <div>
-                <h2 className="text-3xl md:text-4xl font-heading tracking-tight text-white uppercase">
+                {/* 🚀 SEO FIX: Added structural breadcrumbs */}
+                <Breadcrumbs items={[
+                  { label: 'Home', url: '/' },
+                  { label: 'Collections', url: '/collections' },
+                  { label: activeFilters.collections.length > 0 ? activeFilters.collections[0] : 'New Arrivals', url: '/collections/new-arrival' },
+                ]} />
+                <h2 className="text-3xl md:text-4xl font-heading tracking-tight text-white uppercase mt-2">
                   {activeFilters.collections.length > 0 ? activeFilters.collections[0] : 'The Latest Drops'}
                 </h2>
                 {!isLoading && (
@@ -348,6 +451,26 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" /> Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
                 </button>
+
+                {/* 🚀 SEO FIX: Injected missing Sort Options UI block */}
+                <div className="hidden sm:flex items-center gap-3 mr-2">
+                  <label htmlFor="sort" className="text-[10px] uppercase tracking-[0.25em] text-zinc-500 font-bold">
+                    Sort
+                  </label>
+                  <select
+                    id="sort"
+                    value={sortOption}
+                    onChange={(event) => handleSortChange(event.target.value as SortOptionValue)}
+                    className="bg-zinc-900 border border-white/10 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full px-4 py-2.5 outline-none transition-colors hover:border-white/30"
+                  >
+                    {sortOptions.map((option) => (
+                      <option key={option.value} value={option.value} className="bg-black text-white">
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="flex items-center gap-1 bg-zinc-900/50 border border-white/10 p-1 rounded-xl shadow-sm">
                   <button 
                     onClick={() => setViewMode('grid')} 
@@ -385,14 +508,22 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
 
                 {pageInfo.hasNextPage && (
                   <div className="mt-16">
-                     <button 
-                       onClick={() => fetchProducts(pageInfo.endCursor)} 
-                       disabled={isLoadingMore} 
-                       className="px-10 py-4 border border-white/20 text-white font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white hover:text-black rounded-full transition-all duration-300 disabled:opacity-50 flex items-center gap-3"
+                     {/* 🚀 SEO FIX: Converted Load More button to a crawlable semantic Link element */}
+                     <Link 
+                       href={getPaginationHref()}
+                       onClick={(e) => {
+                         e.preventDefault();
+                         if (!isLoadingMore) fetchProducts(pageInfo.endCursor);
+                       }} 
+                       aria-disabled={isLoadingMore} 
+                       className={clsx(
+                         "px-10 py-4 border border-white/20 text-white font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white hover:text-black rounded-full transition-all duration-300 flex items-center gap-3",
+                         isLoadingMore && "opacity-50 pointer-events-none"
+                       )}
                      >
                        {isLoadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
                        {isLoadingMore ? 'Loading...' : 'Show More'}
-                     </button>
+                     </Link>
                   </div>
                 )}
               </div>
@@ -403,12 +534,17 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
                 </div>
                 <p className="font-black text-white uppercase tracking-widest text-lg mb-2">No matching designs</p>
                 <p className="text-zinc-500 text-sm mb-6 max-w-sm mx-auto">We couldn't find any fresh drops matching your filters. Try clearing them to see all new arrivals.</p>
-                <button 
-                  onClick={() => handleToggleFilter('RESET')} 
-                  className="px-6 py-3 bg-[var(--color-brand-orange)] text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-full hover:brightness-110 transition-all shadow-md"
+                {/* 🚀 SEO FIX: Converted Reset button to a standard crawlable fallback route Link */}
+                <Link 
+                  href={pathname || '/collections/new-arrival'}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleToggleFilter('RESET');
+                  }} 
+                  className="px-6 py-3 bg-[var(--color-brand-orange)] text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-full hover:brightness-110 transition-all shadow-md inline-block"
                 >
                   Reset All Filters
-                </button>
+                </Link>
               </div>
             )}
           </div>
@@ -445,7 +581,7 @@ function NewArrivalsContent({ collection }: { collection?: any }) {
 }
 
 // 2. Wrap the exported component in Suspense required by Next.js
-export default function NewArrivalsPage({ collection }: { collection?: any }) {
+export default function NewArrivalsPage({ collection, initialData }: NewArrivalsPageProps) {
   return (
     <Suspense 
       fallback={
@@ -454,7 +590,8 @@ export default function NewArrivalsPage({ collection }: { collection?: any }) {
         </div>
       }
     >
-      <NewArrivalsContent collection={collection} />
+      {/* 🚀 FIX: Pass initialData down to the Content component */}
+      <NewArrivalsContent collection={collection} initialData={initialData} />
     </Suspense>
   );
 }

@@ -111,18 +111,37 @@ interface CollectionName {
 
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
 
+function extractShopifyErrorMessage(body: any): string {
+  if (!body) return 'Unknown Shopify error.';
+  if (Array.isArray(body.errors) && body.errors.length > 0) {
+    return body.errors.map((error: any) => error.message || JSON.stringify(error)).join(' | ');
+  }
+  if (body.data && typeof body.data === 'object') {
+    const customerCreate = body.data.customerCreate?.customerUserErrors;
+    const accessTokenCreate = body.data.customerAccessTokenCreate?.customerUserErrors;
+    const customerRecover = body.data.customerRecover?.customerUserErrors;
+    const errors = customerCreate || accessTokenCreate || customerRecover;
+    if (Array.isArray(errors) && errors.length > 0) {
+      return errors.map((error: any) => error.message || JSON.stringify(error)).join(' | ');
+    }
+  }
+  return 'Unknown Shopify response error.';
+}
+
 export async function shopifyFetch<T>({
   cache = 'force-cache',
   headers,
   query,
   tags,
-  variables
+  variables,
+  revalidate = 60
 }: {
   cache?: RequestCache;
   headers?: HeadersInit;
   query: string;
   tags?: string[];
   variables?: ExtractVariables<T>;
+  revalidate?: number | false;
 }): Promise<{ status: number; body: T } | never> {
   
   const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
@@ -148,20 +167,29 @@ export async function shopifyFetch<T>({
         ...(variables && { variables })
       }),
       cache,
-      ...(tags && { next: { tags } })
+      ...(tags || revalidate !== false ? { 
+        next: { 
+          ...(tags && { tags }),
+          ...(revalidate !== false && { revalidate })
+        } 
+      } : {})
     });
 
     const body = await result.json();
 
     if (body.errors) {
+      const message = extractShopifyErrorMessage(body);
       console.error('Shopify GraphQL Errors:', body.errors);
-      throw body.errors[0];
+      throw new Error(message);
     }
 
     return { status: result.status, body };
-  } catch (e) {
+  } catch (e: any) {
+    if (e instanceof Error) {
+      throw e;
+    }
     console.error('Shopify Fetch Error:', e);
-    throw { error: e, query };
+    throw new Error(`Shopify Fetch Error: ${String(e)}`);
   }
 }
 
@@ -188,7 +216,8 @@ export async function getProducts({
       sortKey: sortKey || 'CREATED_AT',
       ...(query && { query })
     },
-    //cache: 'no-store',
+    cache: 'force-cache',
+    revalidate: 60  // ISR: revalidate every 60 seconds
   });
 
   const productsData = res.body?.data?.products;
@@ -449,7 +478,8 @@ export async function getProduct(handle: string): Promise<FormattedProduct | nul
     query: getProductByHandleQuery,
     tags: ['products', handle],
     variables: { handle },
-    cache: 'no-store',
+    cache: 'force-cache',
+    revalidate: 60  // Revalidate product pages every 60 seconds
   });
 
   if (!res.body?.data?.product) return null;
@@ -848,10 +878,16 @@ export async function createCustomer(input: any) {
   });
   
   const data = res.body?.data?.customerCreate;
-  if (data?.customerUserErrors?.length > 0) {
-    throw new Error(data.customerUserErrors[0].message);
+  if (!data) {
+    throw new Error('Unable to create customer. Please try again.');
   }
-  return data?.customer;
+  if (data.customerUserErrors?.length > 0) {
+    throw new Error(data.customerUserErrors[0].message || 'Unable to create customer.');
+  }
+  if (!data.customer) {
+    throw new Error('Customer creation succeeded but no customer data was returned.');
+  }
+  return data.customer;
 }
 
 // 2. LOGIN (Generate Token)
@@ -863,10 +899,16 @@ export async function createCustomerAccessToken(input: any) {
   });
 
   const data = res.body?.data?.customerAccessTokenCreate;
-  if (data?.customerUserErrors?.length > 0) {
-    throw new Error(data.customerUserErrors[0].message);
+  if (!data) {
+    throw new Error('Unable to generate customer access token.');
   }
-  return data?.customerAccessToken;
+  if (data.customerUserErrors?.length > 0) {
+    throw new Error(data.customerUserErrors[0].message || 'Unable to generate access token.');
+  }
+  if (!data.customerAccessToken?.accessToken) {
+    throw new Error('Customer login failed. Please verify your email and password.');
+  }
+  return data.customerAccessToken;
 }
 
 // 3. FETCH CUSTOMER BY TOKEN
@@ -876,7 +918,7 @@ export async function getCustomer(customerAccessToken: string) {
     variables: { customerAccessToken },
     //cache: 'no-store'
   });
-  return res.body?.data?.customer;
+  return res.body?.data?.customer ?? null;
 }
 
 // 4. FORGOT PASSWORD
@@ -887,8 +929,11 @@ export async function recoverCustomerPassword(email: string) {
     //cache: 'no-store'
   });
   const data = res.body?.data?.customerRecover;
-  if (data?.customerUserErrors?.length > 0) {
-    throw new Error(data.customerUserErrors[0].message);
+  if (!data) {
+    throw new Error('Unable to send recovery email.');
+  }
+  if (data.customerUserErrors?.length > 0) {
+    throw new Error(data.customerUserErrors[0].message || 'Unable to send recovery email.');
   }
   return true;
 }
@@ -1231,6 +1276,9 @@ export async function getShippingPageData(handle: string = 'shipping-page') {
     ctaText: mo.cta_text?.value || '',
     ctaButtonText: mo.cta_button_text?.value || 'Contact Support',
     ctaLink: mo.cta_link?.value || 'mailto:support@justtattoos.com',
+
+    seoTitle: mo?.seo_title?.value || null,
+    seoDescription: mo?.seo_description?.value || null,
   };
 }
 
@@ -1502,7 +1550,9 @@ export async function getCollectionProducts({
   const res = await shopifyFetch<any>({
     query: getCollectionProductsQuery,
     variables: queryVariables,
-    cache: 'no-store'
+    tags: ['products', 'collections', handle],
+    cache: 'force-cache',
+    revalidate: 60  // Revalidate collection pages every 60 seconds for ISR
   });
 
   const collectionData = res.body?.data?.collection;

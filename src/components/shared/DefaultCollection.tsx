@@ -1,66 +1,114 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link'; // 🚀 SEO FIX: Imported Link for semantic crawling
 import { SlidersHorizontal, LayoutGrid, List, X, RefreshCcw, Loader2 } from 'lucide-react';
 import clsx from 'clsx';
 
+import { Breadcrumbs } from '@/src/components/shared/Breadcrumbs';
 // Components
 import { FilterSidebar, ActiveFilters, FilterOptions } from '@/src/components/shared/FilterSidebar';
 import { ProductCard } from '@/src/components/shared/ProductLayout';
-import { getProducts, getCollectionProducts, getMenu, FormattedProduct } from '@/src/lib/shopify'; 
+import { getProducts, getCollectionProducts, getMenu, FormattedProduct } from '@/src/lib/shopify';
+
+export type SortOptionValue = 'newest' | 'price-asc' | 'price-desc' | 'alpha-asc';
+
+const sortOptions: { value: SortOptionValue; label: string }[] = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'alpha-asc', label: 'A → Z' },
+];
+
+const getSortSettings = (sort: SortOptionValue) => {
+  switch (sort) {
+    case 'price-asc':
+      return { productSortKey: 'PRICE', collectionSortKey: 'PRICE', reverse: false };
+    case 'price-desc':
+      return { productSortKey: 'PRICE', collectionSortKey: 'PRICE', reverse: true };
+    case 'alpha-asc':
+      return { productSortKey: 'TITLE', collectionSortKey: 'TITLE', reverse: false };
+    default:
+      // 🚀 THE FIX: Split keys for collection vs global queries
+      return { productSortKey: 'CREATED_AT', collectionSortKey: 'CREATED', reverse: true };
+  }
+};
+
+interface InitialData {
+  products: FormattedProduct[];
+  pageInfo: { hasNextPage: boolean; endCursor: string | null };
+  filters: FilterOptions;
+  collectionMap: Record<string, string>;
+  currentCollectionTitle: string;
+  activeFilters?: ActiveFilters;
+  sortOption?: SortOptionValue;
+}
 
 interface DefaultCollectionProps {
-  handle: string; // Passed down from the switchboard (e.g., 'floral', 'animal')
+  handle: string;
+  initialData?: InitialData;
 }
 
 // 1. The main content component containing the logic
-function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
+function DefaultCollectionContent({ handle, initialData }: DefaultCollectionProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(12);
 
-  const [products, setProducts] = useState<FormattedProduct[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState<FormattedProduct[]>(initialData?.products || []);
+  const [isLoading, setIsLoading] = useState(!initialData);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [pageInfo, setPageInfo] = useState({ hasNextPage: false, endCursor: null as string | null });
-  
-  // STATE INITIALIZATION
-  const [collectionMap, setCollectionMap] = useState<Record<string, string>>({});
-  const [currentCollectionTitle, setCurrentCollectionTitle] = useState<string>('');
-  
-  const [dynamicFilters, setDynamicFilters] = useState<FilterOptions>({
+  const [pageInfo, setPageInfo] = useState(initialData?.pageInfo || { hasNextPage: false, endCursor: null });
+
+  const [collectionMap, setCollectionMap] = useState<Record<string, string>>(initialData?.collectionMap || {});
+  const [currentCollectionTitle, setCurrentCollectionTitle] = useState<string>(initialData?.currentCollectionTitle || '');
+
+  const [dynamicFilters, setDynamicFilters] = useState<FilterOptions>(initialData?.filters || {
     collections: [],
     styles: [],
     sizes: [],
     placements: []
   });
 
-  // 🚀 SEO FIX: Initialize active filters directly from the URL query parameters
-  const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
-    collections: [],
-    styles: searchParams.get('styles')?.split(',') || [],
-    sizes: searchParams.get('sizes')?.split(',') || [],
-    placements: searchParams.get('placements')?.split(',') || []
-  });
+  const [sortOption, setSortOption] = useState<SortOptionValue>(initialData?.sortOption ?? 'newest');
 
-  // FETCH MENU & MAP URL HANDLES
+  const [activeFilters, setActiveFilters] = useState<ActiveFilters>(
+    initialData?.activeFilters ?? {
+      collections: initialData ? [initialData.currentCollectionTitle] : [],
+      styles: searchParams.get('styles')?.split(',') || [],
+      sizes: searchParams.get('sizes')?.split(',') || [],
+      placements: searchParams.get('placements')?.split(',') || []
+    }
+  );
+
   useEffect(() => {
+    if (initialData?.activeFilters) {
+      setActiveFilters(initialData.activeFilters);
+    }
+    if (initialData?.sortOption) {
+      setSortOption(initialData.sortOption);
+    }
+  }, [initialData?.activeFilters, initialData?.sortOption]);
+
+  useEffect(() => {
+    if (initialData) return;
+
     async function loadFilterData() {
       try {
         const menuData = await getMenu('menu-custom');
-        
-        const collectionsMenu = menuData?.items?.find((item: any) => 
+
+        const collectionsMenu = menuData?.items?.find((item: any) =>
           item.title.toLowerCase() === 'collection' || item.title.toLowerCase() === 'collections'
         );
 
         const flatCategories: string[] = [];
         const urlMapping: Record<string, string> = {};
-        let foundTitle = handle.replace(/-/g, ' '); 
-        
+        let foundTitle = handle.replace(/-/g, ' ');
+
         const processMenuItem = (item: any) => {
           if (item.items && item.items.length > 0) {
             item.items.forEach(processMenuItem);
@@ -72,7 +120,7 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
               if (mappedHandle) {
                 const cleanHandle = mappedHandle.split('?')[0].split('#')[0];
                 urlMapping[item.title] = cleanHandle;
-                
+
                 if (cleanHandle === handle) {
                   foundTitle = item.title;
                 }
@@ -89,8 +137,8 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
         const validCollections = flatCategories.filter(title => !hiddenCollections.includes(title));
 
         const findMenuItems = (title: string) => {
-          const section = menuData?.items?.find((item: any) => 
-            item.title.toLowerCase() === title.toLowerCase() || 
+          const section = menuData?.items?.find((item: any) =>
+            item.title.toLowerCase() === title.toLowerCase() ||
             item.title.toLowerCase().includes(title.toLowerCase())
           );
           return section?.items?.map((i: any) => i.title) || [];
@@ -98,7 +146,7 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
 
         setCollectionMap(urlMapping);
         setCurrentCollectionTitle(foundTitle);
-        
+
         setDynamicFilters({
           collections: validCollections,
           styles: findMenuItems('styles'),
@@ -113,7 +161,7 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
       }
     }
     loadFilterData();
-  }, [handle]);
+  }, [handle, initialData]);
 
   useEffect(() => {
     const handleResize = () => setItemsPerPage(window.innerWidth < 1024 ? 9 : 12);
@@ -122,27 +170,30 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // HYBRID PRODUCT FETCHING LOGIC (SEO Optimized)
   const fetchProducts = useCallback(async (cursor: string | null = null) => {
-    // 🚀 FIX: Defensively sanitize the cursor to prevent Next.js URL parameter bugs
     const safeCursor = cursor && cursor !== 'undefined' && cursor !== 'null' && cursor.trim() !== '' ? cursor : undefined;
 
     if (safeCursor) setIsLoadingMore(true);
     else setIsLoading(true);
 
     try {
-      const hasSecondaryFilters = 
-        activeFilters.styles.length > 0 || 
-        activeFilters.sizes.length > 0 || 
+      const hasSecondaryFilters =
+        activeFilters.styles.length > 0 ||
+        activeFilters.sizes.length > 0 ||
         activeFilters.placements.length > 0;
 
       let result;
 
+      // 🚀 FIXED: Actually get the current sort settings based on dropdown!
+      const sortSettings = getSortSettings(sortOption);
+
       if (!hasSecondaryFilters) {
         result = await getCollectionProducts({
-          handle: handle, 
+          handle: handle,
           first: itemsPerPage,
-          after: safeCursor
+          after: safeCursor,
+          sortKey: sortSettings.collectionSortKey, // 🚀 FIXED: Uses collectionSortKey
+          reverse: sortSettings.reverse
         });
       } else {
         const queryParts = [`collection:'${handle}'`];
@@ -156,11 +207,11 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
           query: queryParts.join(' AND '),
           first: itemsPerPage,
           after: safeCursor,
-          sortKey: 'CREATED_AT',
-          reverse: true
+          sortKey: sortSettings.productSortKey, // 🚀 FIXED: Uses productSortKey
+          reverse: sortSettings.reverse
         });
       }
-      
+
       if (safeCursor) {
         setProducts(prev => [...prev, ...result.formattedData]);
       } else {
@@ -174,13 +225,16 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [handle, activeFilters, itemsPerPage]);
-
+  }, [handle, activeFilters, itemsPerPage, sortOption]); // 🚀 FIXED: Added sortOption to dependency array
+  const isFirstRender = useRef(true);
   useEffect(() => {
+    if (isFirstRender.current && initialData) {
+      isFirstRender.current = false;
+      return;
+    }
     fetchProducts(null);
-  }, [activeFilters, fetchProducts]);
+  }, [activeFilters, fetchProducts, initialData]);
 
-  // NAVIGATION & TOGGLE LOGIC
   const handleCategoryPillClick = (cat: string) => {
     if (cat === 'Shop All') {
       router.push('/collections');
@@ -192,16 +246,26 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
     }
   };
 
+  const handleSortChange = (value: SortOptionValue) => {
+    setSortOption(value);
+    setIsLoading(true);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('sort', value);
+    router.push(`${window.location.pathname}?${params.toString()}`, { scroll: false });
+  };
+
   const toggleFilter = (group: keyof ActiveFilters | 'RESET', value?: string) => {
     if (group === 'RESET') {
       setActiveFilters(prev => ({ ...prev, styles: [], sizes: [], placements: [] }));
-      router.push(`/collections/${handle}`, { scroll: false }); // Reset URL
+      const params = new URLSearchParams();
+      params.set('sort', sortOption);
+      router.push(`/collections/${handle}?${params.toString()}`, { scroll: false });
       return;
     }
-    
+
     if (group === 'collections' && value) {
-       handleCategoryPillClick(value);
-       return;
+      handleCategoryPillClick(value);
+      return;
     }
 
     if (!value) return;
@@ -209,25 +273,26 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
     setActiveFilters(prev => {
       const currentGroup = prev[group as keyof ActiveFilters] || [];
       const isSelected = currentGroup.includes(value);
-      
-      const newGroupState = isSelected 
-        ? currentGroup.filter((item: string) => item !== value) 
+
+      const newGroupState = isSelected
+        ? currentGroup.filter((item: string) => item !== value)
         : [...currentGroup, value];
 
       const newState = { ...prev, [group]: newGroupState };
 
-      // 🚀 SEO FIX: Push the active filters to the URL Query String
       const params = new URLSearchParams(searchParams.toString());
-      
+
       if (newState.styles.length > 0) params.set('styles', newState.styles.join(','));
       else params.delete('styles');
-      
+
       if (newState.sizes.length > 0) params.set('sizes', newState.sizes.join(','));
       else params.delete('sizes');
-      
+
       if (newState.placements.length > 0) params.set('placements', newState.placements.join(','));
       else params.delete('placements');
-      
+
+      params.set('sort', sortOption);
+
       const queryString = params.toString();
       router.push(queryString ? `?${queryString}` : `/collections/${handle}`, { scroll: false });
 
@@ -235,16 +300,28 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
     });
   };
 
+  // 🚀 SEO FIX: Helper functions to build Semantic Links for crawlers
+  const getCategoryHref = (cat: string) => {
+    if (cat === 'Shop All') return '/collections';
+    const targetHandle = collectionMap[cat];
+    return targetHandle ? `/collections/${targetHandle}` : `/collections/${handle}`;
+  };
+
+  const getPaginationHref = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (pageInfo.endCursor) params.set('cursor', pageInfo.endCursor);
+    return `?${params.toString()}`;
+  };
+
   return (
-    // Replaced light theme with dark theme (bg-zinc-950, text-white)
     <div className="bg-zinc-950 min-h-screen text-white selection:bg-[var(--color-brand-orange)] selection:text-black mt-20 md:mt-20 overflow-x-hidden w-full">
-      
+
       {/* MOBILE DRAWER */}
       <div className={clsx(
         "fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm transition-opacity lg:hidden",
         isFilterDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"
       )} onClick={() => setFilterDrawerOpen(false)} />
-      
+
       <div className={clsx(
         "fixed right-0 top-0 h-full w-[300px] bg-zinc-950 z-[70] shadow-2xl transition-transform duration-500 lg:hidden border-l border-white/10",
         isFilterDrawerOpen ? "translate-x-0" : "translate-x-full"
@@ -260,13 +337,13 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
             <FilterSidebar filters={dynamicFilters} activeFilters={activeFilters} onToggle={toggleFilter} />
           </div>
           <div className="p-6 border-t border-white/10 bg-zinc-950">
-               <button 
-                onClick={() => setFilterDrawerOpen(false)}
-                className="w-full py-4 bg-[var(--color-brand-orange)] text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-full hover:brightness-110 transition-all"
-               >
-                 Apply Filters
-               </button>
-            </div>
+            <button
+              onClick={() => setFilterDrawerOpen(false)}
+              className="w-full py-4 bg-[var(--color-brand-orange)] text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-full hover:brightness-110 transition-all"
+            >
+              Apply Filters
+            </button>
+          </div>
         </div>
       </div>
 
@@ -274,31 +351,40 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
       <nav className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md mt-5 border-b border-white/5">
         <div className="container max-w-[1400px] mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex gap-3 overflow-x-auto pb-1 lg:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <button
-              onClick={() => handleCategoryPillClick('Shop All')}
-              className="px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap border rounded-full bg-transparent text-zinc-400 border-white/10 hover:border-white/30 hover:text-white"
+            {/* 🚀 SEO FIX: Changed structural <button> to semantic Next.js <Link> */}
+            <Link
+              href={getCategoryHref('Shop All')}
+              onClick={(e) => {
+                e.preventDefault();
+                handleCategoryPillClick('Shop All');
+              }}
+              className="px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap border rounded-full bg-transparent text-zinc-400 border-white/10 hover:border-white/30 hover:text-white inline-block text-center"
             >
               Shop All
-            </button>
-            
+            </Link>
+
             {dynamicFilters.collections.map((cat) => (
-              <button
+              <Link
                 key={cat}
-                onClick={() => handleCategoryPillClick(cat)}
+                href={getCategoryHref(cat)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleCategoryPillClick(cat);
+                }}
                 className={clsx(
-                  "px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap border rounded-full",
+                  "px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap border rounded-full inline-block text-center",
                   activeFilters.collections.includes(cat)
-                    ? "bg-[var(--color-brand-orange)] text-black border-[var(--color-brand-orange)]" 
+                    ? "bg-[var(--color-brand-orange)] text-black border-[var(--color-brand-orange)]"
                     : "bg-transparent text-zinc-400 border-white/10 hover:border-white/30 hover:text-white"
                 )}
               >
                 {cat}
-              </button>
+              </Link>
             ))}
           </div>
 
-          <button 
-            onClick={() => setFilterDrawerOpen(true)} 
+          <button
+            onClick={() => setFilterDrawerOpen(true)}
             className="lg:hidden shrink-0 p-2.5 bg-transparent border border-white/10 hover:border-white/30 rounded-full text-zinc-400 hover:text-white transition-colors"
           >
             <SlidersHorizontal className="w-4 h-4" />
@@ -309,7 +395,7 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
       {/* MAIN CONTENT AREA */}
       <main className="container max-w-[1400px] mx-auto px-4 py-12">
         <div className="flex flex-col lg:flex-row gap-10">
-          
+
           {/* DESKTOP SIDEBAR */}
           <aside className="hidden lg:block w-56 shrink-0">
             <div className="sticky top-28 space-y-8 max-h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar pb-4 pr-4">
@@ -329,8 +415,14 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
           <div className="flex-1 min-w-0 relative min-h-[500px]">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 pb-6 border-b border-zinc-800/60">
               <div>
-                <h1 className="text-3xl md:text-4xl font-heading text-white tracking-tight capitalize">
-                   {currentCollectionTitle || handle.replace(/-/g, ' ')}
+                {/* 🚀 SEO FIX: Added structural breadcrumbs above heading */}
+                <Breadcrumbs items={[
+                  { label: 'Home', url: '/' },
+                  { label: 'Collections', url: '/collections' },
+                  { label: currentCollectionTitle || handle.replace(/-/g, ' '), url: `/collections/${handle}` },
+                ]} />
+                <h1 className="text-3xl md:text-4xl font-heading text-white tracking-tight capitalize mt-2">
+                  {currentCollectionTitle || handle.replace(/-/g, ' ')}
                 </h1>
                 {!isLoading && (
                   <p className="text-sm font-medium text-zinc-500 mt-2">
@@ -338,32 +430,52 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
                   </p>
                 )}
               </div>
-              
-              <div className="flex items-center self-start sm:self-auto gap-1 bg-zinc-900/50 border border-white/10 p-1 rounded-xl shadow-sm">
-                <button 
-                  onClick={() => setViewMode('grid')} 
-                  className={clsx("p-2.5 rounded-lg transition-all", viewMode === 'grid' ? "bg-zinc-800 text-[var(--color-brand-orange)] shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                </button>
-                <button 
-                  onClick={() => setViewMode('list')} 
-                  className={clsx("p-2.5 rounded-lg transition-all", viewMode === 'list' ? "bg-zinc-800 text-[var(--color-brand-orange)] shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
-                >
-                  <List className="w-4 h-4" />
-                </button>
+
+              <div className="flex items-center self-start sm:self-auto gap-4">
+                {/* 🚀 SEO FIX: Injected missing Sort Options selector dropdown UI block */}
+                <div className="flex items-center gap-3">
+                  <label htmlFor="sort" className="text-[10px] uppercase tracking-[0.25em] text-zinc-500 font-bold">
+                    Sort
+                  </label>
+                  <select
+                    id="sort"
+                    value={sortOption}
+                    onChange={(event) => handleSortChange(event.target.value as SortOptionValue)}
+                    className="bg-zinc-900 border border-white/10 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full px-4 py-2.5 outline-none transition-colors hover:border-white/30"
+                  >
+                    {sortOptions.map((option) => (
+                      <option key={option.value} value={option.value} className="bg-black text-white">
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-1 bg-zinc-900/50 border border-white/10 p-1 rounded-xl shadow-sm">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={clsx("p-2.5 rounded-lg transition-all", viewMode === 'grid' ? "bg-zinc-800 text-[var(--color-brand-orange)] shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={clsx("p-2.5 rounded-lg transition-all", viewMode === 'list' ? "bg-zinc-800 text-[var(--color-brand-orange)] shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
 
             {isLoading && (
-               <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/50 backdrop-blur-[2px] z-10 rounded-3xl">
-                  <Loader2 className="w-10 h-10 text-[var(--color-brand-orange)] animate-spin" />
-               </div>
+              <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/50 backdrop-blur-[2px] z-10 rounded-3xl">
+                <Loader2 className="w-10 h-10 text-[var(--color-brand-orange)] animate-spin" />
+              </div>
             )}
 
             {!isLoading && products.length > 0 ? (
               <div className="flex flex-col items-center">
-                {/* Simplified the container to match Shop All grid styling without the heavy light-theme border */}
                 <div className={clsx(
                   "w-full",
                   "grid gap-6 sm:gap-8",
@@ -375,16 +487,24 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
                 </div>
 
                 {pageInfo.hasNextPage && (
-                   <div className="mt-16">
-                     <button
-                        onClick={() => fetchProducts(pageInfo.endCursor)}
-                        disabled={isLoadingMore}
-                        className="px-10 py-4 border border-white/20 text-white font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white hover:text-black rounded-full transition-all duration-300 disabled:opacity-50 flex items-center gap-3"
-                     >
-                        {isLoadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
-                        {isLoadingMore ? 'Loading...' : 'Show More'}
-                     </button>
-                   </div>
+                  <div className="mt-16">
+                    {/* 🚀 SEO FIX: Converted Load More button to a crawlable semantic Link element */}
+                    <Link
+                      href={getPaginationHref()}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (!isLoadingMore) fetchProducts(pageInfo.endCursor);
+                      }}
+                      aria-disabled={isLoadingMore}
+                      className={clsx(
+                        "px-10 py-4 border border-white/20 text-white font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white hover:text-black rounded-full transition-all duration-300 flex items-center gap-3",
+                        isLoadingMore && "opacity-50 pointer-events-none"
+                      )}
+                    >
+                      {isLoadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {isLoadingMore ? 'Loading...' : 'Show More'}
+                    </Link>
+                  </div>
                 )}
               </div>
             ) : (!isLoading && products.length === 0) ? (
@@ -394,12 +514,17 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
                 </div>
                 <p className="text-white font-bold text-lg mb-2">No products found</p>
                 <p className="text-zinc-500 text-sm mb-6 max-w-sm mx-auto">We couldn't find anything matching your current filters. Try adjusting them to see more results.</p>
-                <button 
-                  onClick={() => toggleFilter('RESET')} 
-                  className="px-6 py-3 bg-[var(--color-brand-orange)] text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-full hover:brightness-110 transition-all shadow-md"
+                {/* 🚀 SEO FIX: Converted Clear Filters button to a standard crawlable fallback route Link */}
+                <Link
+                  href={`/collections/${handle}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleFilter('RESET');
+                  }}
+                  className="px-6 py-3 bg-[var(--color-brand-orange)] text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-full hover:brightness-110 transition-all shadow-md inline-block text-center"
                 >
                   Clear All Filters
-                </button>
+                </Link>
               </div>
             ) : null}
 
@@ -411,16 +536,16 @@ function DefaultCollectionContent({ handle }: DefaultCollectionProps) {
 }
 
 // 2. Export the component wrapped in a Suspense boundary (Required by Next.js)
-export default function DefaultCollection({ handle }: DefaultCollectionProps) {
+export default function DefaultCollection({ handle, initialData }: DefaultCollectionProps) {
   return (
-    <Suspense 
+    <Suspense
       fallback={
         <div className="min-h-screen bg-zinc-950 flex items-center justify-center mt-20">
           <Loader2 className="w-10 h-10 text-[var(--color-brand-orange)] animate-spin" />
         </div>
       }
     >
-      <DefaultCollectionContent handle={handle} />
+      <DefaultCollectionContent handle={handle} initialData={initialData} />
     </Suspense>
   );
 }

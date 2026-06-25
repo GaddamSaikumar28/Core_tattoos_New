@@ -111,18 +111,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signup = async (firstName: string, lastName: string, email: string, password: string, acceptsMarketing = false) => {
     try {
+      if (!email || !password || !firstName || !lastName) {
+        throw new Error('Please complete all required fields.');
+      }
+
       // 1. Create Account in Shopify
       await createCustomer({ firstName, lastName, email, password, acceptsMarketing });
-      
+
       // 2. Automatically log them in after creation
       const success = await login(email, password);
       if (success) {
-        toast.success("Account created successfully!");
+        toast.success('Account created successfully! Redirecting to login...');
         return true;
       }
-      return false;
+      throw new Error('Account created, but automatic login failed. Please try logging in manually.');
     } catch (error: any) {
-      toast.error(error.message || "Failed to create account");
+      toast.error(error.message || 'Failed to create account');
       return false;
     }
   };

@@ -38,7 +38,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
           {items.map((item, index) => (
             <li key={item.url} className="flex items-center">
               {index === items.length - 1 ? (
-                <span className="text-gray-900 font-bold" aria-current="page">
+                <span className="text-[var(--color-brand-orange)] font-bold" aria-current="page">
                   {item.label}
                 </span>
               ) : (

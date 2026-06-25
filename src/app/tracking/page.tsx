@@ -1,8 +1,6 @@
-
-
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useRef, useCallback } from "react";
 import { 
   PackageSearch, 
   Mail, 
@@ -37,31 +35,49 @@ const staggerContainer: Variants = {
   }
 };
 
-function TrackingDetailPage() {
+// 🚀 SEO FIX: Isolate useSearchParams into a tiny, invisible component.
+// This prevents Next.js from bailing out of SSR for the entire page,
+// allowing Googlebot to see the Tracking form and text instantly.
+function AutoTrackHelper({ onTrack }: { onTrack: (order: string, email: string) => void }) {
   const searchParams = useSearchParams();
+  
+  useEffect(() => {
+    const order = searchParams.get("order");
+    const email = searchParams.get("email");
+    if (order && email) {
+      onTrack(order, email);
+    }
+  }, [searchParams, onTrack]);
 
-  const [orderNumber, setOrderNumber] = useState(searchParams.get("order") || "");
-  const [email, setEmail] = useState(searchParams.get("email") || "");
+  return null;
+}
+
+export default function TrackingPage() {
+  // Initialize state empty so server and client match exactly on first render
+  const [orderNumber, setOrderNumber] = useState("");
+  const [email, setEmail] = useState("");
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [trackingData, setTrackingData] = useState<any | null>(null);
+  
+  // Ref to prevent double-fetching in React Strict Mode during auto-track
+  const hasAutoTracked = useRef(false);
 
-  useEffect(() => {
-    if (orderNumber && email && !trackingData && !isLoading) {
-      handleTrack();
-    }
-  }, [searchParams]);
-
-  const handleTrack = async (e?: React.FormEvent) => {
+  const handleTrack = async (e?: React.FormEvent, forceOrder?: string, forceEmail?: string) => {
     if (e) e.preventDefault();
-    if (!orderNumber || !email) return;
+    
+    // Use forced params if called by the AutoTracker, otherwise use state
+    const targetOrder = forceOrder || orderNumber;
+    const targetEmail = forceEmail || email;
+
+    if (!targetOrder || !targetEmail) return;
 
     setIsLoading(true);
     setError(null);
     setTrackingData(null);
 
-    const response = await fetchParcelPanelTracking(orderNumber.trim(), email.trim());
+    const response = await fetchParcelPanelTracking(targetOrder.trim(), targetEmail.trim());
 
     if (response.success && response.data?.tracking?.length > 0) {
       setTrackingData(response.data.tracking[0]);
@@ -71,6 +87,15 @@ function TrackingDetailPage() {
     
     setIsLoading(false);
   };
+
+  const handleAutoTrack = useCallback((urlOrder: string, urlEmail: string) => {
+    if (!hasAutoTracked.current) {
+      hasAutoTracked.current = true;
+      setOrderNumber(urlOrder);
+      setEmail(urlEmail);
+      handleTrack(undefined, urlOrder, urlEmail);
+    }
+  }, []);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return null;
@@ -84,12 +109,17 @@ function TrackingDetailPage() {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-[#FE8204] selection:text-white pt-32 sm:pt-40 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       
+      {/* 🚀 SEO FIX: Only the invisible helper is wrapped in Suspense now */}
+      <Suspense fallback={null}>
+        <AutoTrackHelper onTrack={handleAutoTrack} />
+      </Suspense>
+
       {/* Immersive Ambient Glow for Transparent Header Integration */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] bg-[#FE8204] opacity-[0.04] blur-[150px] pointer-events-none z-0" />
 
       <div className="max-w-5xl mx-auto space-y-12 relative z-10">
         
-        {/* --- Hero Section --- */}
+        {/* --- Hero Section (Now 100% visible to Googlebot) --- */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -110,7 +140,7 @@ function TrackingDetailPage() {
           </p>
         </motion.div>
 
-        {/* --- Search Form --- */}
+        {/* --- Search Form (Now 100% visible to Googlebot) --- */}
         <motion.form 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -371,20 +401,5 @@ function TrackingDetailPage() {
         </AnimatePresence>
       </div>
     </div>
-  );
-}
-
-export default function TrackingPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-black text-white selection:bg-[#FE8204] selection:text-white">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-10 h-10 animate-spin text-[#fe8204]" />
-          <p className="text-zinc-500 font-bold uppercase tracking-widest text-sm">Loading Portal...</p>
-        </div>
-      </div>
-    }>
-      <TrackingDetailPage />
-    </Suspense>
   );
 }

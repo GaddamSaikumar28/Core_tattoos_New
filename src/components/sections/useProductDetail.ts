@@ -67,14 +67,15 @@ export function useProductDetail(product: FormattedProduct) {
   // B. STATE DECLARATIONS
   // ─────────────────────────────────────────────────────────
 
-  // Prevents SSR hydration mismatch — component renders null until mounted.
+  // Tracks whether the component has mounted on the client.
+  // Used only for DOM-only behaviors such as portal rendering.
   const [isMounted, setIsMounted] = useState(false);
 
   // Which media panel is currently shown in the main canvas.
-  const [viewState, setViewState] = useState<ViewState>(getInitialViewState());
+  const [viewState, setViewState] = useState<ViewState>(() => getInitialViewState());
 
   // Tracks the selected skin tone hex (used to highlight the active swatch).
-  const [activeSkinTone, setActiveSkinTone] = useState<string | null>(
+  const [activeSkinTone, setActiveSkinTone] = useState<string | null>(() =>
     swatches[0]?.hexCode || null,
   );
 
@@ -110,7 +111,7 @@ export function useProductDetail(product: FormattedProduct) {
   const [isBuyingNow, setIsBuyingNow] = useState(false);
 
   const variants = product.allVariants || [];
-  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(() =>
     variants.find((v) => v.availableForSale) || variants[0] || null,
   );
 

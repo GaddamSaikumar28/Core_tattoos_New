@@ -2,16 +2,57 @@
 
 import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import Link from 'next/link'; // 🚀 SEO FIX: Imported Link for semantic crawling
 import { SlidersHorizontal, LayoutGrid, List, X, RefreshCcw, Loader2 } from 'lucide-react';
 import clsx from 'clsx';
 
 // Components
+import { Breadcrumbs } from '@/src/components/shared/Breadcrumbs'; // 🚀 SEO FIX: Imported Breadcrumbs
 import { FilterSidebar, ActiveFilters, FilterOptions } from '@/src/components/shared/FilterSidebar';
 import { getProducts, getCollectionProducts, getMenu, FormattedProduct } from '@/src/lib/shopify'; 
 import { ProductCard } from '@/src/components/shared/ProductLayout';
 
+// 🚀 SEO FIX: Added Sort Option Types to support missing UI
+export type SortOptionValue = 'newest' | 'price-asc' | 'price-desc' | 'alpha-asc';
+
+const sortOptions: { value: SortOptionValue; label: string }[] = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'alpha-asc', label: 'A → Z' },
+];
+
+const getSortSettings = (sort: SortOptionValue) => {
+  switch (sort) {
+    case 'price-asc':
+      return { productSortKey: 'PRICE', collectionSortKey: 'PRICE', reverse: false };
+    case 'price-desc':
+      return { productSortKey: 'PRICE', collectionSortKey: 'PRICE', reverse: true };
+    case 'alpha-asc':
+      return { productSortKey: 'TITLE', collectionSortKey: 'TITLE', reverse: false };
+    default:
+      return { productSortKey: 'CREATED_AT', collectionSortKey: 'CREATED', reverse: true };
+  }
+};
+
+// 🚀 FIX: Define the InitialData interface to match the Server Component
+interface InitialData {
+  products: FormattedProduct[];
+  pageInfo: { hasNextPage: boolean; endCursor: string | null };
+  filters: FilterOptions;
+  collectionMap: Record<string, string>;
+  bannerImage?: string;
+  activeFilters?: ActiveFilters;
+  sortOption?: SortOptionValue; // 🚀 SEO FIX: Added sortOption
+}
+
+interface SalePageProps {
+  collection?: any;
+  initialData?: InitialData; // 🚀 FIX: Accept optional initialData
+}
+
 // 1. Content component with all the logic
-function SaleContent({ collection }: { collection?: any }) {
+function SaleContent({ collection, initialData }: SalePageProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -20,35 +61,68 @@ function SaleContent({ collection }: { collection?: any }) {
   const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [itemsPerPage] = useState(12);
 
-  const [products, setProducts] = useState<FormattedProduct[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // 🚀 FIX: Initialize state directly with server-provided data
+  const [products, setProducts] = useState<FormattedProduct[]>(initialData?.products || []);
+  const [isLoading, setIsLoading] = useState(!initialData); // Skip loading state if we have SSR data
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [pageInfo, setPageInfo] = useState({ hasNextPage: false, endCursor: null as string | null });
-  const [bannerImage, setBannerImage] = useState<string>('/assets/images/SaleBanner.webp');
+  const [pageInfo, setPageInfo] = useState(initialData?.pageInfo || { hasNextPage: false, endCursor: null });
+  const [bannerImage, setBannerImage] = useState<string>(initialData?.bannerImage || '/assets/images/SaleBanner.webp');
   
   // STATE INITIALIZATION
-  const [collectionMap, setCollectionMap] = useState<Record<string, string>>({});
+  const [collectionMap, setCollectionMap] = useState<Record<string, string>>(initialData?.collectionMap || {});
 
-  const [dynamicFilters, setDynamicFilters] = useState<FilterOptions>({
+  const [dynamicFilters, setDynamicFilters] = useState<FilterOptions>(initialData?.filters || {
     collections: [],
     styles: [],
     sizes: [],
     placements: []
   });
 
+  const [sortOption, setSortOption] = useState<SortOptionValue>(initialData?.sortOption ?? 'newest');
+
   // 🚀 SEO FIX: Initialize active filters directly from the URL query parameters
-  const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
-    collections: [], 
-    styles: searchParams.get('styles')?.split(',') || [],
-    sizes: searchParams.get('sizes')?.split(',') || [],
-    placements: searchParams.get('placements')?.split(',') || []
-  });
+  const [activeFilters, setActiveFilters] = useState<ActiveFilters>(
+    initialData?.activeFilters ?? {
+      collections: [],
+      styles: searchParams.get('styles')?.split(',') || [],
+      sizes: searchParams.get('sizes')?.split(',') || [],
+      placements: searchParams.get('placements')?.split(',') || []
+    }
+  );
+
+  // 🚀 FIXED: Removed the initialData overwrite effect. 
+  // We now strictly sync with the URL searchParams so the server cannot accidentally wipe our state.
+  useEffect(() => {
+    setActiveFilters(prev => ({
+      collections: prev.collections, // Preserve the active collection context
+      styles: searchParams.get('styles')?.split(',').filter(Boolean) || [],
+      sizes: searchParams.get('sizes')?.split(',').filter(Boolean) || [],
+      placements: searchParams.get('placements')?.split(',').filter(Boolean) || []
+    }));
+    
+    const urlSort = searchParams.get('sort') as SortOptionValue;
+    if (urlSort) {
+      setSortOption(urlSort);
+    }
+  }, [searchParams]);
+
+  // useEffect(() => {
+  //   if (initialData?.activeFilters) {
+  //     setActiveFilters(initialData.activeFilters);
+  //   }
+  //   if (initialData?.sortOption) {
+  //     setSortOption(initialData.sortOption);
+  //   }
+  // }, [initialData?.activeFilters, initialData?.sortOption]);
 
   // 🚀 FIX: Track if we are paginating a fallback query so we don't cross-contaminate cursors
   const fallbackModeRef = useRef<'none' | 'all_products' | 'general_filtered'>('none');
+  const isFirstRender = useRef(true);
 
-  // 2. FETCH ALL DYNAMIC DATA
+  // 2. FETCH ALL DYNAMIC DATA (Fallback if no initialData is present)
   useEffect(() => {
+    if (initialData) return; // 🚀 FIX: Skip fetching if the server already provided the menu
+
     async function loadFilterData() {
       try {
         const menuData = await getMenu('menu-custom');
@@ -106,9 +180,10 @@ function SaleContent({ collection }: { collection?: any }) {
       }
     }
     loadFilterData();
-  }, []);
+  }, [initialData]);
 
   // 3. HYBRID PRODUCT FETCHING WITH FALLBACK LOGIC
+ // 3. HYBRID PRODUCT FETCHING WITH FALLBACK LOGIC
   const fetchProducts = useCallback(async (cursor: string | null = null) => {
     // Reset fallback mode if this is a fresh fetch (not a pagination load)
     if (!cursor) fallbackModeRef.current = 'none';
@@ -124,18 +199,28 @@ function SaleContent({ collection }: { collection?: any }) {
         activeFilters.placements.length > 0;
 
       let result;
+      
+      // 🚀 THE FIX: Calculate the active sort settings based on the dropdown state
+      const sortSettings = getSortSettings(sortOption);
 
       if (!hasFilters) {
         // SCENARIO A: No Filters
         if (fallbackModeRef.current === 'all_products') {
           // If we fell back previously, continue paginating the fallback query
-          result = await getProducts({ first: itemsPerPage, after: cursor || undefined });
+          result = await getProducts({ 
+            first: itemsPerPage, 
+            after: cursor || undefined,
+            sortKey: sortSettings.productSortKey, // 🚀 APPLIED
+            reverse: sortSettings.reverse         // 🚀 APPLIED
+          });
         } else {
           // Standard 'Sale' Collection Fetch
           result = await getCollectionProducts({
             handle: 'sale', 
             first: itemsPerPage,
-            after: cursor || undefined
+            after: cursor || undefined,
+            sortKey: sortSettings.collectionSortKey, // 🚀 APPLIED
+            reverse: sortSettings.reverse            // 🚀 APPLIED
           });
           
           // UPDATE BANNER IMAGE IF IT EXISTS
@@ -149,7 +234,11 @@ function SaleContent({ collection }: { collection?: any }) {
           if (result.formattedData.length === 0 && !cursor) {
               console.warn("Sale collection is empty. Falling back to all products.");
               fallbackModeRef.current = 'all_products';
-              result = await getProducts({ first: itemsPerPage });
+              result = await getProducts({ 
+                first: itemsPerPage,
+                sortKey: sortSettings.productSortKey, // 🚀 APPLIED
+                reverse: sortSettings.reverse         // 🚀 APPLIED
+              });
           }
         }
 
@@ -177,7 +266,9 @@ function SaleContent({ collection }: { collection?: any }) {
           result = await getProducts({
               query: fallbackQuery || undefined,
               first: itemsPerPage,
-              after: cursor || undefined
+              after: cursor || undefined,
+              sortKey: sortSettings.productSortKey, // 🚀 APPLIED
+              reverse: sortSettings.reverse         // 🚀 APPLIED
           });
         } else {
           // Standard Filtered Fetch
@@ -185,8 +276,8 @@ function SaleContent({ collection }: { collection?: any }) {
             query: queryParts.join(' AND '),
             first: itemsPerPage,
             after: cursor || undefined,
-            sortKey: 'CREATED_AT',
-            reverse: true
+            sortKey: sortSettings.productSortKey, // 🚀 APPLIED
+            reverse: sortSettings.reverse         // 🚀 APPLIED
           });
 
           // 🚨 FALLBACK: If the filtered sale query returns nothing, try fetching just the filters without the 'sale' restriction
@@ -196,7 +287,9 @@ function SaleContent({ collection }: { collection?: any }) {
               const fallbackQuery = queryParts.filter(part => part !== `collection:'sale'`).join(' AND ');
               result = await getProducts({
                   query: fallbackQuery || undefined,
-                  first: itemsPerPage
+                  first: itemsPerPage,
+                  sortKey: sortSettings.productSortKey, // 🚀 APPLIED
+                  reverse: sortSettings.reverse         // 🚀 APPLIED
               });
           }
         }
@@ -215,17 +308,30 @@ function SaleContent({ collection }: { collection?: any }) {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [activeFilters, itemsPerPage, collectionMap]);
-
+  }, [activeFilters, itemsPerPage, collectionMap, sortOption]); // 🚀 FIX: Added sortOption to dependency array
+  // 🚀 FIX: Prevent double-fetching on the initial mount if we already have SSR data
   useEffect(() => {
+    if (isFirstRender.current && initialData) {
+      isFirstRender.current = false;
+      return; 
+    }
     fetchProducts(null);
-  }, [activeFilters, fetchProducts]);
+  }, [activeFilters, fetchProducts, initialData]);
+
+  // Handle Sort changes
+  const handleSortChange = (value: SortOptionValue) => {
+    setSortOption(value);
+    setIsLoading(true);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('sort', value);
+    router.push(`${pathname || '/collections/sale'}?${params.toString()}`, { scroll: false });
+  };
 
   // 4. TOGGLE LOGIC WITH URL PUSH
   const handleToggleFilter = (group: keyof ActiveFilters | 'RESET', value?: string) => {
     if (group === 'RESET') {
       setActiveFilters({ collections: [], styles: [], sizes: [], placements: [] });
-      router.push(pathname || '/collections/new-arrival', { scroll: false });
+      router.push(pathname || '/collections/sale', { scroll: false });
       return;
     }
     if (!value) return;
@@ -260,9 +366,18 @@ function SaleContent({ collection }: { collection?: any }) {
     if (newState.placements.length > 0) params.set('placements', newState.placements.join(','));
     else params.delete('placements');
     
+    params.set('sort', sortOption);
+
     const queryString = params.toString();
     
     router.push(`${pathname || '/collections/sale'}${queryString ? `?${queryString}` : ''}`, { scroll: false });
+  };
+
+  // 🚀 SEO FIX: Helper function to build Semantic Links for Pagination crawlers
+  const getPaginationHref = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (pageInfo.endCursor) params.set('cursor', pageInfo.endCursor);
+    return `${pathname || '/collections/sale'}?${params.toString()}`;
   };
 
   const activeFiltersCount = 
@@ -317,6 +432,15 @@ function SaleContent({ collection }: { collection?: any }) {
       {/* MAIN CONTENT AREA */}
       <div className="container max-w-[1400px] mx-auto px-4 mt-12 md:mt-16">
         
+        {/* 🚀 SEO FIX: Added structural breadcrumbs */}
+        <div className="mb-4">
+          <Breadcrumbs items={[
+            { label: 'Home', url: '/' },
+            { label: 'Collections', url: '/collections' },
+            { label: 'Sale', url: '/collections/sale' },
+          ]} />
+        </div>
+
         {/* Desktop Toolbar */}
         <div className="flex items-center justify-between mb-8 pb-6 border-b border-zinc-800/60">
           <div className="flex items-center gap-4">
@@ -331,19 +455,40 @@ function SaleContent({ collection }: { collection?: any }) {
             </p>
           </div>
           
-          <div className="flex items-center gap-1 bg-zinc-900/50 border border-white/10 p-1 rounded-xl shadow-sm">
-            <button 
-              onClick={() => setViewMode('grid')} 
-              className={clsx("p-2.5 rounded-lg transition-all", viewMode === 'grid' ? "bg-zinc-800 text-[#FF3366] shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button 
-              onClick={() => setViewMode('list')} 
-              className={clsx("p-2.5 rounded-lg transition-all", viewMode === 'list' ? "bg-zinc-800 text-[#FF3366] shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
-            >
-              <List className="w-4 h-4" />
-            </button>
+          <div className="flex items-center gap-4">
+            {/* 🚀 SEO FIX: Injected missing Sort Options UI block */}
+            <div className="hidden sm:flex items-center gap-3 mr-2">
+              <label htmlFor="sort" className="text-[10px] uppercase tracking-[0.25em] text-zinc-500 font-bold">
+                Sort
+              </label>
+              <select
+                id="sort"
+                value={sortOption}
+                onChange={(event) => handleSortChange(event.target.value as SortOptionValue)}
+                className="bg-zinc-900 border border-white/10 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full px-4 py-2.5 outline-none transition-colors hover:border-white/30"
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value} className="bg-black text-white">
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-1 bg-zinc-900/50 border border-white/10 p-1 rounded-xl shadow-sm">
+              <button 
+                onClick={() => setViewMode('grid')} 
+                className={clsx("p-2.5 rounded-lg transition-all", viewMode === 'grid' ? "bg-zinc-800 text-[#FF3366] shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => setViewMode('list')} 
+                className={clsx("p-2.5 rounded-lg transition-all", viewMode === 'list' ? "bg-zinc-800 text-[#FF3366] shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -394,14 +539,22 @@ function SaleContent({ collection }: { collection?: any }) {
 
                 {pageInfo.hasNextPage && (
                    <div className="mt-16">
-                     <button
-                        onClick={() => fetchProducts(pageInfo.endCursor)}
-                        disabled={isLoadingMore}
-                        className="px-10 py-4 border border-white/20 text-white font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white hover:text-black rounded-full transition-all duration-300 disabled:opacity-50 flex items-center gap-3"
+                     {/* 🚀 SEO FIX: Converted Load More button to a crawlable semantic Link element */}
+                     <Link
+                        href={getPaginationHref()}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (!isLoadingMore) fetchProducts(pageInfo.endCursor);
+                        }}
+                        aria-disabled={isLoadingMore}
+                        className={clsx(
+                          "px-10 py-4 border border-white/20 text-white font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white hover:text-black rounded-full transition-all duration-300 flex items-center gap-3",
+                          isLoadingMore && "opacity-50 pointer-events-none"
+                        )}
                      >
                         {isLoadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
                         {isLoadingMore ? 'Loading...' : 'Show More'}
-                     </button>
+                     </Link>
                    </div>
                 )}
               </div>
@@ -412,12 +565,17 @@ function SaleContent({ collection }: { collection?: any }) {
                 </div>
                 <p className="font-black text-white uppercase tracking-widest text-lg mb-2">No products found</p>
                 <p className="text-zinc-500 text-sm mb-6 max-w-sm mx-auto">We couldn't find anything matching your current filters. Try adjusting them to see more sale results.</p>
-                <button 
-                  onClick={() => handleToggleFilter('RESET')} 
-                  className="px-6 py-3 bg-[#FF3366] text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full hover:brightness-110 transition-all shadow-md"
+                {/* 🚀 SEO FIX: Converted Clear Filters button to a standard crawlable fallback route Link */}
+                <Link 
+                  href={pathname || '/collections/sale'}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleToggleFilter('RESET');
+                  }} 
+                  className="px-6 py-3 bg-[#FF3366] text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full hover:brightness-110 transition-all shadow-md inline-block"
                 >
                   Clear All Filters
-                </button>
+                </Link>
               </div>
             ) : null}
           </div>
@@ -467,7 +625,7 @@ function SaleContent({ collection }: { collection?: any }) {
 }
 
 // 2. Wrap the exported component in Suspense required by Next.js
-export default function SalePage({ collection }: { collection?: any }) {
+export default function SalePage({ collection, initialData }: SalePageProps) {
   return (
     <Suspense 
       fallback={
@@ -476,7 +634,8 @@ export default function SalePage({ collection }: { collection?: any }) {
         </div>
       }
     >
-      <SaleContent collection={collection} />
+      {/* 🚀 FIX: Pass initialData down to the Content component */}
+      <SaleContent collection={collection} initialData={initialData} />
     </Suspense>
   );
 }

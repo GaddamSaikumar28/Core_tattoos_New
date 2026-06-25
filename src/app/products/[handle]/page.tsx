@@ -2,13 +2,14 @@ import { notFound } from 'next/navigation';
 import { getProduct, getProductRecommendations } from '@/src/lib/shopify';
 import TattooProductDetail from '@/src/components/sections/TattooProductDetail';
 import { RelatedProducts } from '@/src/components/sections/RelatedProducts';
-import { Breadcrumbs } from '@/src/components/shared/Breadcrumbs';
 import { Metadata } from 'next';
 import TattooProductAngleView from '@/src/components/sections/TattooProductAngleView';
-import Advanced24HourReveal from '@/src/components/shared/Advanced24HourReveal';
+
 type Props = { params: Promise<{ handle: string }> };
 
-
+// =========================================================
+// 1. STRICT SEO METADATA & CANONICAL ENFORCEMENT
+// =========================================================
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
   
@@ -22,10 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
   const canonicalUrl = `${siteUrl}/products/${product.handle}`;
 
-  // 1. Read strictly from dedicated SEO fields, falling back to requested format if blank
+  // Read strictly from dedicated SEO fields, falling back to requested format if blank
   const metaTitle = product.seoTitle || `${product.title} | Just Tattoos`;
-  
-  // 2. Leave description completely blank if no SEO description exists (do NOT copy product body)
   const metaDescription = product.seoDescription || ''; 
 
   return {
@@ -52,31 +51,55 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-
+// =========================================================
+// 2. MAIN PRODUCT SERVER COMPONENT
+// =========================================================
 export default async function GlobalProductPage({ params }: Props) {
   const resolvedParams = await params;
   const product = await getProduct(resolvedParams.handle);
   if (!product) notFound();
 
   const relatedProducts = await getProductRecommendations(product.id);
-  // const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://justtattoos.com';
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
-  // --- 1. Construct the Strict Product JSON-LD (Point 10) ---
+  
+  // --- Construct the Strict Product JSON-LD ---
   const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.title,
-    description: product.description.replace(/<[^>]+>/g, ''), // Strip HTML
+    description: product.description.replace(/<[^>]+>/g, ''), // Strip HTML for schema
     image: product.media.featuredImage ? [product.media.featuredImage] : [],
     brand: { '@type': 'Brand', name: 'Just Tattoos' },
     // Only grab SKU if it exists
     ...(product.allVariants?.[0]?.sku && { sku: product.allVariants[0].sku }),
+    
+    // 🚀 P1 SEO FIX (REVIEWS INTEGRATION PREP)
+    // Uncomment and populate this block once your review app is installed.
+    // This is EXACTLY what Google needs to show the Star Ratings in search results.
+    /*
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: product.reviews?.averageRating || '5.0', // Fetch from your review app logic
+      reviewCount: product.reviews?.totalCount || '1',      // Fetch from your review app logic
+    },
+    review: product.reviews?.items?.map((review: any) => ({
+      '@type': 'Review',
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: review.rating,
+      },
+      author: {
+        '@type': 'Person',
+        name: review.author,
+      },
+      reviewBody: review.body
+    })),
+    */
+
     offers: {
       '@type': 'Offer',
       url: `${siteUrl}/products/${product.handle}`,
-      //priceCurrency: 'USD',
       priceCurrency: product.checkout.currency || 'USD',
-      //price: product?.priceRange?.minVariantPrice.amount,
       price: product.checkout.price,
       itemCondition: 'https://schema.org/NewCondition',
       availability: product.inventory.availableForSale 
@@ -88,24 +111,29 @@ export default async function GlobalProductPage({ params }: Props) {
 
   return (
     <div className="bg-white min-h-screen">
-      {/* --- 2. Inject Product Schema --- */}
+      {/* --- Inject Product Schema --- */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
-       
 
+      {/* 🚀 REVIEWS INTEGRATION NOTE:
+        When you install your reviews app, you may need to pass a `reviews` prop 
+        down into TattooProductDetail if you are fetching them server-side, 
+        or drop the app's widget block inside TattooProductDetail directly. 
+        For DOM Parity (P1 fix), it is highly recommended to fetch the top 3-5 reviews 
+        here on the server and pass them down as props!
+      */}
       <TattooProductDetail product={product} />
-      {/* <TattooProductAngleView product={product} /> */}
+      
       {product.media?.angleViews && product.media.angleViews.length > 0 && 
         product.media?.models && product.media.models.length > 0 && (
           <TattooProductAngleView product={product} />
       )}
+      
       {relatedProducts && relatedProducts.length > 0 && (
         <RelatedProducts products={relatedProducts} />
       )}
-
-      {/* <Advanced24HourReveal /> */}
     </div>
   );
 }
