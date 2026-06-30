@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
@@ -94,22 +94,26 @@ export function FilterSidebar({ filters, activeFilters, onToggle }: FilterSideba
 }
 
 // ─── Collapsible filter group ─────────────────────────────────────────────
-function FilterGroup({
-  title,
-  groupKey,
-  items,
-  activeItems,
-  onToggle,
-}: {
+
+interface FilterGroupProps {
   title: string;
   groupKey: keyof FilterOptions;
   items: string[];
   activeItems: string[];
   onToggle: (val: string) => void;
-}) {
+}
+
+// 1. Core UI logic moved to an Internal component that takes searchParams as a raw string
+function FilterGroupInternal({
+  title,
+  groupKey,
+  items,
+  activeItems,
+  onToggle,
+  currentSearchParams = "",
+}: FilterGroupProps & { currentSearchParams?: string }) {
   const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const activeCount = activeItems.length;
 
   return (
@@ -148,7 +152,7 @@ function FilterGroup({
             // 🚀 SEO FIX: Construct semantic URLs for crawlers while preserving existing queries
             let href = pathname;
             if (groupKey !== 'collections') {
-              const params = new URLSearchParams(searchParams.toString());
+              const params = new URLSearchParams(currentSearchParams);
               const newVals = isActive
                 ? activeItems.filter((i) => i !== item)
                 : [...activeItems, item];
@@ -208,5 +212,22 @@ function FilterGroup({
       </div>
 
     </div>
+  );
+}
+
+// 2. Component that handles reading the search parameters
+function FilterGroupWithParams(props: FilterGroupProps) {
+  const searchParams = useSearchParams();
+  const currentSearchParams = searchParams?.toString() || "";
+  return <FilterGroupInternal {...props} currentSearchParams={currentSearchParams} />;
+}
+
+// 3. Main Export - Wraps the component in a Suspense boundary to prevent SSR bailout.
+// The fallback renders the HTML links instantly for Googlebot (without query params attached).
+function FilterGroup(props: FilterGroupProps) {
+  return (
+    <Suspense fallback={<FilterGroupInternal {...props} currentSearchParams="" />}>
+      <FilterGroupWithParams {...props} />
+    </Suspense>
   );
 }

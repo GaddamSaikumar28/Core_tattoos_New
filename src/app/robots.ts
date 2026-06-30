@@ -1,7 +1,6 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  // const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://justtattoos.com';
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
 
   // We extract this list to a variable since *, AhrefsBot, and AhrefsSiteAudit all use the exact same massive list.
@@ -16,6 +15,7 @@ export default function robots(): MetadataRoute.Robots {
     '/97366081834/orders',
     '/carts',
     '/account',
+    '/api/', // 🚀 SEO FIX: Added to protect your custom Next.js API endpoints from being crawled
     '/collections/*sort_by*',
     '/*/collections/*sort_by*',
     '/collections/*+*',
@@ -104,6 +104,7 @@ export default function robots(): MetadataRoute.Robots {
         crawlDelay: 1,
       }
     ],
+    // 🚀 PERFECT: This automatically connects to the new Next.js 14 native sitemap.ts file!
     sitemap: `${siteUrl}/sitemap.xml`,  
   };
 }

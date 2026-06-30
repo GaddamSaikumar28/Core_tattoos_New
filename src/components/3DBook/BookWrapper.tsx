@@ -1,46 +1,48 @@
-"use client";
-
-import dynamic from "next/dynamic";
+import Link from "next/link";
 import type { TattooProduct } from "./UI";
-
-const BookScene = dynamic(() => import("./index"), {
-  ssr:     false,
-  loading: () => <BookLoadingShell />,
-});
+import BookClientLoader from "./BookClientLoader";
 
 interface BookWrapperProps {
   products?: TattooProduct[];
 }
 
-function BookLoadingShell() {
+export default function BookWrapper({ products }: BookWrapperProps) {
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-[#050505] relative overflow-hidden">
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse at 50% 50%, rgba(255,122,0,0.08) 0%, transparent 70%)",
-        }}
-      />
+    <div className="w-full h-full relative">
+      {/* 1. Safely render client canvas wrapper without triggering compile context exceptions */}
+      <BookClientLoader products={products} />
 
-      <div className="relative w-20 h-20 mb-6 z-10">
-        <div
-          className="absolute inset-0 rounded-full border border-[#FF7A00]/20 animate-ping"
-          style={{ animationDuration: "2s" }}
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <svg viewBox="0 0 40 40" className="w-10 h-10">
-            <path
-              d="M20 5 C20 5, 30 18, 30 24 C30 30, 25.5 35, 20 35 C14.5 35, 10 30, 10 24 C10 18, 20 5, 20 5Z"
-              fill="#FF7A00"
-            />
-          </svg>
-        </div>
+      {/* 2. SEO HTML SHELL: Instantly indexed via raw server markup delivery pathways */}
+      <div 
+        className="sr-only absolute pointer-events-none w-1 h-1 overflow-hidden" 
+        aria-hidden="true"
+      >
+        <h2>Interactive Temporary Tattoo Lookbook Catalog</h2>
+        <p>Explore premium, long-lasting temporary ink collections and tattoo lookbooks custom engineered for authentic skin application style loops.</p>
+        
+        {products && products.length > 0 ? (
+          <ul>
+            {products.map((product) => (
+              <li key={product.id}>
+                <Link href={`/products/${product.handle}`} prefetch={false}>
+                  <h3>{product.title}</h3>
+                </Link>
+                <span>Price: ${product.price}</span>
+                <span>Ink Variant Type: {product.colorType}</span>
+                
+                {product.themes && product.themes.length > 0 && (
+                  <p>Design Themes: {product.themes.join(", ")}</p>
+                )}
+                {product.placements && product.placements.length > 0 && (
+                  <p>Recommended Placements: {product.placements.join(", ")}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Loading temporary tattoo flash artwork collections...</p>
+        )}
       </div>
     </div>
   );
-}
-
-export default function BookWrapper({ products }: BookWrapperProps) {
-  return <BookScene products={products} />;
 }

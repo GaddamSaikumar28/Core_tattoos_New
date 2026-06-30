@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, Suspense } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -270,16 +270,8 @@ function HeaderContent({ logoUrl = "/assets/icons/DesktopLogo-Light.svg" }: Head
   );
 }
 
-// Ensure the suspense boundary stays intact for Next.js rendering optimization
-// Fallback is transparent so it seamlessly reveals the Hero background beneath it
+// Render the component directly. Since the inner components now handle their own Suspsense 
+// boundaries, we no longer need the global bailout wrapper here!
 export default function Header(props: HeaderProps) {
-  return (
-    <Suspense
-      fallback={
-        <div className="py-8 w-full bg-transparent fixed top-0 z-50 pointer-events-none" />
-      }
-    >
-      <HeaderContent {...props} />
-    </Suspense>
-  );
+  return <HeaderContent {...props} />;
 }

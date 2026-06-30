@@ -64,30 +64,50 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.justtattoos.com";
   const canonicalUrl = `${siteUrl}/collections/${handle}`;
 
-  // 🚀 FIX: Hardcoded SEO fallbacks for our custom pages so they NEVER 404
-  if (handle === 'sale') {
-    return {
-      title: 'Flash Sale | Just Tattoos',
-      description: 'Shop the latest temporary tattoo styles on sale at Just Tattoos.',
-      alternates: { canonical: canonicalUrl },
-    };
-  }
-
-  if (handle === 'new-arrival') {
-    return {
-      title: 'New Arrivals | Just Tattoos',
-      description: 'Check out the newest temporary tattoo designs dropped at Just Tattoos.',
-      alternates: { canonical: canonicalUrl },
-    };
-  }
-
-  // Fetch collection details specifically for standard dynamic collections
   const collection = await getCollection(handle);
 
+  // 🚀 HYBRID SEO LOGIC FOR SALE PAGE
+  if (handle === 'sale') {
+    const title = collection?.seo?.title || collection?.title || 'Flash Sale: Premium Temporary Tattoos | Just Tattoos';
+    const description = collection?.seo?.description || collection?.description || 'Save big on our premium temporary tattoos. Limited-time discounts on high-end, realistic tattoo designs. Shop the flash sale before inventory runs out!';
+    
+    return {
+      title,
+      description,
+      alternates: { canonical: canonicalUrl },
+      openGraph: {
+        title,
+        description,
+        url: canonicalUrl,
+        type: 'website',
+      }
+    };
+  }
+
+  // 🚀 HYBRID SEO LOGIC FOR NEW ARRIVALS
+  if (handle === 'new-arrival') {
+    const title = collection?.seo?.title || collection?.title || 'New Arrivals: Latest Temporary Tattoo Designs | Just Tattoos';
+    const description = collection?.seo?.description || collection?.description || 'Explore the newest temporary tattoo drops at Just Tattoos. Discover fresh, hyper-realistic, and modern styles trending right now.';
+    
+    return {
+      title,
+      description,
+      alternates: { canonical: canonicalUrl },
+      openGraph: {
+        title,
+        description,
+        url: canonicalUrl,
+        type: 'website',
+      }
+    };
+  }
+
+  // Standard fallback error check for dynamic paths (floral, anime, etc.)
   if (!collection) {
     return { title: 'Collection Not Found | Just Tattoos' };
   }
 
+  // Dynamic Shopify Collection Execution
   return {
     title: collection.seo?.title || `${collection.title} | Just Tattoos`,
     description: collection.seo?.description || collection.description || `Shop the ${collection.title} collection at Just Tattoos.`,
@@ -287,18 +307,47 @@ export default async function CollectionSwitchboardPage({ params, searchParams }
   // 🚀 FIX: Fetch SSR data BEFORE the switchboard so all 3 routes get the SEO benefit
   const initialData = await fetchCollectionInitialData(handle, activeFilters, sortOption, cursor);
 
+  // 🚀 SEO FIX: Generate Collection Schema dynamically from initialData
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: initialData?.currentCollectionTitle || handle.replace(/-/g, ' '),
+    url: `${siteUrl}/collections/${handle}`,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: initialData?.products?.map((product, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        url: `${siteUrl}/products/${product.handle}`
+      })) || []
+    }
+  };
+
   // --- SWITCHBOARD LOGIC ---
 
+  let PageComponent;
   // 1. If URL is /collections/sale, load the Sale UI with Server Data
   if (handle === 'sale') {
-    return <SalePage initialData={initialData || undefined} />;
+    PageComponent = <SalePage initialData={initialData || undefined} />;
   }
-
   // 2. If URL is /collections/new-arrival, load the New Arrivals UI with Server Data
-  if (handle === 'new-arrival') {
-    return <NewArrivalsPage initialData={initialData || undefined} />;
+  else if (handle === 'new-arrival') {
+    PageComponent = <NewArrivalsPage initialData={initialData || undefined} />;
+  }
+  // 3. Fallback: Standard Dynamic Collections (Floral, Animal, etc.)
+  else {
+    PageComponent = <DefaultCollection handle={handle} initialData={initialData || undefined} />; 
   }
 
-  // 3. Fallback: Standard Dynamic Collections (Floral, Animal, etc.)
-  return <DefaultCollection handle={handle} initialData={initialData || undefined} />; 
+  return (
+    <>
+      {/* 🚀 SEO FIX: Inject Collection ItemList Schema safely before rendering the page */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      {PageComponent}
+    </>
+  );
 }

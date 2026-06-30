@@ -49,11 +49,20 @@ interface NewArrivalsPageProps {
   initialData?: InitialData;
 }
 
-// 1. Content component with all the logic
-function NewArrivalsContent({ collection, initialData }: NewArrivalsPageProps) {
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. Internal Component: Core logic decoupled from the direct `useSearchParams` hook.
+// Receives `searchParamsString` as a prop so it can safely render on the server.
+// ─────────────────────────────────────────────────────────────────────────────
+function NewArrivalsContentInternal({ 
+  collection, 
+  initialData, 
+  searchParamsString 
+}: NewArrivalsPageProps & { searchParamsString: string }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  
+  // Use the passed string to read parameters instead of the hook directly
+  const searchParams = new URLSearchParams(searchParamsString);
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
@@ -100,16 +109,7 @@ function NewArrivalsContent({ collection, initialData }: NewArrivalsPageProps) {
     if (urlSort) {
       setSortOption(urlSort);
     }
-  }, [searchParams]);
-
-  // useEffect(() => {
-  //   if (initialData?.activeFilters) {
-  //     setActiveFilters(initialData.activeFilters);
-  //   }
-  //   if (initialData?.sortOption) {
-  //     setSortOption(initialData.sortOption);
-  //   }
-  // }, [initialData?.activeFilters, initialData?.sortOption]);
+  }, [searchParamsString]);
 
   // Track if we are paginating a fallback query to prevent cursor contamination
   const fallbackModeRef = useRef<'none' | 'global_fallback'>('none');
@@ -286,7 +286,8 @@ function NewArrivalsContent({ collection, initialData }: NewArrivalsPageProps) {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [activeFilters, itemsPerPage, collectionMap, sortOption]); // 🚀 FIX: Added sortOption to dependency array
+  }, [activeFilters, itemsPerPage, collectionMap, sortOption]); 
+  
   // 🚀 FIX: Prevent double-fetching on the initial mount if we already have SSR data
   useEffect(() => {
     if (isFirstRender.current && initialData) {
@@ -300,7 +301,7 @@ function NewArrivalsContent({ collection, initialData }: NewArrivalsPageProps) {
   const handleSortChange = (value: SortOptionValue) => {
     setSortOption(value);
     setIsLoading(true);
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     params.set('sort', value);
     router.push(`${pathname || '/collections/new-arrival'}?${params.toString()}`, { scroll: false });
   };
@@ -333,7 +334,7 @@ function NewArrivalsContent({ collection, initialData }: NewArrivalsPageProps) {
     setActiveFilters(newState);
 
     // 3. Trigger the router push side-effect sequentially
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     
     if (newState.styles.length > 0) params.set('styles', newState.styles.join(','));
     else params.delete('styles');
@@ -353,7 +354,7 @@ function NewArrivalsContent({ collection, initialData }: NewArrivalsPageProps) {
 
   // 🚀 SEO FIX: Helper function to build Semantic Links for Pagination crawlers
   const getPaginationHref = () => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     if (pageInfo.endCursor) params.set('cursor', pageInfo.endCursor);
     return `${pathname || '/collections/new-arrival'}?${params.toString()}`;
   };
@@ -580,18 +581,26 @@ function NewArrivalsContent({ collection, initialData }: NewArrivalsPageProps) {
   );
 }
 
-// 2. Wrap the exported component in Suspense required by Next.js
-export default function NewArrivalsPage({ collection, initialData }: NewArrivalsPageProps) {
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. Component that handles reading the search parameters hook
+// ─────────────────────────────────────────────────────────────────────────────
+function NewArrivalsContentWithParams(props: NewArrivalsPageProps) {
+  const searchParams = useSearchParams();
+  const searchParamsString = searchParams?.toString() || "";
+  
+  return <NewArrivalsContentInternal {...props} searchParamsString={searchParamsString} />;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. Main Export - Wraps the component in a Suspense boundary to prevent SSR bailout.
+// Falls back to the pre-populated HTML version (using initialData) for Googlebot!
+// ─────────────────────────────────────────────────────────────────────────────
+export default function NewArrivalsPage(props: NewArrivalsPageProps) {
   return (
     <Suspense 
-      fallback={
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center mt-20">
-          <Loader2 className="w-10 h-10 text-[var(--color-brand-orange)] animate-spin" />
-        </div>
-      }
+      fallback={<NewArrivalsContentInternal {...props} searchParamsString="" />}
     >
-      {/* 🚀 FIX: Pass initialData down to the Content component */}
-      <NewArrivalsContent collection={collection} initialData={initialData} />
+      <NewArrivalsContentWithParams {...props} />
     </Suspense>
   );
 }

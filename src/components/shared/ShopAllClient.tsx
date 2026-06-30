@@ -16,7 +16,7 @@ export type SortOptionValue = 'newest' | 'price-asc' | 'price-desc' | 'alpha-asc
 const sortOptions: { value: SortOptionValue; label: string }[] = [
   { value: 'newest', label: 'Newest' },
   { value: 'price-asc', label: 'Price: Low to High' },
-  { value: 'price-desc', label: 'Price: High to Low' }, // Fixed typo in label here
+  { value: 'price-desc', label: 'Price: High to Low' }, 
   { value: 'alpha-asc', label: 'A → Z' },
 ];
 
@@ -48,11 +48,16 @@ interface ShopAllClientProps {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 1. Internal Component: Core logic decoupled from the direct `useSearchParams` hook.
+// Receives `searchParamsString` as a prop so it can safely render on the server.
+// ─────────────────────────────────────────────────────────────────────────────
 
-function ShopAllContent({ initialData }: ShopAllClientProps) {
+function ShopAllContentInternal({ 
+  initialData, 
+  searchParamsString 
+}: ShopAllClientProps & { searchParamsString: string }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
@@ -88,7 +93,8 @@ function ShopAllContent({ initialData }: ShopAllClientProps) {
     setProducts(initialData.products);
     setPageInfo(initialData.pageInfo);
     setIsLoading(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Only scroll to top if we are actively clicking around, not on initial load
+    // window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [initialData]);
 
   useEffect(() => {
@@ -149,7 +155,7 @@ function ShopAllContent({ initialData }: ShopAllClientProps) {
            result = await getProducts({
              first: itemsPerPage,
              after: cursor,
-             sortKey: sortSettings.productSortKey, // 🚀 FIXED: Uses productSortKey
+             sortKey: sortSettings.productSortKey, 
              reverse: sortSettings.reverse,
            });
         } else {
@@ -157,7 +163,7 @@ function ShopAllContent({ initialData }: ShopAllClientProps) {
             handle: 'all',
             first: itemsPerPage,
             after: cursor,
-            sortKey: sortSettings.collectionSortKey, // 🚀 FIXED: Uses collectionSortKey
+            sortKey: sortSettings.collectionSortKey, 
             reverse: sortSettings.reverse,
           });
           if (result.formattedData.length === 0) {
@@ -165,7 +171,7 @@ function ShopAllContent({ initialData }: ShopAllClientProps) {
             result = await getProducts({
               first: itemsPerPage,
               after: cursor,
-              sortKey: sortSettings.productSortKey, // 🚀 FIXED: Uses productSortKey
+              sortKey: sortSettings.productSortKey, 
               reverse: sortSettings.reverse,
             });
           }
@@ -175,7 +181,7 @@ function ShopAllContent({ initialData }: ShopAllClientProps) {
           handle,
           first: itemsPerPage,
           after: cursor,
-          sortKey: sortSettings.collectionSortKey, // 🚀 FIXED: Uses collectionSortKey
+          sortKey: sortSettings.collectionSortKey, 
           reverse: sortSettings.reverse,
         });
       } else {
@@ -183,7 +189,7 @@ function ShopAllContent({ initialData }: ShopAllClientProps) {
           query: buildShopifyQuery(),
           first: itemsPerPage,
           after: cursor,
-          sortKey: sortSettings.productSortKey, // 🚀 FIXED: Uses productSortKey
+          sortKey: sortSettings.productSortKey, 
           reverse: sortSettings.reverse,
         });
       }
@@ -205,7 +211,7 @@ function ShopAllContent({ initialData }: ShopAllClientProps) {
 
   const handleCategoryPillClick = (cat: string) => {
     setIsLoading(true); 
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     
     if (cat === 'Shop All') {
       params.delete('category');
@@ -222,7 +228,7 @@ function ShopAllContent({ initialData }: ShopAllClientProps) {
   const handleSortChange = (value: SortOptionValue) => {
     setSortOption(value);
     setIsLoading(true);
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     params.set('sort', value);
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
@@ -248,7 +254,7 @@ function ShopAllContent({ initialData }: ShopAllClientProps) {
     const newState = { ...activeFilters, [group]: newGroupState };
     setActiveFilters(newState);
 
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     if (newState.styles?.length > 0) params.set('styles', newState.styles.join(','));
     else params.delete('styles');
     
@@ -266,7 +272,7 @@ function ShopAllContent({ initialData }: ShopAllClientProps) {
 
   // 🚀 SEO FIX: Helper functions to build Semantic Links for crawlers
   const getCategoryHref = (cat: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     if (cat === 'Shop All') params.delete('category');
     else params.set('category', cat);
     params.set('sort', sortOption);
@@ -275,7 +281,7 @@ function ShopAllContent({ initialData }: ShopAllClientProps) {
   };
 
   const getPaginationHref = () => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     if (pageInfo.endCursor) params.set('cursor', pageInfo.endCursor);
     return `${pathname}?${params.toString()}`;
   };
@@ -614,22 +620,26 @@ function SkeletonCard() {
   );
 }
 
-// ─── Export wrapped in Suspense ───────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. Component that handles reading the search parameters hook
+// ─────────────────────────────────────────────────────────────────────────────
+function ShopAllContentWithParams(props: ShopAllClientProps) {
+  const searchParams = useSearchParams();
+  const searchParamsString = searchParams?.toString() || "";
+  
+  return <ShopAllContentInternal {...props} searchParamsString={searchParamsString} />;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. Main Export - Wraps the component in a Suspense boundary to prevent SSR bailout.
+// Falls back to the pre-populated HTML version (using initialData) for Googlebot!
+// ─────────────────────────────────────────────────────────────────────────────
 export default function ShopAllClient(props: ShopAllClientProps) {
   return (
     <Suspense
-      fallback={
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center mt-20">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-8 h-8 text-[var(--color-brand-orange)] animate-spin" />
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">
-              Loading Collection...
-            </span>
-          </div>
-        </div>
-      }
+      fallback={<ShopAllContentInternal {...props} searchParamsString="" />}
     >
-      <ShopAllContent {...props} />
+      <ShopAllContentWithParams {...props} />
     </Suspense>
   );
 }

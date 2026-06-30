@@ -58,6 +58,19 @@ export const metadata: Metadata = {
     shortcut: ["/favicon.svg?v=1"],
     apple: [{ url: "/favicon.svg?v=1", type: "image/svg+xml" }],
   },
+  // OPTIMIZATION: Added OpenGraph and Twitter metadata for improved social sharing SEO (Non-breaking)
+  openGraph: {
+    title: "Just Tattoos",
+    description: "Authentic tattoo lifestyle and apparel.",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.justtattoos.com",
+    siteName: "Just Tattoos",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Just Tattoos",
+    description: "Authentic tattoo lifestyle and apparel.",
+  },
 };
 
 export default async function RootLayout({

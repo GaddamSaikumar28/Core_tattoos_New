@@ -51,9 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// =========================================================
-// 2. MAIN PRODUCT SERVER COMPONENT
-// =========================================================
+
 export default async function GlobalProductPage({ params }: Props) {
   const resolvedParams = await params;
   const product = await getProduct(resolvedParams.handle);
@@ -75,12 +73,11 @@ export default async function GlobalProductPage({ params }: Props) {
     
     // 🚀 P1 SEO FIX (REVIEWS INTEGRATION PREP)
     // Uncomment and populate this block once your review app is installed.
-    // This is EXACTLY what Google needs to show the Star Ratings in search results.
     /*
     aggregateRating: {
       '@type': 'AggregateRating',
-      ratingValue: product.reviews?.averageRating || '5.0', // Fetch from your review app logic
-      reviewCount: product.reviews?.totalCount || '1',      // Fetch from your review app logic
+      ratingValue: product.reviews?.averageRating || '5.0', 
+      reviewCount: product.reviews?.totalCount || '1',      
     },
     review: product.reviews?.items?.map((review: any) => ({
       '@type': 'Review',
@@ -117,13 +114,6 @@ export default async function GlobalProductPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
 
-      {/* 🚀 REVIEWS INTEGRATION NOTE:
-        When you install your reviews app, you may need to pass a `reviews` prop 
-        down into TattooProductDetail if you are fetching them server-side, 
-        or drop the app's widget block inside TattooProductDetail directly. 
-        For DOM Parity (P1 fix), it is highly recommended to fetch the top 3-5 reviews 
-        here on the server and pass them down as props!
-      */}
       <TattooProductDetail product={product} />
       
       {product.media?.angleViews && product.media.angleViews.length > 0 && 

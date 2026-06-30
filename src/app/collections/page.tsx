@@ -1,11 +1,29 @@
 import { Suspense } from 'react';
+import { Metadata } from 'next'; // 🚀 SEO FIX: Imported Metadata
 import { getProducts, getMenu, getCollectionProducts } from '@/src/lib/shopify';
 import ShopAllClient from '@/src/components/shared/ShopAllClient'; // Ensure this path matches your structure
 import { Loader2 } from 'lucide-react';
 
-export const metadata = {
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
+
+// 🚀 SEO FIX: Upgraded to full Metadata object with Canonical and OpenGraph
+export const metadata: Metadata = {
   title: 'Shop All | Just Tattoos',
   description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
+  alternates: {
+    canonical: `${siteUrl}/collections`,
+  },
+  openGraph: {
+    title: 'Shop All | Just Tattoos',
+    description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
+    url: `${siteUrl}/collections`,
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Shop All | Just Tattoos',
+    description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
+  }
 };
 
 type SortOptionValue = 'newest' | 'price-asc' | 'price-desc' | 'alpha-asc';
@@ -186,11 +204,35 @@ export default async function ShopAllPage({ searchParams }: Props) {
     currentCollectionTitle: activeFilters.collections.length === 1 ? activeFilters.collections[0] : 'Shop All',
   };
 
+  // 🚀 SEO FIX: Construct JSON-LD Schema using the SSR fetched products
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Shop All | Just Tattoos',
+    description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
+    url: `${siteUrl}/collections`,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: result.formattedData.map((product: any, index: number) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        url: `${siteUrl}/products/${product.handle}`
+      }))
+    }
+  };
+
   // 5. Render Client Component (No redundant blocking Suspense around data fetch)
   return (
-    <Suspense fallback={<PageSkeleton />}>
-      <ShopAllClient initialData={initialData} />
-    </Suspense>
+    <>
+      {/* 🚀 SEO FIX: Inject Collection Schema invisibly */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <Suspense fallback={<PageSkeleton />}>
+        <ShopAllClient initialData={initialData} />
+      </Suspense>
+    </>
   );
 }
 

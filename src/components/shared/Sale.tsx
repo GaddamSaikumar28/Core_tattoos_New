@@ -51,11 +51,20 @@ interface SalePageProps {
   initialData?: InitialData; // 🚀 FIX: Accept optional initialData
 }
 
-// 1. Content component with all the logic
-function SaleContent({ collection, initialData }: SalePageProps) {
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. Internal Component: Core logic decoupled from the direct `useSearchParams` hook.
+// Receives `searchParamsString` as a prop so it can safely render on the server.
+// ─────────────────────────────────────────────────────────────────────────────
+function SaleContentInternal({ 
+  collection, 
+  initialData, 
+  searchParamsString 
+}: SalePageProps & { searchParamsString: string }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  
+  // Use the passed string to read parameters instead of the hook directly
+  const searchParams = new URLSearchParams(searchParamsString);
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
@@ -104,16 +113,7 @@ function SaleContent({ collection, initialData }: SalePageProps) {
     if (urlSort) {
       setSortOption(urlSort);
     }
-  }, [searchParams]);
-
-  // useEffect(() => {
-  //   if (initialData?.activeFilters) {
-  //     setActiveFilters(initialData.activeFilters);
-  //   }
-  //   if (initialData?.sortOption) {
-  //     setSortOption(initialData.sortOption);
-  //   }
-  // }, [initialData?.activeFilters, initialData?.sortOption]);
+  }, [searchParamsString]);
 
   // 🚀 FIX: Track if we are paginating a fallback query so we don't cross-contaminate cursors
   const fallbackModeRef = useRef<'none' | 'all_products' | 'general_filtered'>('none');
@@ -183,7 +183,6 @@ function SaleContent({ collection, initialData }: SalePageProps) {
   }, [initialData]);
 
   // 3. HYBRID PRODUCT FETCHING WITH FALLBACK LOGIC
- // 3. HYBRID PRODUCT FETCHING WITH FALLBACK LOGIC
   const fetchProducts = useCallback(async (cursor: string | null = null) => {
     // Reset fallback mode if this is a fresh fetch (not a pagination load)
     if (!cursor) fallbackModeRef.current = 'none';
@@ -308,7 +307,8 @@ function SaleContent({ collection, initialData }: SalePageProps) {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [activeFilters, itemsPerPage, collectionMap, sortOption]); // 🚀 FIX: Added sortOption to dependency array
+  }, [activeFilters, itemsPerPage, collectionMap, sortOption]); 
+  
   // 🚀 FIX: Prevent double-fetching on the initial mount if we already have SSR data
   useEffect(() => {
     if (isFirstRender.current && initialData) {
@@ -322,7 +322,7 @@ function SaleContent({ collection, initialData }: SalePageProps) {
   const handleSortChange = (value: SortOptionValue) => {
     setSortOption(value);
     setIsLoading(true);
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     params.set('sort', value);
     router.push(`${pathname || '/collections/sale'}?${params.toString()}`, { scroll: false });
   };
@@ -355,7 +355,7 @@ function SaleContent({ collection, initialData }: SalePageProps) {
     setActiveFilters(newState);
 
     // 3. Trigger the router push side-effect sequentially
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     
     if (newState.styles.length > 0) params.set('styles', newState.styles.join(','));
     else params.delete('styles');
@@ -375,7 +375,7 @@ function SaleContent({ collection, initialData }: SalePageProps) {
 
   // 🚀 SEO FIX: Helper function to build Semantic Links for Pagination crawlers
   const getPaginationHref = () => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     if (pageInfo.endCursor) params.set('cursor', pageInfo.endCursor);
     return `${pathname || '/collections/sale'}?${params.toString()}`;
   };
@@ -624,18 +624,26 @@ function SaleContent({ collection, initialData }: SalePageProps) {
   );
 }
 
-// 2. Wrap the exported component in Suspense required by Next.js
-export default function SalePage({ collection, initialData }: SalePageProps) {
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. Component that handles reading the search parameters hook
+// ─────────────────────────────────────────────────────────────────────────────
+function SaleContentWithParams(props: SalePageProps) {
+  const searchParams = useSearchParams();
+  const searchParamsString = searchParams?.toString() || "";
+  
+  return <SaleContentInternal {...props} searchParamsString={searchParamsString} />;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. Main Export - Wraps the component in a Suspense boundary to prevent SSR bailout.
+// Falls back to the pre-populated HTML version (using initialData) for Googlebot!
+// ─────────────────────────────────────────────────────────────────────────────
+export default function SalePage(props: SalePageProps) {
   return (
     <Suspense 
-      fallback={
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center mt-20">
-          <Loader2 className="w-10 h-10 text-[#FF3366] animate-spin" />
-        </div>
-      }
+      fallback={<SaleContentInternal {...props} searchParamsString="" />}
     >
-      {/* 🚀 FIX: Pass initialData down to the Content component */}
-      <SaleContent collection={collection} initialData={initialData} />
+      <SaleContentWithParams {...props} />
     </Suspense>
   );
 }

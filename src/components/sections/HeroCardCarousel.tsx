@@ -57,6 +57,19 @@ const CSS = `
     font-family: var(--font-sans), sans-serif; /* Forced Almarena */
   }
 
+  /* ── SSR & Accessibility Utility ──────────────────────────── */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
   /* ── Grain ────────────────────────────────────────────────── */
   .h-grain {
     position:absolute; inset:0; z-index:1; pointer-events:none;
@@ -107,31 +120,6 @@ const CSS = `
       6px  6px 0 rgba(255,122,0,.32),
       10px 10px 18px rgba(255,122,0,.18);
   }
-
-  /* ── Badges ───────────────────────────────────────────────── */
-  .h-badge {
-    display:inline-flex; align-items:center; gap:.4rem;
-    padding:.32rem .8rem;
-    border-radius:9999px;
-    font-size:clamp(.58rem,1.3vw,.7rem);
-    font-weight:700; letter-spacing:.1em; text-transform:uppercase;
-    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
-    border:1px solid;
-  }
-  .badge-fire { background:rgba(239,68,68,.1); color:#f87171; border-color:rgba(239,68,68,.28); }
-  .badge-ship { background:rgba(34,197,94,.09); color:#4ade80; border-color:rgba(34,197,94,.28); }
-
-  .pdot { position:relative; display:flex; width:6px; height:6px; flex-shrink:0; }
-  .pdot::before {
-    content:''; position:absolute; inset:0; border-radius:50%;
-    background:#4ade80; opacity:.75;
-    animation:pdPing 1.4s cubic-bezier(0,0,.2,1) infinite;
-  }
-  .pdot::after {
-    content:''; position:relative; border-radius:50%;
-    width:6px; height:6px; background:#22c55e;
-  }
-  @keyframes pdPing { 75%,100% { transform:scale(2.3); opacity:0; } }
 
   /* ── CAROUSEL SCENE ──────────────────────────────────────── */
   .h-scene {
@@ -301,7 +289,17 @@ export default function HeroCardCarousel() {
             <section
                 className="hero-root relative w-full bg-black text-white overflow-hidden"
                 style={{ height: "100dvh" }}
+                aria-label="Hero Section"
             >
+                {/* 🚀 SEO FIX: No-JS Fallback Block ensures crawlers index core content regardless of hydration */}
+                <noscript>
+                    <div style={{ padding: "2rem", textAlign: "center", position: "relative", zIndex: 999 }}>
+                        <h1>Express Yourself Fearlessly.</h1>
+                        <p>Premium sticker tattoos that feel like real ink. No needles. No commitment. Up to 14 days on your skin.</p>
+                        <a href="/collections" title="Shop all temporary tattoos">Shop the Collection</a>
+                    </div>
+                </noscript>
+
                 {/* ── Background atmosphere ── */}
                 <div className="h-glow" />
                 <div className="h-grain" />
@@ -340,7 +338,8 @@ export default function HeroCardCarousel() {
                             >
                                 <Image
                                     src={src}
-                                    alt={`Showcase card ${(i % DATA.length) + 1}`}
+                                   
+                                    alt={`Premium temporary tattoo design showcase preview ${(i % DATA.length) + 1}`}
                                     fill
                                     className="object-cover"
                                     sizes="(max-width:480px) 9rem, (max-width:768px) 11rem, 14rem"
@@ -367,7 +366,11 @@ export default function HeroCardCarousel() {
                         className="h-title uppercase w-full"
                         style={{ marginBottom: "clamp(0.4rem,1vw,0.7rem)" }}
                     >
+                        {/* 🚀 SEO FIX: Provide a single continuous string for crawlers and hide the fragmented visual text */}
+                        <span className="sr-only">Express Yourself Fearlessly.</span>
+                        
                         <div
+                            aria-hidden="true"
                             style={{
                                 display: "flex",
                                 flexWrap: "wrap",
@@ -381,6 +384,7 @@ export default function HeroCardCarousel() {
                         </div>
 
                         <span
+                            aria-hidden="true"
                             className="h-t3 block"
                             style={{ transform: "translateX(clamp(0.8rem,2vw,1.8rem))" }}
                         >
@@ -416,7 +420,8 @@ export default function HeroCardCarousel() {
                     transition={{ duration: 0.6, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
                 >
                     {/* Scrolling marquee */}
-                    <div className="h-mq-wrap">
+                    {/* 🚀 SEO FIX: Added aria-hidden to prevent search engines from parsing this as keyword stuffing */}
+                    <div className="h-mq-wrap" aria-hidden="true">
                         <div className="h-mq-track">
                             {MARQUEE.map((item, i) => (
                                 <span
@@ -430,9 +435,13 @@ export default function HeroCardCarousel() {
                     </div>
 
                     {/* CTA button */}
-                    <Link href="/collections" className="h-cta">
+                    <Link 
+                        href="/collections" 
+                        className="h-cta"
+                        aria-label="Shop our temporary tattoo collections"
+                    >
                         Shop the Collection
-                        <span className="h-arrow">→</span>
+                        <span className="h-arrow" aria-hidden="true">→</span>
                     </Link>
 
                     {/* Stats */}
@@ -446,7 +455,7 @@ export default function HeroCardCarousel() {
                                     <span className="h-sval">{s.value}</span>
                                     <span className="h-slbl">{s.label}</span>
                                 </div>
-                                {idx < STATS.length - 1 && <div className="h-sep" />}
+                                {idx < STATS.length - 1 && <div className="h-sep" aria-hidden="true" />}
                             </div>
                         ))}
                     </div>

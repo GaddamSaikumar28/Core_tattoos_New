@@ -1,7 +1,6 @@
-
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -16,11 +15,12 @@ import { generateHref, getRelativeUrl, dropdownVariants } from "./header.util";
 interface DesktopNavProps {
   menuItems: MenuItem[];
   closeProfileMenu?: () => void;
+  currentCategory?: string | null;
 }
 
-export default function DesktopNav({ menuItems, closeProfileMenu }: DesktopNavProps) {
+// 1. The main UI logic is moved here. It no longer calls useSearchParams directly.
+function DesktopNavInternal({ menuItems, closeProfileMenu, currentCategory }: DesktopNavProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
@@ -61,9 +61,6 @@ export default function DesktopNav({ menuItems, closeProfileMenu }: DesktopNavPr
         const hasDeepLinks = item.items?.some(
           (subItem) => subItem.items && subItem.items.length > 0
         );
-        
-        // Grab the current active category from the URL
-        const currentCategory = searchParams?.get("category");
 
         return (
           <div
@@ -271,5 +268,22 @@ export default function DesktopNav({ menuItems, closeProfileMenu }: DesktopNavPr
         );
       })}
     </nav>
+  );
+}
+
+// 2. Component that handles reading the search parameter
+function DesktopNavWithParams(props: Omit<DesktopNavProps, 'currentCategory'>) {
+  const searchParams = useSearchParams();
+  const currentCategory = searchParams?.get("category");
+  return <DesktopNavInternal {...props} currentCategory={currentCategory} />;
+}
+
+// 3. Main Export - Wraps the component in a Suspense boundary to prevent SSR bailout.
+// Falls back to the Internal HTML version (without `currentCategory`) so Googlebot sees the nav.
+export default function DesktopNav(props: Omit<DesktopNavProps, 'currentCategory'>) {
+  return (
+    <Suspense fallback={<DesktopNavInternal {...props} currentCategory={null} />}>
+      <DesktopNavWithParams {...props} />
+    </Suspense>
   );
 }

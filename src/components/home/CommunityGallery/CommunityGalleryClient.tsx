@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -110,6 +109,27 @@ export default function CommunityGalleryClient({ data }: { data: GalleryData }) 
 
   return (
     <section className="w-full bg-[#050505] text-white py-24 px-4 md:px-8 overflow-hidden">
+      
+      {/* 🚀 SEO FIX: Inject <noscript> fallback for crawlers that do not execute JS intervals */}
+      <noscript>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          {data.images?.slice(0, 11).map((img, idx) => {
+            const fallbackAlt = img.alt && img.alt.toLowerCase() !== 'community image' 
+              ? img.alt 
+              : `Just Tattoos community member wearing a custom temporary tattoo design ${idx + 1}`;
+            return (
+              <img 
+                key={idx} 
+                src={img.url} 
+                alt={fallbackAlt} 
+                style={{ width: '100%', height: 'auto', objectFit: 'cover' }} 
+                loading="lazy" 
+              />
+            );
+          })}
+        </div>
+      </noscript>
+
       <div className="max-w-[1400px] mx-auto flex flex-col gap-14">
         
         {/* === HEADER SECTION === */}
@@ -153,6 +173,11 @@ export default function CommunityGalleryClient({ data }: { data: GalleryData }) 
                 const image = activeSlots[index];
                 if (!image) return null;
 
+                // 🚀 SEO FIX: Sanitize Alt Text dynamically. Replaces empty or generic text.
+                const imageAltText = image.alt && image.alt.toLowerCase() !== 'community image' 
+                  ? image.alt 
+                  : `Just Tattoos community member wearing a custom temporary tattoo design ${index + 1}`;
+
                 return (
                   <motion.div 
                     key={`slot-${index}`} 
@@ -170,7 +195,7 @@ export default function CommunityGalleryClient({ data }: { data: GalleryData }) 
                       >
                         <Image 
                           src={image.url}
-                          alt={image.alt}
+                          alt={imageAltText} // Applied Keyword-rich Alt Text
                           fill
                           className="object-cover transform transition-transform duration-[1.5s] ease-out group-hover:scale-105"
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

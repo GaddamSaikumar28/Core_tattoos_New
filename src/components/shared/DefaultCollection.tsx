@@ -50,10 +50,19 @@ interface DefaultCollectionProps {
   initialData?: InitialData;
 }
 
-// 1. The main content component containing the logic
-function DefaultCollectionContent({ handle, initialData }: DefaultCollectionProps) {
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. Internal Component: Core logic decoupled from the direct `useSearchParams` hook.
+// Receives `searchParamsString` as a prop so it can safely render on the server.
+// ─────────────────────────────────────────────────────────────────────────────
+function DefaultCollectionContentInternal({ 
+  handle, 
+  initialData, 
+  searchParamsString 
+}: DefaultCollectionProps & { searchParamsString: string }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  
+  // Use the passed string to read parameters instead of the hook directly
+  const parsedSearchParams = new URLSearchParams(searchParamsString);
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
@@ -79,9 +88,9 @@ function DefaultCollectionContent({ handle, initialData }: DefaultCollectionProp
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>(
     initialData?.activeFilters ?? {
       collections: initialData ? [initialData.currentCollectionTitle] : [],
-      styles: searchParams.get('styles')?.split(',') || [],
-      sizes: searchParams.get('sizes')?.split(',') || [],
-      placements: searchParams.get('placements')?.split(',') || []
+      styles: parsedSearchParams.get('styles')?.split(',') || [],
+      sizes: parsedSearchParams.get('sizes')?.split(',') || [],
+      placements: parsedSearchParams.get('placements')?.split(',') || []
     }
   );
 
@@ -226,6 +235,7 @@ function DefaultCollectionContent({ handle, initialData }: DefaultCollectionProp
       setIsLoadingMore(false);
     }
   }, [handle, activeFilters, itemsPerPage, sortOption]); // 🚀 FIXED: Added sortOption to dependency array
+  
   const isFirstRender = useRef(true);
   useEffect(() => {
     if (isFirstRender.current && initialData) {
@@ -249,7 +259,7 @@ function DefaultCollectionContent({ handle, initialData }: DefaultCollectionProp
   const handleSortChange = (value: SortOptionValue) => {
     setSortOption(value);
     setIsLoading(true);
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     params.set('sort', value);
     router.push(`${window.location.pathname}?${params.toString()}`, { scroll: false });
   };
@@ -280,7 +290,7 @@ function DefaultCollectionContent({ handle, initialData }: DefaultCollectionProp
 
       const newState = { ...prev, [group]: newGroupState };
 
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParamsString);
 
       if (newState.styles.length > 0) params.set('styles', newState.styles.join(','));
       else params.delete('styles');
@@ -308,7 +318,7 @@ function DefaultCollectionContent({ handle, initialData }: DefaultCollectionProp
   };
 
   const getPaginationHref = () => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParamsString);
     if (pageInfo.endCursor) params.set('cursor', pageInfo.endCursor);
     return `?${params.toString()}`;
   };
@@ -535,17 +545,26 @@ function DefaultCollectionContent({ handle, initialData }: DefaultCollectionProp
   );
 }
 
-// 2. Export the component wrapped in a Suspense boundary (Required by Next.js)
-export default function DefaultCollection({ handle, initialData }: DefaultCollectionProps) {
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. Component that handles reading the search parameters hook
+// ─────────────────────────────────────────────────────────────────────────────
+function DefaultCollectionContentWithParams(props: DefaultCollectionProps) {
+  const searchParams = useSearchParams();
+  const searchParamsString = searchParams?.toString() || "";
+  
+  return <DefaultCollectionContentInternal {...props} searchParamsString={searchParamsString} />;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. Main Export - Wraps the component in a Suspense boundary to prevent SSR bailout.
+// Falls back to the pre-populated HTML version (using initialData) for Googlebot!
+// ─────────────────────────────────────────────────────────────────────────────
+export default function DefaultCollection(props: DefaultCollectionProps) {
   return (
     <Suspense
-      fallback={
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center mt-20">
-          <Loader2 className="w-10 h-10 text-[var(--color-brand-orange)] animate-spin" />
-        </div>
-      }
+      fallback={<DefaultCollectionContentInternal {...props} searchParamsString="" />}
     >
-      <DefaultCollectionContent handle={handle} initialData={initialData} />
+      <DefaultCollectionContentWithParams {...props} />
     </Suspense>
   );
 }
