@@ -213,6 +213,7 @@ function ShopAllContentInternal({
     setSortOption(value);
     setIsLoading(true);
     const params = new URLSearchParams(searchParamsString);
+    params.delete('cursor');
     params.set('sort', value);
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
@@ -239,6 +240,14 @@ function ShopAllContentInternal({
     setActiveFilters(newState);
 
     const params = new URLSearchParams(searchParamsString);
+    params.delete('cursor'); // 🚀 THE FIX: Reset pagination when filters change
+
+    if (newState.collections?.length > 0) {
+      params.set('category', newState.collections.join(','));
+    } else {
+      params.delete('category');
+    }
+
     if (newState.styles?.length > 0) params.set('styles', newState.styles.join(','));
     else params.delete('styles');
     

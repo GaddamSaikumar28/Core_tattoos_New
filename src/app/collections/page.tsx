@@ -23,6 +23,8 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     ['styles', 'sizes', 'placements', 'category', 'cursor', 'sort'].includes(key)
   );
 
+  //const defaultImage = `${siteUrl}/fallback-seo-image.jpg`; // Fallback image for OG/Twitter
+  const defaultImage = `${siteUrl}/assets/images/temporary_tattoos.webp`; // Updated fallback image for OG/Twitter
   return {
     title: 'Shop All | Just Tattoos',
     description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
@@ -35,11 +37,22 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
       url: `${siteUrl}/collections`,
       type: 'website',
+      // 🚀 SEO FIX: Added fallback images for OpenGraph
+      images: [
+        {
+          url: defaultImage,
+          width: 1200,
+          height: 630,
+          alt: 'Shop All | Just Tattoos',
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: 'Shop All | Just Tattoos',
       description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
+      // 🚀 SEO FIX: Added fallback images for Twitter
+      images: [defaultImage],
     }
   };
 }
@@ -219,7 +232,7 @@ export default async function ShopAllPage({ searchParams }: Props) {
     currentCollectionTitle: activeFilters.collections.length === 1 ? activeFilters.collections[0] : 'Shop All',
   };
 
-  // 🚀 SEO FIX: Construct highly explicit ItemList structured data arrays safely
+  // 🚀 SEO FIX: Construct highly explicit ItemList structured data arrays safely, including nested Product/Offers
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -231,7 +244,22 @@ export default async function ShopAllPage({ searchParams }: Props) {
       itemListElement: (result?.formattedData || []).map((product: any, index: number) => ({
         '@type': 'ListItem',
         position: index + 1,
-        url: `${siteUrl}/products/${product.handle}`
+        url: `${siteUrl}/products/${product.handle}`,
+        item: {
+          "@type": "Product",
+          "name": product.title,
+          "image": product.media?.featuredImage,
+          "description": product.description,
+          "offers": {
+            "@type": "Offer",
+            "price": product.checkout?.price,
+            "priceCurrency": product.checkout?.currency || "USD",
+            "availability": product.inventory?.inStock 
+              ? "https://schema.org/InStock" 
+              : "https://schema.org/OutOfStock",
+            "url": `${siteUrl}/products/${product.handle}`
+          }
+        }
       }))
     }
   };
@@ -256,7 +284,8 @@ function PageSkeleton() {
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center mt-20">
       <div className="flex flex-col items-center gap-4">
         <Loader2 className="w-8 h-8 text-[var(--color-brand-orange)] animate-spin" />
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">
+        {/* 🚀 SEO FIX: Hide literal text from bots/visual, keep for screen readers */}
+        <span className="sr-only">
           Loading Collection...
         </span>
       </div>

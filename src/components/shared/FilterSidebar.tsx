@@ -32,6 +32,7 @@ export function FilterSidebar({ filters, activeFilters, onToggle }: FilterSideba
 
   return (
     <div className="space-y-1">
+
       {filters.collections && filters.collections.length > 0 && (
         <FilterGroup
           title="Categories"
@@ -117,6 +118,7 @@ function FilterGroupInternal({
 
   return (
     <div className="border-b border-zinc-800/60 last:border-0">
+
       {/* Group header toggle */}
       <button
         onClick={() => setIsOpen((o) => !o)}
@@ -147,16 +149,9 @@ function FilterGroupInternal({
           {items.map((item) => {
             const isActive = activeItems.includes(item);
 
-            // 🚀 SEO FIX: Construct absolute semantic URLs for collections to allow link crawling across routes
+            // 🚀 SEO FIX: Construct semantic URLs for crawlers while preserving existing queries
             let href = pathname;
-            if (groupKey === 'collections') {
-              if (item === 'Shop All') {
-                href = '/collections';
-              } else {
-                const cleanHandle = item.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-                href = `/collections/${cleanHandle}`;
-              }
-            } else {
+            if (groupKey !== 'collections') {
               const params = new URLSearchParams(currentSearchParams);
               const newVals = isActive
                 ? activeItems.filter((i) => i !== item)
@@ -185,7 +180,7 @@ function FilterGroupInternal({
                 aria-checked={isActive}
                 className="flex items-center gap-3 px-1 py-2 rounded-lg group/item hover:bg-zinc-800/40 transition-colors duration-150 select-none"
               >
-                {/* Checkbox Box Visual */}
+                {/* 🚀 SEO FIX: Replaced <input type="checkbox"> with standard div to clean up DOM */}
                 <div
                   className={clsx(
                     'w-4 h-4 rounded-sm border flex items-center justify-center shrink-0 transition-all duration-150',
@@ -215,6 +210,7 @@ function FilterGroupInternal({
           })}
         </div>
       </div>
+
     </div>
   );
 }

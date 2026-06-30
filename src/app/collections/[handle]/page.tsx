@@ -12,7 +12,7 @@ type SortOptionValue = 'newest' | 'price-asc' | 'price-desc' | 'alpha-asc';
 
 type Props = {
   params: Promise<{ handle: string }>;
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 const normalizeSearchParam = (value: string | string[] | undefined) => {
@@ -49,11 +49,11 @@ const getSortSettings = (sort: SortOptionValue) => {
   }
 };
 
-const buildActiveFilters = (searchParams: Props['searchParams']) => ({
-  collections: normalizeSearchParam(searchParams.category).filter((value) => value !== 'Shop All'),
-  styles: normalizeSearchParam(searchParams.styles),
-  sizes: normalizeSearchParam(searchParams.sizes),
-  placements: normalizeSearchParam(searchParams.placements),
+const buildActiveFilters = (resolvedSearchParams: { [key: string]: string | string[] | undefined }) => ({
+  collections: normalizeSearchParam(resolvedSearchParams.category).filter((value) => value !== 'Shop All'),
+  styles: normalizeSearchParam(resolvedSearchParams.styles),
+  sizes: normalizeSearchParam(resolvedSearchParams.sizes),
+  placements: normalizeSearchParam(resolvedSearchParams.placements),
 });
 
 // =========================================================
@@ -61,15 +61,17 @@ const buildActiveFilters = (searchParams: Props['searchParams']) => ({
 // =========================================================
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { handle } = await params;
+  const resolvedSearchParams = await searchParams;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.justtattoos.com";
   const canonicalUrl = `${siteUrl}/collections/${handle}`;
 
   // 🚀 SEO FIX: Protect Crawl Budget by preventing indexing of faceted filter URLs
-  const isFacetedURL = searchParams && Object.keys(searchParams).some(key => 
+  const isFacetedURL = resolvedSearchParams && Object.keys(resolvedSearchParams).some(key => 
     ['styles', 'sizes', 'placements', 'category', 'cursor'].includes(key)
   );
 
   const collection = await getCollection(handle);
+  const defaultImage = `${siteUrl}/assets/images/temporary_tattoos.webp`;
 
   // 🚀 HYBRID SEO LOGIC FOR SALE PAGE
   if (handle === 'sale') {
@@ -86,11 +88,15 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
         description,
         url: canonicalUrl,
         type: 'website',
+        // 🚀 SEO FIX: Added openGraph image configurations
+        images: [{ url: defaultImage, width: 1200, height: 630, alt: title }],
       },
       twitter: {
         card: 'summary_large_image',
         title,
         description,
+        // 🚀 SEO FIX: Added twitter image configurations
+        images: [defaultImage],
       }
     };
   }
@@ -110,11 +116,15 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
         description,
         url: canonicalUrl,
         type: 'website',
+        // 🚀 SEO FIX: Added openGraph image configurations
+        images: [{ url: defaultImage, width: 1200, height: 630, alt: title }],
       },
       twitter: {
         card: 'summary_large_image',
         title,
         description,
+        // 🚀 SEO FIX: Added twitter image configurations
+        images: [defaultImage],
       }
     };
   }
@@ -124,10 +134,14 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     return { title: 'Collection Not Found | Just Tattoos', robots: { index: false } };
   }
 
+  const finalTitle = collection.seo?.title || `${collection.title} | Just Tattoos`;
+  const finalDescription = collection.seo?.description || collection.description || `Shop the ${collection.title} collection at Just Tattoos.`;
+  const collectionImage = collection.image?.url || defaultImage;
+
   // Dynamic Shopify Collection Execution
   return {
-    title: collection.seo?.title || `${collection.title} | Just Tattoos`,
-    description: collection.seo?.description || collection.description || `Shop the ${collection.title} collection at Just Tattoos.`,
+    title: finalTitle,
+    description: finalDescription,
     alternates: { canonical: canonicalUrl },
     robots: isFacetedURL ? { index: false, follow: true } : { index: true, follow: true },
     openGraph: {
@@ -135,11 +149,15 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
       description: collection.seo?.description || collection.description,
       url: canonicalUrl,
       type: 'website',
+      // 🚀 SEO FIX: Added openGraph image configurations
+      images: [{ url: collectionImage, width: 1200, height: 630, alt: collection.title || finalTitle }],
     },
     twitter: {
       card: 'summary_large_image',
       title: collection.seo?.title || collection.title,
       description: collection.seo?.description || collection.description,
+      // 🚀 SEO FIX: Added twitter image configurations
+      images: [collectionImage],
     }
   };
 }
@@ -316,6 +334,7 @@ async function fetchCollectionInitialData(
 // =========================================================
 export default async function CollectionSwitchboardPage({ params, searchParams }: Props) {
   const { handle } = await params;
+  const resolvedSearchParams = await searchParams; // 🚀 SEO FIX: Awaited incoming searchParams object
 
   // 🚀 FIX: Verify Dynamic Collection exists first (prevents 404s on bad URLs)
   if (handle !== 'sale' && handle !== 'new-arrival') {
@@ -324,16 +343,16 @@ export default async function CollectionSwitchboardPage({ params, searchParams }
   }
 
   // Parse query filters and sort from the URL so SSR matches the browser
-  const activeFilters = buildActiveFilters(searchParams);
-  const sortOption = normalizeSortParam(searchParams.sort);
+  const activeFilters = buildActiveFilters(resolvedSearchParams);
+  const sortOption = normalizeSortParam(resolvedSearchParams.sort);
   
-  // 🚀 SEO FIX: Extract cursor for server-side pagination rendering
-  const cursor = typeof searchParams.cursor === 'string' ? searchParams.cursor : undefined;
+  // 🚀 SEO FIX: Extract cursor safely from awaited parameters object
+  const cursor = typeof resolvedSearchParams.cursor === 'string' ? resolvedSearchParams.cursor : undefined;
 
   // 🚀 FIX: Fetch SSR data BEFORE the switchboard so all 3 routes get the SEO benefit
   const initialData = await fetchCollectionInitialData(handle, activeFilters, sortOption, cursor);
 
-  // 🚀 SEO FIX: Generated Collection Schema dynamically from initialData with enhanced fields
+  // 🚀 SEO FIX: Generated Collection Schema dynamically from initialData with deep Product/Offer objects nested
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -346,7 +365,22 @@ export default async function CollectionSwitchboardPage({ params, searchParams }
       itemListElement: initialData?.products?.map((product, index) => ({
         '@type': 'ListItem',
         position: index + 1,
-        url: `${siteUrl}/products/${product.handle}`
+        url: `${siteUrl}/products/${product.handle}`,
+        item: {
+          "@type": "Product",
+          "name": product.title,
+          "image": product.media?.featuredImage,
+          "description": product.description,
+          "offers": {
+            "@type": "Offer",
+            "price": product.checkout?.price,
+            "priceCurrency": product.checkout?.currency || "USD",
+            "availability": product.inventory?.inStock 
+              ? "https://schema.org/InStock" 
+              : "https://schema.org/OutOfStock",
+            "url": `${siteUrl}/products/${product.handle}`
+          }
+        }
       })) || []
     }
   };

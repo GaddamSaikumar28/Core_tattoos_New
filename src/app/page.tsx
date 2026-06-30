@@ -16,7 +16,7 @@ import BookWrapper             from "@/src/components/3DBook/BookWrapper";
 import HeroCardCarousel        from "../components/sections/HeroCardCarousel";
 import type { TattooProduct }  from "@/src/components/3DBook/UI";
 
-// 🚀 SEO FIX: Added highly optimized Homepage Metadata with Canonical, absolute resolution via metadataBase, and Open Graph parameters (Action Plan 4, Checklist 2)
+// 🚀 SEO FIX: Added highly optimized Homepage Metadata with Canonical, absolute resolution via metadataBase, and Open Graph parameters
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.justtattoos.com"), // Crucial: forces relative paths below to safely resolve to absolute URLs for crawlers
   title: "Just Tattoos | Authentic Temporary Tattoos & Ink Lifestyle",
@@ -110,7 +110,7 @@ export default async function HomePage() {
     getHomePageCollections(10)
   ]);
 
-  // 🚀 SEO FIX: Enhanced Schema.org layout via a cohesive @graph structure to bundle Organization, Website Search Box, and Product ItemLists simultaneously (Checklist 4, Action Plan 5)
+  // 🚀 SEO FIX: Enhanced Schema.org layout via a cohesive @graph structure to bundle Organization, Website Search Box, and Product ItemLists simultaneously
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -163,7 +163,7 @@ export default async function HomePage() {
   return (
     <div className="w-full flex flex-col items-center overflow-visible bg-[var(--color-bg-base)]">
       
-      {/* 🚀 SEO FIX: Added <noscript> fallback element tree to index core keywords and links if JavaScript fails or is completely turned off (Checklist 3) */}
+      {/* 🚀 SEO FIX: Added <noscript> fallback element tree to index core keywords and links if JavaScript fails or is completely turned off */}
       <noscript>
         <div style={{ padding: "24px", textAlign: "center", background: "#000000", color: "#ffffff" }}>
           <h1>Just Tattoos | Authentic Temporary Tattoos & Ink Lifestyle</h1>
@@ -181,10 +181,16 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <HeroCardCarousel />
+      {/* 🚀 SSR BAILOUT FIX: Added Suspense boundary to isolate HeroCardCarousel */}
+      <Suspense fallback={<div className="w-full min-h-[80vh] bg-[var(--color-bg-base)] animate-pulse" />}>
+        <HeroCardCarousel />
+      </Suspense>
 
       <div className="w-full h-[800px] relative">
-        <BookWrapper products={dummyBookProducts} />
+        {/* 🚀 SSR BAILOUT FIX: Added Suspense boundary to isolate 3D Book wrapper */}
+        <Suspense fallback={<div className="w-full h-full bg-[var(--color-bg-base)] animate-pulse" />}>
+          <BookWrapper products={dummyBookProducts} />
+        </Suspense>
       </div>
 
       <Suspense fallback={<CarouselSkeleton />}>
@@ -210,11 +216,27 @@ export default async function HomePage() {
         />
       </Suspense>
 
-      <TattooStudio />
-      <CommunityGallerySection />
-      <HowItWorks />
-      <DynamicReviews />
-      <NewsletterSection />
+      {/* 🚀 SSR BAILOUT FIX: Wrapped all subsequent Client/Interactive sections in Suspense to prevent useSearchParams or interactive hooks from destroying page-level SSR */}
+      <Suspense fallback={<div className="w-full h-[400px] bg-[var(--color-bg-base)]" />}>
+        <TattooStudio />
+      </Suspense>
+
+      <Suspense fallback={<div className="w-full h-[400px] bg-[var(--color-bg-base)]" />}>
+        <CommunityGallerySection />
+      </Suspense>
+
+      <Suspense fallback={<div className="w-full h-[400px] bg-[var(--color-bg-base)]" />}>
+        <HowItWorks />
+      </Suspense>
+
+      <Suspense fallback={<div className="w-full h-[400px] bg-[var(--color-bg-base)]" />}>
+        <DynamicReviews />
+      </Suspense>
+
+      <Suspense fallback={<div className="w-full h-[400px] bg-[var(--color-bg-base)]" />}>
+        <NewsletterSection />
+      </Suspense>
+
     </div>
   );
 }

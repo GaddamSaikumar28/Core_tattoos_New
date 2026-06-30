@@ -31,12 +31,13 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      
+
       {/* Visible Breadcrumb UI */}
       <nav aria-label="Breadcrumb" className="mb-6 overflow-x-auto whitespace-nowrap pb-2">
         <ol className="flex items-center space-x-2 text-xs sm:text-sm text-gray-500 font-medium tracking-wide">
           {items.map((item, index) => (
-            <li key={item.url} className="flex items-center">
+            // 🚀 THE FIX: Combine the URL with the index to guarantee uniqueness
+            <li key={`${item.url}-${index}`} className="flex items-center">
               {index === items.length - 1 ? (
                 <span className="text-[var(--color-brand-orange)] font-bold" aria-current="page">
                   {item.label}
