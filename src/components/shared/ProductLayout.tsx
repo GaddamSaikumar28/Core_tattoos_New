@@ -198,27 +198,21 @@ export function ProductCard({ item, viewMode, page, index , priority = false }: 
 
   return (
     <>
-      {/* 🚀 SEO FIX: Swapped wrapper div to semantic <article> element for strict eCommerce crawling schemas */}
+      {/* 🚀 SEO FIX: Wrapped in <article> for product schema clarity */}
       <article
         ref={ref}
         className={clsx(
           "group flex transition-all duration-[1500ms] ease-[cubic-bezier(0.25,1,0.5,1)]",
           "h-full", 
           originClass,
-          // 🚀 SEO FIX: Fixed the opacity-0 hydration trap. On the server side (before mount),
-          // cards render fully visible so Googlebot indexes the product context.
-          // Real clients safely transition smoothly once the component is mounted and detected.
-          priority || !isMounted
-            ? "opacity-100 translate-x-0 rotate-0"
-            : isVisible
-            ? "opacity-100 translate-x-0 rotate-0"
-            : `opacity-0 ${hiddenTransformClasses}`,
+          // 🚀 SEO FIX: Maintain visibility on server/SSR for crawlers, apply animation on mount
+          priority || isMounted ? "opacity-100 translate-x-0 rotate-0" : isVisible ? "opacity-100 translate-x-0 rotate-0" : `opacity-0 ${hiddenTransformClasses}`,
           isList
             ? "flex-row h-auto gap-4 sm:gap-6 items-center sm:items-stretch"
             : "flex-col",
         )}
       >
-        {/* 1. Image Area (Showcase Styling) */}
+        {/* 1. Image Area */}
         <Link
           href={productUrl}
           prefetch={false}
@@ -255,7 +249,7 @@ export function ProductCard({ item, viewMode, page, index , priority = false }: 
           />
         </Link>
 
-        {/* 2. Content Area (Showcase Styling) */}
+        {/* 2. Content Area */}
         <div
           className={clsx(
             "flex flex-col flex-grow min-w-0 px-1",
@@ -294,7 +288,6 @@ export function ProductCard({ item, viewMode, page, index , priority = false }: 
 
           {/* Controls Block */}
           <div className="flex flex-col mt-auto gap-3">
-            
             {variants.length > 1 && (
               <div className="relative w-full">
                 <select
@@ -360,10 +353,8 @@ export function ProductCard({ item, viewMode, page, index , priority = false }: 
             </div>
           </div>
 
-          {/* Footer info (Shipping & Clickable AR) */}
           <div className="flex justify-between items-center pt-3 border-t border-white/5">
              <span className="text-[10px] text-[--color-text-secondary] tracking-wide">12-14 days</span>
-             
              <button 
                onClick={handleARClick}
                className="flex items-center text-[--color-brand-purple-light] text-[10px] uppercase font-bold tracking-wider hover:brightness-125 transition-all cursor-pointer"
@@ -376,7 +367,7 @@ export function ProductCard({ item, viewMode, page, index , priority = false }: 
         </div>
       </article>
 
-      {/* AR Camera Overlay Modal */}
+      {/* AR Camera Overlay */}
       {isMounted && createPortal(
         <AnimatePresence>
           {isArMode && (
@@ -387,7 +378,6 @@ export function ProductCard({ item, viewMode, page, index , priority = false }: 
               transition={{ duration: 0.3 }}
               className="fixed inset-0 z-[100] bg-black flex flex-col"
             >
-              {/* Overlay Navigation Header */}
               <div className="absolute top-0 left-0 right-0 z-[110] flex items-center justify-between px-4 py-6 bg-gradient-to-b from-black/80 to-transparent">
                 <button
                   onClick={() => setIsArMode(false)}
@@ -396,11 +386,7 @@ export function ProductCard({ item, viewMode, page, index , priority = false }: 
                   <X className="w-4 h-4" />
                   <span className="text-[10px] font-black uppercase tracking-widest">Back</span>
                 </button>
-
-                <span className="text-white font-black uppercase tracking-[0.3em] text-[10px] drop-shadow-md">
-                  Studio AR
-                </span>
-
+                <span className="text-white font-black uppercase tracking-[0.3em] text-[10px] drop-shadow-md">Studio AR</span>
                 <button
                   onClick={handleSwitchCamera}
                   className="w-11 h-11 bg-black/40 hover:bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center text-white border border-white/10 transition-colors pointer-events-auto shadow-lg"
@@ -411,7 +397,6 @@ export function ProductCard({ item, viewMode, page, index , priority = false }: 
               </div>
 
               <div className="relative w-full h-full overflow-hidden bg-zinc-900">
-                {/* Live Camera Feed */}
                 <video
                   ref={videoRef}
                   autoPlay
@@ -422,8 +407,6 @@ export function ProductCard({ item, viewMode, page, index , priority = false }: 
                     facingMode === "user" ? "scale-x-[-1]" : ""
                   )}
                 />
-                
-                {/* Interactive Tattoo Overlay Wrapper */}
                 {item.media?.arOverlayImage && (
                   <div className="absolute inset-0 z-20">
                     <InteractiveTattoo

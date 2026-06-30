@@ -209,22 +209,6 @@ function ShopAllContentInternal({
     }
   };
 
-  const handleCategoryPillClick = (cat: string) => {
-    setIsLoading(true); 
-    const params = new URLSearchParams(searchParamsString);
-    
-    if (cat === 'Shop All') {
-      params.delete('category');
-      setActiveFilters((prev) => ({ ...prev, collections: [] }));
-    } else {
-      params.set('category', cat);
-      setActiveFilters((prev) => ({ ...prev, collections: [cat] }));
-    }
-
-    params.set('sort', sortOption);
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  };
-
   const handleSortChange = (value: SortOptionValue) => {
     setSortOption(value);
     setIsLoading(true);
@@ -270,14 +254,11 @@ function ShopAllContentInternal({
     router.push(`${pathname}${qs ? `?${qs}` : ''}`, { scroll: false });
   };
 
-  // 🚀 SEO FIX: Helper functions to build Semantic Links for crawlers
+  // 🚀 SEO FIX: Changed from query parameter routing to discrete semantic handles
   const getCategoryHref = (cat: string) => {
-    const params = new URLSearchParams(searchParamsString);
-    if (cat === 'Shop All') params.delete('category');
-    else params.set('category', cat);
-    params.set('sort', sortOption);
-    params.delete('cursor'); // Reset pagination when changing category
-    return `${pathname}?${params.toString()}`;
+    if (cat === 'Shop All') return '/collections';
+    const handle = initialData.collectionMap[cat] || cat.toLowerCase().replace(/\s+/g, '-');
+    return `/collections/${handle}`;
   };
 
   const getPaginationHref = () => {
@@ -288,6 +269,11 @@ function ShopAllContentInternal({
 
   const activeFilterCount = Object.values(activeFilters).reduce((acc, arr) => acc + arr.length, 0);
   const pageTitle = activeFilters.collections.length === 1 ? activeFilters.collections[0] : 'Shop All';
+  
+  // 🚀 SEO FIX: Map current collection correctly for dynamic breadcrumb URL
+  const activeCollectionHandle = activeFilters.collections.length === 1 
+    ? (initialData.collectionMap[activeFilters.collections[0]] || activeFilters.collections[0].toLowerCase().replace(/\s+/g, '-')) 
+    : null;
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
@@ -341,13 +327,9 @@ function ShopAllContentInternal({
 
           <div className="flex-1 min-w-0 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex gap-2 w-max">
-              {/* 🚀 SEO FIX: Changed structural <button> to semantic Next.js <Link> */}
+              {/* 🚀 SEO FIX: Semantic navigation - let <Link> execute natively without onClick intercept */}
               <Link
                 href={getCategoryHref('Shop All')}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleCategoryPillClick('Shop All');
-                }}
                 scroll={false}
                 className={clsx(
                   'px-4 py-2 text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap rounded-lg transition-all duration-200 border inline-block text-center',
@@ -363,10 +345,6 @@ function ShopAllContentInternal({
                 <Link
                   key={cat}
                   href={getCategoryHref(cat)}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleCategoryPillClick(cat);
-                  }}
                   scroll={false}
                   className={clsx(
                     'px-4 py-2 text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap rounded-lg transition-all duration-200 border inline-block text-center',
@@ -427,7 +405,7 @@ function ShopAllContentInternal({
                 <Breadcrumbs items={[
                   { label: 'Home', url: '/' },
                   { label: 'Collections', url: '/collections' },
-                  { label: pageTitle, url: '/collections' },
+                  { label: pageTitle, url: activeCollectionHandle ? `/collections/${activeCollectionHandle}` : '/collections' },
                 ]} />
                 <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white">
                   {pageTitle}
@@ -630,15 +608,22 @@ function ShopAllContentWithParams(props: ShopAllClientProps) {
   return <ShopAllContentInternal {...props} searchParamsString={searchParamsString} />;
 }
 
+// 🚀 SEO FIX: Replaced heavy, text-based fallback with silent shimmer container to eliminate duplicate HTML
+function ShopAllSkeletonFallback() {
+  return (
+    <div className="bg-zinc-950 min-h-screen mt-25 w-full flex items-center justify-center">
+      <Loader2 className="w-10 h-10 text-[var(--color-brand-orange)] animate-spin" />
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. Main Export - Wraps the component in a Suspense boundary to prevent SSR bailout.
 // Falls back to the pre-populated HTML version (using initialData) for Googlebot!
 // ─────────────────────────────────────────────────────────────────────────────
 export default function ShopAllClient(props: ShopAllClientProps) {
   return (
-    <Suspense
-      fallback={<ShopAllContentInternal {...props} searchParamsString="" />}
-    >
+    <Suspense fallback={<ShopAllSkeletonFallback />}>
       <ShopAllContentWithParams {...props} />
     </Suspense>
   );

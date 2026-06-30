@@ -24,9 +24,10 @@ import ProfileMenu from "./ProfileMenu";
 interface HeaderProps {
   // IMPORTANT: Ensure this logo is white/light for the dark theme
   logoUrl?: string; 
+  menuItems?: MenuItem[]; // Added menuItems prop
 }
 
-function HeaderContent({ logoUrl = "/assets/icons/DesktopLogo-Light.svg" }: HeaderProps) {
+function HeaderContent({ logoUrl = "/assets/icons/DesktopLogo-Light.svg", menuItems: initialMenuItems = [] }: HeaderProps) {
   const pathname = usePathname();
   
   // Global Contexts
@@ -39,11 +40,14 @@ function HeaderContent({ logoUrl = "/assets/icons/DesktopLogo-Light.svg" }: Head
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   
-  // Data States
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  // Data States - Initialize with SSR prop to prevent layout shift and enable SEO crawl
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenuItems);
 
   // --- API Integrations ---
   useEffect(() => {
+    // If SSR successfully provided the menu, skip the client fetch entirely
+    if (initialMenuItems.length > 0) return;
+
     async function fetchNav() {
       try {
         const menuData = await getMenu("menu-custom");
@@ -55,7 +59,7 @@ function HeaderContent({ logoUrl = "/assets/icons/DesktopLogo-Light.svg" }: Head
       }
     }
     fetchNav();
-  }, []);
+  }, [initialMenuItems]);
 
   // --- Event Handlers & Effects ---
   const closeSearch = useCallback(() => {

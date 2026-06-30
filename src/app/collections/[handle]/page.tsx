@@ -59,10 +59,15 @@ const buildActiveFilters = (searchParams: Props['searchParams']) => ({
 // =========================================================
 // 2. STRICT SEO METADATA & CANONICAL ENFORCEMENT
 // =========================================================
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { handle } = await params;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.justtattoos.com";
   const canonicalUrl = `${siteUrl}/collections/${handle}`;
+
+  // 🚀 SEO FIX: Protect Crawl Budget by preventing indexing of faceted filter URLs
+  const isFacetedURL = searchParams && Object.keys(searchParams).some(key => 
+    ['styles', 'sizes', 'placements', 'category', 'cursor'].includes(key)
+  );
 
   const collection = await getCollection(handle);
 
@@ -75,11 +80,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       alternates: { canonical: canonicalUrl },
+      robots: isFacetedURL ? { index: false, follow: true } : { index: true, follow: true },
       openGraph: {
         title,
         description,
         url: canonicalUrl,
         type: 'website',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
       }
     };
   }
@@ -93,18 +104,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       alternates: { canonical: canonicalUrl },
+      robots: isFacetedURL ? { index: false, follow: true } : { index: true, follow: true },
       openGraph: {
         title,
         description,
         url: canonicalUrl,
         type: 'website',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
       }
     };
   }
 
   // Standard fallback error check for dynamic paths (floral, anime, etc.)
   if (!collection) {
-    return { title: 'Collection Not Found | Just Tattoos' };
+    return { title: 'Collection Not Found | Just Tattoos', robots: { index: false } };
   }
 
   // Dynamic Shopify Collection Execution
@@ -112,11 +129,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: collection.seo?.title || `${collection.title} | Just Tattoos`,
     description: collection.seo?.description || collection.description || `Shop the ${collection.title} collection at Just Tattoos.`,
     alternates: { canonical: canonicalUrl },
+    robots: isFacetedURL ? { index: false, follow: true } : { index: true, follow: true },
     openGraph: {
       title: collection.seo?.title || collection.title,
       description: collection.seo?.description || collection.description,
       url: canonicalUrl,
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: collection.seo?.title || collection.title,
+      description: collection.seo?.description || collection.description,
     }
   };
 }
@@ -146,6 +169,7 @@ interface InitialData {
   collectionMap: Record<string, string>;
   currentCollectionTitle: string;
   activeFilters: ActiveFilters;
+  description?: string; // 🚀 SEO FIX: Optional description added to interface for schema
 }
 
 async function fetchCollectionInitialData(
@@ -157,6 +181,7 @@ async function fetchCollectionInitialData(
   try {
     // Fetch menu data for filters
     const menuData = (await getMenu('menu-custom')) as MenuData | null;
+    const collectionData = handle !== 'sale' && handle !== 'new-arrival' ? await getCollection(handle) : null;
 
     const collectionsMenu = menuData?.items?.find(
       (item) =>
@@ -278,6 +303,7 @@ async function fetchCollectionInitialData(
       collectionMap: urlMapping,
       currentCollectionTitle: foundTitle,
       activeFilters: effectiveFilters,
+      description: collectionData?.description || collectionData?.seo?.description, // For schema
     };
   } catch (error) {
     console.error(`Failed to fetch initial data for collection ${handle}:`, error);
@@ -307,12 +333,13 @@ export default async function CollectionSwitchboardPage({ params, searchParams }
   // 🚀 FIX: Fetch SSR data BEFORE the switchboard so all 3 routes get the SEO benefit
   const initialData = await fetchCollectionInitialData(handle, activeFilters, sortOption, cursor);
 
-  // 🚀 SEO FIX: Generate Collection Schema dynamically from initialData
+  // 🚀 SEO FIX: Generated Collection Schema dynamically from initialData with enhanced fields
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: initialData?.currentCollectionTitle || handle.replace(/-/g, ' '),
+    description: initialData?.description || `Browse our exclusive ${initialData?.currentCollectionTitle || handle} collection.`,
     url: `${siteUrl}/collections/${handle}`,
     mainEntity: {
       '@type': 'ItemList',

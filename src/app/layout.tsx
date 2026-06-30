@@ -11,7 +11,7 @@ import FooterWrapper from "../components/layout/FooterWrapper";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AuthProvider } from "../context/AuthContext";
 import Script from "next/script"; 
-import { getGlobalSettingsData } from "@/src/lib/shopify";
+import { getGlobalSettingsData, getMenu } from "@/src/lib/shopify"; // Updated import
 import CartDrawerWrapper from "../components/cart/CartDrawerWrapper";
 import MetaPixel from "../components/shared/MetaPixel";
 import Header from "../components/Header";
@@ -43,6 +43,16 @@ const getCachedGlobalSettings = unstable_cache(
   { revalidate: 3600 } // Cache for 1 hour
 );
 
+// Cache global menu to provide SSR navigation links for SEO
+const getCachedMenu = unstable_cache(
+  async () => {
+    const menu = await getMenu("menu-custom");
+    return menu;
+  },
+  ["menu-custom"],
+  { revalidate: 3600 } // Cache for 1 hour to match global settings
+);
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.justtattoos.com"),
   title: "Just Tattoos",
@@ -58,7 +68,6 @@ export const metadata: Metadata = {
     shortcut: ["/favicon.svg?v=1"],
     apple: [{ url: "/favicon.svg?v=1", type: "image/svg+xml" }],
   },
-  // OPTIMIZATION: Added OpenGraph and Twitter metadata for improved social sharing SEO (Non-breaking)
   openGraph: {
     title: "Just Tattoos",
     description: "Authentic tattoo lifestyle and apparel.",
@@ -79,6 +88,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const settings = await getCachedGlobalSettings();
+  const menuData = await getCachedMenu();
+  const menuItems = menuData?.items || [];
   
   const globalData = settings || {
     headerLogo: "/assets/icons/DesktopLogo.svg",
@@ -109,7 +120,6 @@ export default async function RootLayout({
       
       <body className="antialiased flex flex-col min-h-screen bg-[var(--color-bg-base)] text-[var(--color-text-primary)] selection:bg-[var(--color-brand-orange)] selection:text-white">
         
-        {/* OPTIMIZATION 1: Non-blocking GTM Scripts */}
         <Script 
           src="https://www.googletagmanager.com/gtag/js?id=G-98T2GW3HED" 
           strategy="afterInteractive" 
@@ -133,7 +143,6 @@ export default async function RootLayout({
           src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=Siqp6J"
         />
 
-        {/* OPTIMIZATION 2: Next.js Script for inline logic to prevent hydration mismatch */}
         <Script
           id="splash-screen-logic"
           strategy="beforeInteractive"
@@ -193,7 +202,8 @@ export default async function RootLayout({
               rightImageUrl={globalData.splashRightImage}
             />
 
-            <Header logoUrl={globalData.headerLogo} />
+            {/* Pass server-fetched menu items here */}
+            <Header logoUrl={globalData.headerLogo} menuItems={menuItems} />
 
             <main className="flex-grow relative z-0">{children}</main>
 

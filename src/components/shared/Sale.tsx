@@ -634,15 +634,22 @@ function SaleContentWithParams(props: SalePageProps) {
   return <SaleContentInternal {...props} searchParamsString={searchParamsString} />;
 }
 
+// 🚀 SEO FIX: Replaced heavy, text-based fallback with silent shimmer container to eliminate duplicate HTML
+function SaleSkeletonFallback() {
+  return (
+    <div className="bg-zinc-950 min-h-screen mt-20 w-full flex items-center justify-center">
+      <Loader2 className="w-10 h-10 text-[#FF3366] animate-spin" />
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. Main Export - Wraps the component in a Suspense boundary to prevent SSR bailout.
 // Falls back to the pre-populated HTML version (using initialData) for Googlebot!
 // ─────────────────────────────────────────────────────────────────────────────
 export default function SalePage(props: SalePageProps) {
   return (
-    <Suspense 
-      fallback={<SaleContentInternal {...props} searchParamsString="" />}
-    >
+    <Suspense fallback={<SaleSkeletonFallback />}>
       <SaleContentWithParams {...props} />
     </Suspense>
   );

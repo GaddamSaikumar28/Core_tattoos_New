@@ -1,36 +1,48 @@
 import { Suspense } from 'react';
-import { Metadata } from 'next'; // 🚀 SEO FIX: Imported Metadata
+import { Metadata } from 'next';
 import { getProducts, getMenu, getCollectionProducts } from '@/src/lib/shopify';
-import ShopAllClient from '@/src/components/shared/ShopAllClient'; // Ensure this path matches your structure
+import ShopAllClient from '@/src/components/shared/ShopAllClient';
 import { Loader2 } from 'lucide-react';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
-
-// 🚀 SEO FIX: Upgraded to full Metadata object with Canonical and OpenGraph
-export const metadata: Metadata = {
-  title: 'Shop All | Just Tattoos',
-  description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
-  alternates: {
-    canonical: `${siteUrl}/collections`,
-  },
-  openGraph: {
-    title: 'Shop All | Just Tattoos',
-    description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
-    url: `${siteUrl}/collections`,
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Shop All | Just Tattoos',
-    description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
-  }
-};
 
 type SortOptionValue = 'newest' | 'price-asc' | 'price-desc' | 'alpha-asc';
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
+
+// =========================================================
+// 1. DYNAMIC SEO METADATA & CRAWL BUDGET ENFORCEMENT
+// =========================================================
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const resolvedParams = await searchParams;
+  
+  // 🚀 SEO FIX: Protect Crawl Budget by issuing noindex on filtered/faceted URL sequences
+  const isFacetedURL = resolvedParams && Object.keys(resolvedParams).some(key => 
+    ['styles', 'sizes', 'placements', 'category', 'cursor', 'sort'].includes(key)
+  );
+
+  return {
+    title: 'Shop All | Just Tattoos',
+    description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
+    alternates: {
+      canonical: `${siteUrl}/collections`,
+    },
+    robots: isFacetedURL ? { index: false, follow: true } : { index: true, follow: true },
+    openGraph: {
+      title: 'Shop All | Just Tattoos',
+      description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
+      url: `${siteUrl}/collections`,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Shop All | Just Tattoos',
+      description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
+    }
+  };
+}
 
 const normalizeSortParam = (value: string | string[] | undefined): SortOptionValue => {
   const raw = Array.isArray(value) ? value[0] : value;
@@ -58,6 +70,9 @@ const getSortSettings = (sort: SortOptionValue) => {
     }
 };
 
+// =========================================================
+// 2. MAIN REGISTRY COMPONENT
+// =========================================================
 export default async function ShopAllPage({ searchParams }: Props) {
   const resolvedParams = await searchParams;
 
@@ -204,7 +219,7 @@ export default async function ShopAllPage({ searchParams }: Props) {
     currentCollectionTitle: activeFilters.collections.length === 1 ? activeFilters.collections[0] : 'Shop All',
   };
 
-  // 🚀 SEO FIX: Construct JSON-LD Schema using the SSR fetched products
+  // 🚀 SEO FIX: Construct highly explicit ItemList structured data arrays safely
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -213,7 +228,7 @@ export default async function ShopAllPage({ searchParams }: Props) {
     url: `${siteUrl}/collections`,
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: result.formattedData.map((product: any, index: number) => ({
+      itemListElement: (result?.formattedData || []).map((product: any, index: number) => ({
         '@type': 'ListItem',
         position: index + 1,
         url: `${siteUrl}/products/${product.handle}`
@@ -224,7 +239,7 @@ export default async function ShopAllPage({ searchParams }: Props) {
   // 5. Render Client Component (No redundant blocking Suspense around data fetch)
   return (
     <>
-      {/* 🚀 SEO FIX: Inject Collection Schema invisibly */}
+      {/* 🚀 SEO FIX: Inject Collection Schema cleanly into layout hierarchy */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

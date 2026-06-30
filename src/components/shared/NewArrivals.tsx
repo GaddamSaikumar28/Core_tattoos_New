@@ -199,7 +199,7 @@ function NewArrivalsContentInternal({
       const selectedCollection = activeFilters.collections[0];
       const baseHandle = (selectedCollection && collectionMap[selectedCollection]) 
         ? collectionMap[selectedCollection] 
-        : 'new-arrival'; // ⚠️ Note: If pasting this into the Sale page, change this string to 'sale'
+        : 'new-arrival';
 
       let result;
 
@@ -591,15 +591,22 @@ function NewArrivalsContentWithParams(props: NewArrivalsPageProps) {
   return <NewArrivalsContentInternal {...props} searchParamsString={searchParamsString} />;
 }
 
+// 🚀 SEO FIX: Added a lightweight skeleton for the Suspense fallback
+function NewArrivalsSkeletonFallback() {
+  return (
+    <div className="bg-zinc-950 min-h-screen mt-20 w-full flex items-center justify-center">
+      <Loader2 className="w-10 h-10 text-[var(--color-brand-orange)] animate-spin" />
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. Main Export - Wraps the component in a Suspense boundary to prevent SSR bailout.
 // Falls back to the pre-populated HTML version (using initialData) for Googlebot!
 // ─────────────────────────────────────────────────────────────────────────────
 export default function NewArrivalsPage(props: NewArrivalsPageProps) {
   return (
-    <Suspense 
-      fallback={<NewArrivalsContentInternal {...props} searchParamsString="" />}
-    >
+    <Suspense fallback={<NewArrivalsSkeletonFallback />}>
       <NewArrivalsContentWithParams {...props} />
     </Suspense>
   );

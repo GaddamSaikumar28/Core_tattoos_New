@@ -361,13 +361,9 @@ function DefaultCollectionContentInternal({
       <nav className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md mt-5 border-b border-white/5">
         <div className="container max-w-[1400px] mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex gap-3 overflow-x-auto pb-1 lg:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            {/* 🚀 SEO FIX: Changed structural <button> to semantic Next.js <Link> */}
+            {/* 🚀 SEO FIX: Let Next.js <Link> execute natively without onClick intercept */}
             <Link
               href={getCategoryHref('Shop All')}
-              onClick={(e) => {
-                e.preventDefault();
-                handleCategoryPillClick('Shop All');
-              }}
               className="px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap border rounded-full bg-transparent text-zinc-400 border-white/10 hover:border-white/30 hover:text-white inline-block text-center"
             >
               Shop All
@@ -377,10 +373,6 @@ function DefaultCollectionContentInternal({
               <Link
                 key={cat}
                 href={getCategoryHref(cat)}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleCategoryPillClick(cat);
-                }}
                 className={clsx(
                   "px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap border rounded-full inline-block text-center",
                   activeFilters.collections.includes(cat)
@@ -555,15 +547,22 @@ function DefaultCollectionContentWithParams(props: DefaultCollectionProps) {
   return <DefaultCollectionContentInternal {...props} searchParamsString={searchParamsString} />;
 }
 
+// 🚀 SEO FIX: Replaced duplicate server streaming component fallback with a non-semantic spinner container to eliminate duplicate HTML
+function DefaultCollectionSkeletonFallback() {
+  return (
+    <div className="bg-zinc-950 min-h-screen mt-20 w-full flex items-center justify-center">
+      <Loader2 className="w-10 h-10 text-[var(--color-brand-orange)] animate-spin" />
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. Main Export - Wraps the component in a Suspense boundary to prevent SSR bailout.
 // Falls back to the pre-populated HTML version (using initialData) for Googlebot!
 // ─────────────────────────────────────────────────────────────────────────────
 export default function DefaultCollection(props: DefaultCollectionProps) {
   return (
-    <Suspense
-      fallback={<DefaultCollectionContentInternal {...props} searchParamsString="" />}
-    >
+    <Suspense fallback={<DefaultCollectionSkeletonFallback />}>
       <DefaultCollectionContentWithParams {...props} />
     </Suspense>
   );
