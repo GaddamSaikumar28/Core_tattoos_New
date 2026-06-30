@@ -21,23 +21,27 @@ export async function GET() {
     console.error("Sitemap: Failed to fetch products", error);
   }
 
-  // ADDITION 1: Added the image namespace (xmlns:image) to the urlset
+  // Generate XML with proper Google Image Namespace
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-${products.map(product => `  <url>
+${products.map(product => {
+  // 🚀 FIX: Now correctly referencing your custom 'media' object from the mapper
+  const imageUrl = product.media?.featuredImage || (product.media?.gallery && product.media.gallery[0]?.url) || '';
+  const safeTitle = (product.title || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  
+  return `  <url>
     <loc>${siteUrl}/products/${product.handle}</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-    ${product.featuredImage?.url ? `
+    <priority>0.9</priority>${imageUrl ? `
     <image:image>
-      <image:loc>${product.featuredImage.url.replace(/&/g, '&amp;')}</image:loc>
-      <image:title>${(product.title || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</image:title>
+      <image:loc>${imageUrl.replace(/&/g, '&amp;')}</image:loc>
+      <image:title>${safeTitle}</image:title>
     </image:image>` : ''}
-  </url>`).join('\n')}
+  </url>`;
+}).join('\n')}
 </urlset>`;
 
-  // ADDITION 2: Added Cache-Control headers so Vercel serves this instantly
   return new NextResponse(xml, {
     headers: { 
       'Content-Type': 'application/xml',
