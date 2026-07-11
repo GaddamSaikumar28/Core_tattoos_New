@@ -41,7 +41,7 @@ export function CartItemCard({ item, compact = false }: CartItemCardProps) {
     >
       {/* --- Image Section --- */}
       <Link 
-        href={`/collections/${productHandle}`} 
+        href={`/products/${productHandle}`} 
         className="relative shrink-0 overflow-hidden rounded-xl bg-zinc-950 border border-white/5 group-hover:border-white/10 transition-colors block"
       >
         <div className={`${compact ? 'w-20 h-24' : 'w-24 h-24 sm:w-32 sm:h-32'} relative`}>
@@ -65,7 +65,7 @@ export function CartItemCard({ item, compact = false }: CartItemCardProps) {
         <div className="flex justify-between items-start gap-3">
           <div className="flex flex-col">
             <Link 
-              href={`/tattoos/${productHandle}`} 
+              href={`/products/${productHandle}`} 
               className="font-black text-white text-sm sm:text-base leading-tight uppercase tracking-tight hover:text-[#FE8204] transition-colors line-clamp-2"
             >
               {productTitle}

@@ -6,7 +6,6 @@ import dynamic from 'next/dynamic';
 const Footer = dynamic(() => import('./Footer'), {
   // A simple placeholder so the layout doesn't jump when it loads
   loading: () => <div className="h-[400px] w-full bg-[#121212] animate-pulse" />,
-  ssr: false 
 });
 
 interface FooterWrapperProps {

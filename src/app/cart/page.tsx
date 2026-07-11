@@ -46,7 +46,7 @@ export default function CartPage() {
             The workspace is currently clear. Browse our collections and add items to begin the checkout sequence.
           </p>
           <Link 
-            href="/tattoos" 
+            href="/collections" 
             className="bg-[#FE8204] text-white px-10 py-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 shadow-[0_0_20px_rgba(254,130,4,0.3)] hover:shadow-[0_0_30px_rgba(254,130,4,0.5)] hover:bg-[#ff952b] hover:-translate-y-1"
           >
             Initialize Shopping
@@ -130,7 +130,7 @@ export default function CartPage() {
             </a>
             
             <Link 
-              href="/tattoos"
+              href="/collections"
               className="w-full flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 hover:text-white transition-colors py-3 rounded-xl hover:bg-white/5"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Continue Shopping

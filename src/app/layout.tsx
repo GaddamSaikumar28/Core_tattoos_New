@@ -97,10 +97,10 @@ export default async function RootLayout({
     splashLogo: "/assets/icons/DesktopLogo.svg",
     splashLeftImage: "/assets/icons/butterflys.svg",
     splashRightImage: "/assets/icons/butterfly2s2.svg",
-    instagramLink: "#",
-    facebookLink: "#",
-    twitterLink: "#",
-    youtubeLink: "#",
+    instagramLink: "https://www.justtattoos.com",
+    facebookLink: "https://www.justtattoos.com",
+    twitterLink: "https://www.justtattoos.com",
+    youtubeLink: "https://www.justtattoos.com",
   };
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.justtattoos.com";
@@ -176,7 +176,7 @@ export default async function RootLayout({
                     globalData.instagramLink,
                     globalData.twitterLink,
                     globalData.youtubeLink,
-                  ].filter(Boolean),
+                  ].filter((link) => Boolean(link) && link !== "#"),
                 },
                 {
                   "@type": "WebSite",

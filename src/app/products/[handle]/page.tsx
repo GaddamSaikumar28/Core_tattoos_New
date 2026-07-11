@@ -25,8 +25,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // Read strictly from dedicated SEO fields, falling back to requested format if blank
   const metaTitle = product.seoTitle || `${product.title} | Just Tattoos`;
-  const metaDescription = product.seoDescription || ''; 
-
+  //const metaDescription = product.seoDescription || ''; 
+  const metaDescription = product.seoDescription ||   product.description?.replace(/<[^>]+>/g, '').slice(0, 155) ||  `${product.title} — premium temporary tattoo by Just Tattoos.`;
   return {
     title: metaTitle,
     description: metaDescription,
@@ -65,7 +65,8 @@ export default async function GlobalProductPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.title,
-    description: product.description.replace(/<[^>]+>/g, ''), // Strip HTML for schema
+    // description: product.description.replace(/<[^>]+>/g, ''), // Strip HTML for schema
+    description: (product.description || '').replace(/<[^>]+>/g, '') || `${product.title} by Just Tattoos.`,
     image: product.media.featuredImage ? [product.media.featuredImage] : [],
     brand: { '@type': 'Brand', name: 'Just Tattoos' },
     // Only grab SKU if it exists

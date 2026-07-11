@@ -323,6 +323,17 @@ const TATTOO_CATEGORIES = {
 ];
 
 // --- 2. UTILITY FUNCTIONS ---
+const buildFallbackProductDescription = (title: string, collections: string[], rawTags: string[]) => {
+  const details = [
+    `${title} is a high-quality temporary tattoo design crafted for a bold, wearable statement look.`,
+    collections.length ? `Inspired by ${collections.slice(0, 3).join(', ')}.` : '',
+    rawTags.length ? `Styled with ${rawTags.slice(0, 3).join(', ')}.` : '',
+    'Perfect for trying a new look, special events, and expressive styling without the long-term commitment.',
+  ].filter(Boolean);
+
+  return details.join(' ');
+};
+
 const calculateDiscount = (price: number, compareAtPrice: number | null): number | null => {
   if (!compareAtPrice || compareAtPrice <= price) return null;
   const discount = ((compareAtPrice - price) / compareAtPrice) * 100;
@@ -357,9 +368,10 @@ export async function mapShopifyProductsForProduction(shopifyJson: any) {
           previewImage: mediaItem.previewImage?.url || null,
         });
       } else {
+        const imageUrl = mediaItem.url || mediaItem.image?.url;
         images.push({
-          url: mediaItem.url || mediaItem.image?.url,
-          altText: mediaItem.altText || node.title,
+          url: imageUrl,
+          altText: mediaItem.alt || mediaItem.altText || mediaItem.image?.altText || node.title,
           width: mediaItem.width || mediaItem.image?.width,
           height: mediaItem.height || mediaItem.image?.height
         });
@@ -400,12 +412,13 @@ export async function mapShopifyProductsForProduction(shopifyJson: any) {
       } : null
     })) || [];
 
-    const defaultVariant = variants[0] || {};
+    const defaultVariant = variants.find((v: any) => v.availableForSale) || variants[0] || {};
     const isOnSale = defaultVariant.compareAtPrice && defaultVariant.price 
       ? defaultVariant.compareAtPrice > defaultVariant.price 
       : false;
 
     const isColored = collections.includes('Colored Art') || rawTags.includes('Color');
+    const fallbackDescription = buildFallbackProductDescription(node.title, collections, rawTags);
 
     return {
       id: node.id,
@@ -413,8 +426,8 @@ export async function mapShopifyProductsForProduction(shopifyJson: any) {
       slug: node.handle,          
       title: node.title,
       vendor: node.vendor || "Unknown Artist",
-      description: node.description,
-      descriptionHtml: node.descriptionHtml,
+      description: node.description || fallbackDescription,
+      descriptionHtml: node.descriptionHtml || fallbackDescription,
       
       seoTitle: node.seo?.title || null,
       seoDescription: node.seo?.description || null,
@@ -435,7 +448,7 @@ export async function mapShopifyProductsForProduction(shopifyJson: any) {
 
       media: {
         featuredImage: node.featuredImage?.url || images[0]?.url || null,
-        hoverImage: images[1]?.url || null, 
+        hoverImage: images[1]?.url || images[0]?.url || node.featuredImage?.url || null, 
         gallery: images,                    
         videos: videos,  
         models: models,

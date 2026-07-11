@@ -129,6 +129,9 @@ export default function SplashScreen({
 
   return (
     <>
+      <noscript>
+        <style>{`#core-splash-root { display: none !important; }`}</style>
+      </noscript>
       <style dangerouslySetInnerHTML={{ __html: `
         html.splash-completed #core-splash-root {
           display: none !important;

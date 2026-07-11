@@ -4,7 +4,7 @@ import React, { useState, useRef, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ChevronDown, Mail, Sparkles } from "lucide-react";
 
 // Adjust these import paths based on your actual file structure
@@ -128,19 +128,19 @@ function DesktopNavInternal({ menuItems, closeProfileMenu, currentCategory }: De
               </Link>
             )}
 
-            {/* Mega Menu Dropdown (Dark Theme Upgraded) */}
-            <AnimatePresence>
-              {activeDropdown === item.id && item.items && item.items.length > 0 && (
-                <motion.div
-                  variants={dropdownVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  className={cn(
-                    "absolute top-[calc(100%+20px)] left-1/2 -translate-x-1/2 bg-[#0A0A0A]/95 backdrop-blur-3xl rounded-2xl shadow-2xl border border-white/5 overflow-hidden z-50 origin-top flex flex-col lg:flex-row cursor-default",
-                    hasDeepLinks ? "w-[90vw] max-w-[1000px]" : "w-[90vw] max-w-[600px]"
-                  )}
-                >
+            {/* Mega Menu Dropdown (Dark Theme Upgraded) — ALWAYS MOUNTED for SSR/crawl visibility,
+                visibility toggled via variants instead of mount/unmount */}
+            {item.items && item.items.length > 0 && (
+              <motion.div
+                variants={dropdownVariants}
+                initial="hidden"
+                animate={activeDropdown === item.id ? "visible" : "hidden"}
+                className={cn(
+                  "absolute top-[calc(100%+20px)] left-1/2 -translate-x-1/2 bg-[#0A0A0A]/95 backdrop-blur-3xl rounded-2xl shadow-2xl border border-white/5 overflow-hidden z-50 origin-top flex flex-col lg:flex-row cursor-default",
+                  hasDeepLinks ? "w-[90vw] max-w-[1000px]" : "w-[90vw] max-w-[600px]",
+                  activeDropdown === item.id ? "pointer-events-auto" : "pointer-events-none"
+                )}
+              >
                   <div className="flex-1 flex flex-col h-full">
                     <div className={cn("p-8 pr-4", !hasDeepLinks && "p-6")}>
                       <div className="mb-6 border-b border-white/10 pb-3 flex items-center justify-between">
@@ -261,9 +261,8 @@ function DesktopNavInternal({ menuItems, closeProfileMenu, currentCategory }: De
                       </div>
                     </div>
                   )}
-                </motion.div>
-              )}
-            </AnimatePresence>
+              </motion.div>
+            )}
           </div>
         );
       })}

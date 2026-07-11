@@ -64,7 +64,7 @@ export const productFragment = /* GraphQL */ `
     }
     
    
-    variants(first: 5) {
+    variants(first: 250) {
       edges {
         node {
           id
@@ -133,6 +133,12 @@ export const productFragment = /* GraphQL */ `
             sources {
               url
               mimeType
+            }
+            previewImage {
+              url
+              altText
+              width
+              height
             }
           }
           ... on Model3d {
