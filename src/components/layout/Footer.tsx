@@ -42,7 +42,7 @@ const FALLBACK_FOOTER_MENUS: FooterMenuColumn[] = [
     title: "Shop",
     links: [
       { name: "Tattoos", href: "/collections" },
-      { name: "New Arrival", href: "collections/new-arrival" },
+      { name: "New Arrival", href: "/collections/new-arrival" },
       { name: "Sale", href: "/sale" },
     ],
   },
@@ -130,7 +130,7 @@ export default function Footer({
           // 4. THE DYNAMIC FALLBACK (For Blogs, New Policies, New Pages)
           // If the client adds a blog, Shopify sends "/blogs/news" -> This returns "/blogs/news"
           // If they add a random custom page, it returns "/pages/holiday-campaign"
-          return path;
+          return path.startsWith('/') || path.startsWith('http') ? path : `/${path}`;
         };
 
         // 1. Process Shop Menu
