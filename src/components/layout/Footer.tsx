@@ -346,7 +346,7 @@ export default function Footer({
             {/* Dynamic Logo with Brand Color Filter */}
             <Image 
                 src={logoUrl} 
-                alt="Core Tattoos Logo" 
+                alt="Just Tattoos Logo" 
                 width={160} 
                 height={50} 
                 className="opacity-100"
@@ -403,7 +403,7 @@ export default function Footer({
 
           {/* Copyright & Policy Links */}
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-[12px] text-gray-500">
-            <p>© {new Date().getFullYear()} Core Tattoos. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Just Tattoos. All rights reserved.</p>
             <div className="flex flex-wrap gap-6 justify-center">
               {policyLinks.map((policy) => (
                 <Link key={policy.name} href={policy.href} className="hover:text-white transition-colors">
