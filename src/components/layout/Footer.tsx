@@ -43,7 +43,7 @@ const FALLBACK_FOOTER_MENUS: FooterMenuColumn[] = [
     links: [
       { name: "Tattoos", href: "/collections" },
       { name: "New Arrival", href: "/collections/new-arrival" },
-      { name: "Sale", href: "/sale" },
+      { name: "Sale", href: "/collections/sale" },
     ],
   },
   {
