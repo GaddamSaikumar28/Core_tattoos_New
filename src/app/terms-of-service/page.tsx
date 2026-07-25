@@ -1,10 +1,26 @@
+import React, { Suspense } from 'react';
+import { Metadata } from 'next';
+import { getTermsOfServiceSettings } from '@/src/lib/shopify';
 
-'use client';
+// 1. Generate SEO Metadata dynamically
+export async function generateMetadata(): Promise<Metadata> {
+  const data = await getTermsOfServiceSettings();
+    console.log('Fetched Terms of Service Settings:', data); // Debugging log
+  return {
+    title: data?.title || 'Terms of Service | JustTattoos',
+    description: data?.description || 'Terms of service and privacy policy.',
+    openGraph: {
+      title: data?.title || 'Terms of Service | JustTattoos',
+      description: data?.description || 'Terms of service and privacy policy.',
+    }
+  };
+}
 
-import React from 'react';
+// 2. The Async Content Component that fetches data
+async function TermsContent() {
+    const data = await getTermsOfServiceSettings();
+    const supportEmail = data?.supportEmail || 'support@justtattoos.com';
 
-export default function TermsOfService() {
-    // Array of payment methods to map into visual badges
     const paymentMethods = [
         "Visa", "Mastercard", "PayPal", "Direct Debit", 
         "Apple Pay", "Google Pay", "Amazon Pay"
@@ -97,7 +113,7 @@ export default function TermsOfService() {
 
                             <div className="space-y-4">
                                 <h2 className="text-2xl font-bold tracking-tight text-white uppercase">Section 6: Products or Services</h2>
-                                <p>Certain products may be available exclusively online and in limited quantities. Products are subject to return or exchange only according to our Return Policy. We reserve the right to limit product quantities and discontinue products at any time. For large orders of 100 units or more, processing and delivery times may vary. Please contact <a href="mailto:support@justtattoos.com" className="text-white font-bold border-b-2 border-[#FE8204] hover:text-[#FE8204] transition-colors pb-0.5">support@justtattoos.com</a> for assistance.</p>
+                                <p>Certain products may be available exclusively online and in limited quantities. Products are subject to return or exchange only according to our Return Policy. We reserve the right to limit product quantities and discontinue products at any time. For large orders of 100 units or more, processing and delivery times may vary. Please contact <a href={`mailto:${supportEmail}`} className="text-white font-bold border-b-2 border-[#FE8204] hover:text-[#FE8204] transition-colors pb-0.5">{supportEmail}</a> for assistance.</p>
                             </div>
                         </div>
 
@@ -178,10 +194,10 @@ export default function TermsOfService() {
                             </p>
                             <div className="pt-6">
                                 <a 
-                                    href="mailto:support@justtattoos.com" 
+                                    href={`mailto:${supportEmail}`} 
                                     className="inline-block bg-white text-black px-10 py-4 rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-[#FE8204] hover:text-white hover:shadow-lg hover:shadow-[#FE8204]/20 transition-all duration-300"
                                 >
-                                    support@justtattoos.com
+                                    {supportEmail}
                                 </a>
                             </div>
                         </div>
@@ -190,5 +206,22 @@ export default function TermsOfService() {
                 </div>
             </section>
         </main>
+    );
+}
+
+// 3. Main Page Component with Suspense Boundary
+export default function TermsOfServicePage() {
+    return (
+        <Suspense 
+            fallback={
+                <div className="w-full min-h-screen bg-black flex items-center justify-center">
+                    <div className="text-[#FE8204] text-sm font-black tracking-[0.2em] uppercase animate-pulse">
+                        Loading...
+                    </div>
+                </div>
+            }
+        >
+            <TermsContent />
+        </Suspense>
     );
 }

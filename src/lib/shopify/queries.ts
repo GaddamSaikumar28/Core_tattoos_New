@@ -1222,3 +1222,69 @@ export const getSafeForSkinSectionQuery = /* GraphQL */ `
     }
   }
 `;
+
+
+
+export const getTermsOfServiceSettingsQuery = `
+  query getTermsOfServiceSettings {
+    metaobject(handle: {handle: "terms-of-service", type: "terms_of_service_settings"}) {
+      seoTitle: field(key: "seo_title") {
+        value
+      }
+      seoDescription: field(key: "seo_description") {
+        value
+      }
+      supportEmail: field(key: "support_email") {
+        value
+      }
+    }
+  }
+`;
+
+export const getPrivacyPolicySettingsQuery = `
+  query getPrivacyPolicySettings {
+    metaobject(handle: {handle: "privacy-policy", type: "privacy_policy_settings"}) {
+      seoTitle: field(key: "seo_title") {
+        value
+      }
+      seoDescription: field(key: "seo_description") {
+        value
+      }
+      supportEmail: field(key: "support_email") {
+        value
+      }
+    }
+  }
+`;
+
+export const getReturnsSeoSettingsQuery = `
+  query getReturnsSeoSettings {
+    metaobject(handle: {handle: "returns-seo", type: "returns_seo_settings"}) {
+      seoTitle: field(key: "seo_title") {
+        value
+      }
+      seoDescription: field(key: "seo_description") {
+        value
+      }
+      supportEmail: field(key: "support_email") {
+        value
+      }
+    }
+  }
+`;
+
+export const getShippingSeoSettingsQuery = `
+  query getShippingSeoSettings {
+    metaobject(handle: {handle: "shipping-seo", type: "shipping_seo_settings"}) {
+      seoTitle: field(key: "seo_title") {
+        value
+      }
+      seoDescription: field(key: "seo_description") {
+        value
+      }
+      supportEmail: field(key: "support_email") {
+        value
+      }
+    }
+  }
+`;

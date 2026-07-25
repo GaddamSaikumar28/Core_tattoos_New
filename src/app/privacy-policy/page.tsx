@@ -1,11 +1,25 @@
+import React, { Suspense } from 'react';
+import { Metadata } from 'next';
+import { getPrivacyPolicySettings } from '@/src/lib/shopify'; 
+// 1. Generate SEO Metadata dynamically
+export async function generateMetadata(): Promise<Metadata> {
+    const data = await getPrivacyPolicySettings();
+    console.log('Privacy Policy Metadata:', data); // Debugging line
+    return {
+        title: data?.title || 'Privacy Policy | JustTattoos',
+        description: data?.description || 'How we collect, use, and protect your personal information.',
+        openGraph: {
+            title: data?.title || 'Privacy Policy | JustTattoos',
+            description: data?.description || 'How we collect, use, and protect your personal information.',
+        }
+    };
+}
 
+// 2. The Async Content Component that fetches data
+async function PrivacyContent() {
+    const data = await getPrivacyPolicySettings();
+    const supportEmail = data?.supportEmail || 'support@justtattoos.com';
 
-'use client';
-
-import React from 'react';
-import Link from 'next/link';
-
-export default function PrivacyPolicy() {
     return (
         <main className="w-full bg-black text-white overflow-hidden selection:bg-[#FE8204] selection:text-white relative">
             
@@ -157,7 +171,7 @@ export default function PrivacyPolicy() {
                             <p>We may disclose Personal Information to service providers assisting us in operations, to protect rights/safety, to comply with legal obligations, or in connection with business transactions (mergers/acquisitions). Service providers may only use Personal Information to perform services on our behalf.</p>
                             
                             <h4 className="text-xl font-bold text-white mb-2 mt-8">Managing Your Information</h4>
-                            <p>You may request access, correction, or deletion of Personal Information by contacting <a href="mailto:support@justtattoos.com" className="text-white font-bold border-b-2 border-[#FE8204] hover:text-[#FE8204] transition-colors pb-0.5">support@justtattoos.com</a>. We may retain certain information as required by law.</p>
+                            <p>You may request access, correction, or deletion of Personal Information by contacting <a href={`mailto:${supportEmail}`} className="text-white font-bold border-b-2 border-[#FE8204] hover:text-[#FE8204] transition-colors pb-0.5">{supportEmail}</a>. We may retain certain information as required by law.</p>
                         </div>
 
                         {/* Section 5 & 6 */}
@@ -229,10 +243,10 @@ export default function PrivacyPolicy() {
                             </p>
                             <div className="pt-6">
                                 <a 
-                                    href="mailto:support@justtattoos.com" 
+                                    href={`mailto:${supportEmail}`} 
                                     className="inline-block bg-white text-black px-10 py-4 rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-[#FE8204] hover:text-white hover:shadow-lg hover:shadow-[#FE8204]/20 transition-all duration-300"
                                 >
-                                    support@justtattoos.com
+                                    {supportEmail}
                                 </a>
                             </div>
                         </div>
@@ -241,5 +255,22 @@ export default function PrivacyPolicy() {
                 </div>
             </section>
         </main>
+    );
+}
+
+// 3. Main Page Component with Suspense Boundary
+export default function PrivacyPolicyPage() {
+    return (
+        <Suspense 
+            fallback={
+                <div className="w-full min-h-screen bg-black flex items-center justify-center">
+                    <div className="text-[#FE8204] text-sm font-black tracking-[0.2em] uppercase animate-pulse">
+                        Loading...
+                    </div>
+                </div>
+            }
+        >
+            <PrivacyContent />
+        </Suspense>
     );
 }

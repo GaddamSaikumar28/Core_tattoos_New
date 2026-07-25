@@ -1,10 +1,43 @@
-
-import React from 'react';
+import React, { Suspense } from 'react';
+import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image'; // Added for the new hero banner
-import { getReturnsPageData } from '@/src/lib/shopify'; // Adjust path if needed
+import Image from 'next/image';
+import { getReturnsPageData,getReturnsSeoSettings } from '@/src/lib/shopify'; // Adjust path if needed
 
-export default async function ReturnsPage() {
+
+// 2. Updated SEO Metadata generator utilizing concurrent fetching
+export async function generateMetadata(): Promise<Metadata> {
+    // Execute both Shopify requests in parallel to prevent waterfall latency
+    const [seoData, pageData] = await Promise.all([
+        getReturnsSeoSettings().catch((error) => {
+            console.error('[Returns SEO] Failed to fetch SEO settings:', error);
+            return null;
+        }),
+        getReturnsPageData('returns-page').catch((error) => {
+            console.error('[Returns Page Metadata] Failed to fetch page data:', error);
+            return null;
+        })
+    ]);
+    // console.log('Returns Page Metadata:', { seoData, pageData }); // Debugging log
+
+    // Use dedicated SEO data for primary tags, falling back to pageData if needed
+    const pageTitle = seoData?.title || (pageData?.heroTitle ? `${pageData.heroTitle} | JustTattoos` : 'Refund & Credit Policy | JustTattoos');
+    const pageDescription = seoData?.description || pageData?.card1Text || 'Everything you need to know about your rights, returns, and refund policies at JustTattoos.';
+
+    return {
+        title: pageTitle,
+        description: pageDescription,
+        openGraph: {
+            // Keep OpenGraph hooked into the UI data & images exactly as requested
+            title: pageData?.heroTitle ? `${pageData.heroTitle} | JustTattoos` : pageTitle,
+            description: pageDescription,
+            images: pageData?.heroImage ? [{ url: pageData.heroImage }] : [],
+        }
+    };
+}
+
+// 2. The Async Content Component that fetches data and renders the page
+async function ReturnsContent() {
     let data = null;
 
     // Production-ready error handling
@@ -377,5 +410,22 @@ export default async function ReturnsPage() {
                 </div>
             </section>
         </main>
+    );
+}
+
+// 3. Main Page Component with Suspense Boundary
+export default function ReturnsPage() {
+    return (
+        <Suspense 
+            fallback={
+                <div className="w-full min-h-screen bg-black flex items-center justify-center">
+                    <div className="text-[#FE8204] text-sm font-black tracking-[0.2em] uppercase animate-pulse">
+                        Loading...
+                    </div>
+                </div>
+            }
+        >
+            <ReturnsContent />
+        </Suspense>
     );
 }

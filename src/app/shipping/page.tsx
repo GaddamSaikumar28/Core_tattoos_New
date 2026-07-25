@@ -1,36 +1,45 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image'; 
-import { getShippingPageData } from '@/src/lib/shopify'; 
+import { getShippingPageData, getShippingSeoSettings } from '@/src/lib/shopify'; 
 import { Metadata } from 'next'; 
 
 // =========================================================
 // 1. STRICT SEO METADATA
 // =========================================================
 export async function generateMetadata(): Promise<Metadata> {
-  // 1. Fetch data safely from the server
-  const data = await getShippingPageData('shipping-page');
+  // Execute both Shopify requests in parallel to prevent network waterfalls
+  const [data, seoData] = await Promise.all([
+    getShippingPageData('shipping-page').catch(() => null),
+    getShippingSeoSettings().catch(() => null),
+  ]);
+
+  //console.log('Shipping Page Metadata:', { seoData, data }); // Debugging log
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
 
-  // 2. Generate a clean title using the dynamic Shopify hero title if it exists
-  const cleanTitle = data?.heroTitle 
-    ? `${data.heroTitle.replace(/\b\w/g, (c: string) => c.toUpperCase())} | Just Tattoos`
-    : 'Shipping Policy | Just Tattoos';
+  // Prioritize dedicated SEO Metaobject title -> Fall back to dynamic Hero Title -> Fall back to default
+  const cleanTitle = seoData?.title 
+    ? seoData.title
+    : data?.heroTitle 
+      ? `${data.heroTitle.replace(/\b\w/g, (c: string) => c.toUpperCase())} | Just Tattoos`
+      : 'Shipping Policy | Just Tattoos';
 
-  // 3. Fallback description optimizing for organic clicks
-  const defaultDescription = 'Learn about Just Tattoos order processing times, shipping rates, delivery estimates, and domestic shipping policies.';
+  // Prioritize dedicated SEO Metaobject description -> Fall back to organic default
+  const defaultDescription = seoData?.description || 
+    'Learn about Just Tattoos order processing times, shipping rates, delivery estimates, and domestic shipping policies.';
 
   return {
     title: cleanTitle,
     description: defaultDescription,
     alternates: {
-      canonical: `${siteUrl}/shipping`, // Matches your actual client route
+      canonical: `${siteUrl}/shipping`,
     },
     openGraph: {
       title: cleanTitle,
-      description: 'Read our complete shipping and delivery policies.',
+      description: defaultDescription,
       url: `${siteUrl}/shipping`,
       type: 'website',
+      // Preserves your existing OpenGraph dynamic image integration
       images: data?.heroImage 
         ? [
             {
@@ -47,7 +56,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: cleanTitle,
       description: defaultDescription,
       images: data?.heroImage ? [data.heroImage] : [],
-    }
+    },
   };
 }
 

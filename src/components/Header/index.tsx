@@ -51,6 +51,7 @@ function HeaderContent({ logoUrl = "/assets/icons/DesktopLogo-Light.svg", menuIt
     async function fetchNav() {
       try {
         const menuData = await getMenu("menu-custom");
+        console.log(menuData, "Fetched menu data in header file");
         if (menuData?.items) {
           setMenuItems(menuData.items);
         }

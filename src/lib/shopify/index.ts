@@ -1746,3 +1746,94 @@ export async function getSafeForSkinData(handle: string = 'safe_for_skin_section
     stats: parseJSON(mo.stats?.value, []),
   };
 }
+
+import { getTermsOfServiceSettingsQuery } from './queries';
+
+export async function getTermsOfServiceSettings() {
+  const res = await shopifyFetch<any>({
+    query: getTermsOfServiceSettingsQuery,
+    tags: ['metaobjects', 'terms_of_service_settings'],
+    cache: 'force-cache'
+  });
+
+  const metaobject = res.body?.data?.metaobject;
+
+  if (!metaobject) return null;
+
+  return {
+    title: metaobject.seoTitle?.value || 'Terms of Service | JustTattoos',
+    description: metaobject.seoDescription?.value || 'Terms of service and privacy policy.',
+    supportEmail: metaobject.supportEmail?.value || 'support@justtattoos.com'
+  };
+}
+
+import { getPrivacyPolicySettingsQuery } from './queries';
+export async function getPrivacyPolicySettings() {
+  const res = await shopifyFetch<any>({
+    query: getPrivacyPolicySettingsQuery,
+    tags: ['metaobjects', 'privacy_policy_settings'],
+    cache: 'force-cache'
+  });
+
+  const metaobject = res.body?.data?.metaobject;
+
+  if (!metaobject) return null;
+
+  return {
+    title: metaobject.seoTitle?.value || 'Privacy Policy | JustTattoos',
+    description: metaobject.seoDescription?.value || 'Privacy policy and terms of service.',
+    supportEmail: metaobject.supportEmail?.value || 'support@justtattoos.com'
+  };
+}
+
+import { getReturnsSeoSettingsQuery } from './queries'; // Adjust import path as needed
+
+export async function getReturnsSeoSettings() {
+  const res = await shopifyFetch<any>({
+    query: getReturnsSeoSettingsQuery,
+    tags: ['metaobjects', 'returns_seo_settings'],
+    cache: 'force-cache'
+  });
+
+  const metaobject = res.body?.data?.metaobject;
+
+  if (!metaobject) return null;
+
+  return {
+    title: metaobject.seoTitle?.value || 'Refund & Credit Policy | JustTattoos',
+    description: metaobject.seoDescription?.value || 'Everything you need to know about your rights, returns, and refund policies at JustTattoos.',
+    supportEmail: metaobject.supportEmail?.value || 'support@justtattoos.com'
+  };
+}
+
+
+import { getShippingSeoSettingsQuery } from './queries'; // Adjust import path as needed
+
+export interface ShippingSeoData {
+  title: string | null;
+  description: string | null;
+  supportEmail: string;
+}
+
+export async function getShippingSeoSettings(): Promise<ShippingSeoData | null> {
+  try {
+    const res = await shopifyFetch<any>({
+      query: getShippingSeoSettingsQuery,
+      tags: ['metaobjects', 'shipping_seo_settings'],
+      cache: 'force-cache',
+    });
+
+    const metaobject = res.body?.data?.metaobject;
+
+    if (!metaobject) return null;
+
+    return {
+      title: metaobject.seoTitle?.value || null,
+      description: metaobject.seoDescription?.value || null,
+      supportEmail: metaobject.supportEmail?.value || 'support@justtattoos.com',
+    };
+  } catch (error) {
+    console.error('[Shipping SEO] Failed to fetch SEO settings:', error);
+    return null;
+  }
+}
