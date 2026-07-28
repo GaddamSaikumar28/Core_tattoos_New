@@ -1837,3 +1837,40 @@ export async function getShippingSeoSettings(): Promise<ShippingSeoData | null> 
     return null;
   }
 }
+
+import {aboutPageSeoSettingsQuery} from './queries';
+
+export async function getAboutPageSeoSettings(): Promise<ShippingSeoData | null>  {
+  const res = await shopifyFetch<any>({
+    query: aboutPageSeoSettingsQuery,
+    tags: ['metaobjects', 'about_page_seo_settings'],
+    cache: 'force-cache'
+  });
+
+  const metaobject = res.body?.data?.metaobject;
+
+  if (!metaobject) return null;
+
+  return {
+    title: metaobject.seoTitle?.value || 'About Us | JustTattoos',
+    description: metaobject.seoDescription?.value || 'Learn more about JustTattoos, our mission, and our commitment to quality and safety.',
+    supportEmail: metaobject.supportEmail?.value || 'support@justtattoos.com'
+  };
+}
+
+import { getHowItWorksPageSeoSettingsQuery } from './queries';
+export async function getHowItWorksPageSeoSettings() {
+  const res = await shopifyFetch<any>({
+    query: getHowItWorksPageSeoSettingsQuery,
+    tags: ['metaobjects', 'how_it_works_seo_settings'],
+    cache: 'force-cache'
+  });
+
+  const metaobject = res.body?.data?.metaobject;
+  if (!metaobject) return null;
+
+  return {
+    title: metaobject.seoTitle?.value || null,
+    description: metaobject.seoDescription?.value || null,
+  };
+}

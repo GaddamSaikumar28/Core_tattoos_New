@@ -1288,3 +1288,28 @@ export const getShippingSeoSettingsQuery = `
     }
   }
 `;
+
+export const aboutPageSeoSettingsQuery = `
+  query getAboutPageSeoSettings {
+    metaobject(handle: {handle: "about-page-seo", type: "about_page_seo_settings"}) {
+      seoTitle: field(key: "seo_title") {
+        value
+      }
+      seoDescription: field(key: "seo_description") {
+        value
+      }
+      supportEmail: field(key: "support_email") {
+        value
+      }
+    }
+  }
+`;
+
+export const getHowItWorksPageSeoSettingsQuery = `
+  query getHowItWorksPageSeoSettings {
+    metaobject(handle: {handle: "how-it-works-seo", type: "how_it_works_seo_settings"}) {
+      seoTitle: field(key: "seo_title") { value }
+      seoDescription: field(key: "seo_description") { value }
+    }
+  }
+`;

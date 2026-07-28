@@ -1,12 +1,74 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getAboutPageData } from '@/src/lib/shopify'; // Adjust path if your index.ts is elsewhere
+import { Metadata } from 'next';
+import { getAboutPageData, getAboutPageSeoSettings } from '@/src/lib/shopify';
 
+// =========================================================
+// 1. STRICT SEO METADATA
+// =========================================================
+export async function generateMetadata(): Promise<Metadata> {
+    // Parallel fetching to eliminate waterfall latency
+    const [content, seoData] = await Promise.all([
+        getAboutPageData('about-page-dxkfa8ev').catch(() => null),
+        getAboutPageSeoSettings().catch(() => null),
+    ]);
+    console.log('Fetched About Page Content:', content);
+    console.log('Fetched About Page SEO Settings:', seoData);
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
+
+    // Prioritize dedicated SEO Metaobject title -> Fall back to dynamic Hero Title -> Default fallback
+    const cleanTitle = seoData?.title 
+        ? seoData.title
+        : content?.heroTitle 
+            ? `${content.heroTitle.replace(/\b\w/g, (c: string) => c.toUpperCase())} | Just Tattoos`
+            : 'About Us | Just Tattoos';
+
+    // Prioritize dedicated SEO Metaobject description -> Default fallback
+    const defaultDescription = seoData?.description || 
+        'Discover the story behind Just Tattoos, our core mission, commitment to accessibility, and values.';
+
+    return {
+        title: cleanTitle,
+        description: defaultDescription,
+        alternates: {
+            canonical: `${siteUrl}/about`,
+        },
+        openGraph: {
+            title: cleanTitle,
+            description: defaultDescription,
+            url: `${siteUrl}/about`,
+            type: 'website',
+            images: content?.heroImage 
+                ? [
+                    {
+                        url: content.heroImage,
+                        width: 1200,
+                        height: 630,
+                        alt: content.heroTitle || 'About Just Tattoos',
+                    },
+                ]
+                : [],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: cleanTitle,
+            description: defaultDescription,
+            images: content?.heroImage ? [content.heroImage] : [],
+        },
+    };
+}
+
+// =========================================================
+// 2. MAIN ABOUT US SERVER COMPONENT (100% UNTOUCHED)
+// =========================================================
 export default async function AboutUs() {
     // Fetch dynamic content from Shopify. 
     // IMPORTANT: Make sure 'about-page' exactly matches the handle of the entry you created in Shopify Admin!
     const content = await getAboutPageData('about-page-dxkfa8ev'); 
+
+    // Fetch SEO settings
+    const seoSettings = await getAboutPageSeoSettings();
 
     // Fallback if the fetch fails or you forgot to publish the metaobject
     if (!content) return <div className="p-20 text-center text-white bg-black min-h-screen">Loading About Us content...</div>;

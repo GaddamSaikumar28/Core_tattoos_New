@@ -1,8 +1,69 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getHowItWorksPageData } from '@/src/lib/shopify'; // Adjust path if needed
+import { Metadata } from 'next';
+import { getHowItWorksPageData, getHowItWorksPageSeoSettings } from '@/src/lib/shopify';
 
+// =========================================================
+// 1. STRICT SEO METADATA
+// =========================================================
+export async function generateMetadata(): Promise<Metadata> {
+    // Parallel fetching to eliminate waterfall latency
+    const [data, seoData] = await Promise.all([
+        getHowItWorksPageData('how-it-works').catch(() => null),
+        getHowItWorksPageSeoSettings().catch(() => null),
+    ]);
+
+    console.log('Fetched How It Works Page Content:', data);    
+    console.log('Fetched How It Works Page SEO Settings:', seoData);
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
+
+    // Prioritize dedicated SEO Metaobject title -> Fall back to dynamic Hero Title -> Default fallback
+    const cleanTitle = seoData?.title 
+        ? seoData.title
+        : data?.heroTitle 
+            ? `${data.heroTitle.replace(/\b\w/g, (c: string) => c.toUpperCase())} | Just Tattoos`
+            : 'How It Works | Just Tattoos';
+
+    // Prioritize dedicated SEO Metaobject description -> Default fallback
+    const defaultDescription = seoData?.description || 
+        'Learn how to apply and care for your temporary tattoos with our step-by-step guide.';
+
+    return {
+        title: cleanTitle,
+        description: defaultDescription,
+        alternates: {
+            canonical: `${siteUrl}/how-it-works`,
+        },
+        openGraph: {
+            title: cleanTitle,
+            description: defaultDescription,
+            url: `${siteUrl}/how-it-works`,
+            type: 'website',
+            images: data?.heroImage 
+                ? [
+                    {
+                        url: data.heroImage,
+                        width: 1200,
+                        height: 630,
+                        alt: data.heroTitle || 'How It Works - Just Tattoos',
+                    },
+                ]
+                : [],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: cleanTitle,
+            description: defaultDescription,
+            images: data?.heroImage ? [data.heroImage] : [],
+        },
+    };
+}
+
+// =========================================================
+// 2. MAIN HOW IT WORKS SERVER COMPONENT (100% UNTOUCHED)
+// =========================================================
 export default async function HowItWorks() {
     // Fetch data directly from Shopify
     const data = await getHowItWorksPageData('how-it-works');
