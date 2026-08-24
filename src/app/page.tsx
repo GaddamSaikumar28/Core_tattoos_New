@@ -1,9 +1,11 @@
 import { Suspense } from "react";
 import { cache } from "react";
 import { Metadata } from "next"; // 🚀 SEO FIX: Imported Metadata API
+import { unstable_cache } from "next/cache";
 import {
   getHomePageNewArrivals,
   getHomePageCollections,
+  getMenu,
 } from "@/src/lib/shopify/index";
 
 import ShowcaseCarousel        from "../components/home/ShowcaseCarousel";
@@ -79,6 +81,19 @@ const dummyBookProducts: TattooProduct[] = Array.from({ length: 14 }, (_, i) => 
 
 export const revalidate = 60;
 
+// 🚀 SEO FIX: Same cache key ("menu-custom") as layout.tsx's getCachedMenu, so this
+// hits the same 1-hour Next.js data cache entry instead of firing a second Shopify
+// request — needed here (not passed down as a prop) purely to build SiteNavigationElement
+// from the real, live nav instead of a hardcoded schema list that can drift out of sync.
+const getCachedMenuForSchema = unstable_cache(
+  async () => {
+    const menu = await getMenu("menu-custom");
+    return menu;
+  },
+  ["menu-custom"],
+  { revalidate: 3600 }
+);
+
 // High-performance loading skeleton matching the carousel item frame layout exactly
 function CarouselSkeleton() {
   return (
@@ -104,60 +119,115 @@ function CarouselSkeleton() {
 }
 
 export default async function HomePage() {
-  // Fire both API endpoints concurrently on the server to prevent query chaining
-  const [newArrivalsData, collectionsData] = await Promise.all([
+  // Fire all three API calls concurrently on the server to prevent query chaining
+  const [newArrivalsData, collectionsData, menuData] = await Promise.all([
     getHomePageNewArrivals(10),
-    getHomePageCollections(10)
+    getHomePageCollections(10),
+    getCachedMenuForSchema(),
   ]);
 
-  // 🚀 SEO FIX: Enhanced Schema.org layout via a cohesive @graph structure to bundle Organization, Website Search Box, and Product ItemLists simultaneously
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.justtattoos.com";
+
+  // Shopify's Storefront API can resolve menu item URLs against the myshopify.com
+  // domain or the primary domain depending on store config — normalize every URL
+  // down to its path and re-attach our own siteUrl so SiteNavigationElement never
+  // points at the wrong host.
+  const toAbsoluteUrl = (rawUrl: string): string => {
+    try {
+      const parsed = new URL(rawUrl);
+      return `${siteUrl}${parsed.pathname}${parsed.search || ""}`;
+    } catch {
+      return rawUrl.startsWith("/") ? `${siteUrl}${rawUrl}` : `${siteUrl}/${rawUrl}`;
+    }
+  };
+
+  const topLevelMenuItems = (menuData?.items || []).filter(
+    (item: any) => item?.title && item?.url
+  );
+
+  // 🚀 SEO FIX: Enhanced Schema.org layout via a cohesive @graph structure.
+  // NOTE: Organization / WebSite / Brand are intentionally NOT redeclared here —
+  // they're sitewide entities owned by app/layout.tsx (referenced below purely by
+  // @id) so the homepage never emits a second, conflicting Organization node.
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Organization",
-        "@id": "https://www.justtattoos.com/#organization",
-        "name": "Just Tattoos",
-        "url": "https://www.justtattoos.com/",
-        "logo": "https://www.justtattoos.com/logo.png",
-        "sameAs": [
-          "https://www.instagram.com/justtattoos",
-          "https://www.facebook.com/justtattoos"
-        ]
-      },
-      {
-        "@type": "WebSite",
-        "@id": "https://www.justtattoos.com/#website",
-        "url": "https://www.justtattoos.com/",
-        "name": "Just Tattoos",
-        "publisher": {
-          "@id": "https://www.justtattoos.com/#organization"
-        },
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://www.justtattoos.com/search?q={search_term_string}",
-          "query-input": "required name=search_term_string"
-        }
-      },
-      {
         "@type": "WebPage",
-        "@id": "https://www.justtattoos.com/#webpage",
-        "url": "https://www.justtattoos.com/",
+        "@id": `${siteUrl}/#webpage`,
+        "url": `${siteUrl}/`,
         "name": "Just Tattoos - Home",
         "description": "Discover premium, long-lasting temporary tattoos.",
-        "isPartOf": { "@id": "https://www.justtattoos.com/#website" },
-        "mainEntity": {
-          "@type": "ItemList",
-          "name": "New Arrivals",
-          "itemListElement": newArrivalsData.map((product, index) => ({
-            "@type": "ListItem",
-            "position": index + 1,
-            "url": `https://www.justtattoos.com/products/${product.handle}`,
-            "name": product.title
-          }))
-        }
-      }
-    ]
+        "isPartOf": { "@id": `${siteUrl}/#website` },
+        "mainEntity": { "@id": `${siteUrl}/#new-arrivals-itemlist` },
+      },
+      ...(topLevelMenuItems.length > 0
+        ? [
+            {
+              "@type": "SiteNavigationElement",
+              "name": topLevelMenuItems.map((item: any) => item.title),
+              "url": topLevelMenuItems.map((item: any) => toAbsoluteUrl(item.url)),
+            },
+          ]
+        : []),
+      {
+        "@type": "ItemList",
+        "@id": `${siteUrl}/#new-arrivals-itemlist`,
+        "name": "New Arrivals",
+        "itemListElement": newArrivalsData.map((product, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "url": `${siteUrl}/products/${product.handle}`,
+          "name": product.title,
+        })),
+      },
+      {
+        "@type": "ItemList",
+        "@id": `${siteUrl}/#collections-itemlist`,
+        "name": "Collections",
+        "itemListElement": collectionsData.map((product, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "url": `${siteUrl}/products/${product.handle}`,
+          "name": product.title,
+        })),
+      },
+      {
+        "@type": "Service",
+        "@id": `${siteUrl}/#ai-design-service`,
+        "serviceType": "AI-Assisted Custom Temporary Tattoo Design",
+        "provider": { "@id": `${siteUrl}/#organization` },
+        "areaServed": "US",
+        "url": `${siteUrl}/`,
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${siteUrl}/#ai-software-application`,
+        "name": "Just Tattoos AI Design Generator",
+        "url": `${siteUrl}/`,
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      },
+      {
+        "@type": "WebApplication",
+        "@id": `${siteUrl}/#ai-web-application`,
+        "name": "Just Tattoos AI Design Generator",
+        "url": `${siteUrl}/`,
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      },
+      {
+        "@type": "AIModel",
+        "@id": `${siteUrl}/#ai-model`,
+        "name": "Just Tattoos AI Design Generator",
+        "url": `${siteUrl}/`,
+        "applicationCategory": "DesignApplication",
+        "description": "Text/style/mood/placement-conditioned generative model producing custom temporary tattoo design concepts.",
+        "provider": { "@id": `${siteUrl}/#organization` },
+      },
+    ],
   };
 
   return (

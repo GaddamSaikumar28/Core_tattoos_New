@@ -92,9 +92,9 @@ export default async function RootLayout({
   const menuItems = menuData?.items || [];
   
   const globalData = settings || {
-    headerLogo: "/assets/icons/DesktopLogo.svg",
+    headerLogo: "/assets/icons/Fotterlogo2.svg",
     footerLogo: "/assets/icons/DesktopLogo.svg",
-    splashLogo: "/assets/icons/DesktopLogo.svg",
+    splashLogo: "/assets/icons/Fotterlogo2.svg",
     splashLeftImage: "/assets/icons/butterflys.svg",
     splashRightImage: "/assets/icons/butterfly2s2.svg",
     instagramLink: "https://www.justtattoos.com",
@@ -185,13 +185,31 @@ export default async function RootLayout({
                   "@id": `${siteUrl}/#organization`,
                   name: "Just Tattoos",
                   url: siteUrl,
-                  logo: `${siteUrl}/assets/icons/DesktopLogo.svg`,
+                  logo: "${siteUrl}/assets/icons/Fotterlogo2.svg",
+                  email: "info@justtattoos.com",
+                  telephone: "+1-281-777-9880",
                   sameAs: [
                     globalData.facebookLink,
                     globalData.instagramLink,
                     globalData.twitterLink,
                     globalData.youtubeLink,
                   ].filter((link) => Boolean(link) && link !== "#"),
+                  address: {
+                    "@type": "PostalAddress",
+                    streetAddress: "4662 N Royal Atlanta Dr, Suite B",
+                    addressLocality: "Tucker",
+                    addressRegion: "GA",
+                    postalCode: "30084",
+                    addressCountry: "US"
+                  },
+                  contactPoint: {
+                    "@type": "ContactPoint",
+                    telephone: "+1-281-777-9880",
+                    email: "info@justtattoos.com",
+                    contactType: "customer service",
+                    areaServed: "US",
+                    availableLanguage: ["English"]
+                  }
                 },
                 {
                   "@type": "WebSite",
@@ -201,7 +219,27 @@ export default async function RootLayout({
                   publisher: {
                     "@id": `${siteUrl}/#organization`,
                   },
+                  potentialAction: {
+                    "@type": "SearchAction",
+                    target: {
+                      "@type": "EntryPoint",
+                      urlTemplate: `${siteUrl}/search?q={search_term_string}`
+                    },
+                    "query-input": "required name=search_term_string"
+                  },
+                  copyrightYear: 2026,
+                  copyrightHolder: {
+                    "@id": `${siteUrl}/#organization`
+                  },
+                  copyrightNotice: "© 2026 Just Tattoos. All rights reserved."
                 },
+                {
+                  "@type": "Brand",
+                  "@id": `${siteUrl}/#brand`,
+                  name: "Just Tattoos",
+                  url: siteUrl,
+                  logo: "${siteUrl}/assets/icons/Fotterlogo2.svg"
+                }
               ],
             }),
           }}

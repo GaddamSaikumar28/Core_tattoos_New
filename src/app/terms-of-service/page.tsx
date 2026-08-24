@@ -26,9 +26,53 @@ async function TermsContent() {
         "Apple Pay", "Google Pay", "Amazon Pay"
     ];
 
+    // JSON-LD Schema Definitions
+    const webpageSchema = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": "https://www.justtattoos.com/terms-of-service#webpage",
+      "url": "https://www.justtattoos.com/terms-of-service",
+      "name": "Terms Of Service",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://www.justtattoos.com/#website",
+        "name": "Just Tattoos",
+        "url": "https://www.justtattoos.com"
+      }
+    };
+
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.justtattoos.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Terms Of Service",
+          "item": "https://www.justtattoos.com/terms-of-service"
+        }
+      ]
+    };
+
     return (
         <main className="w-full bg-black text-white overflow-hidden selection:bg-[#FE8204] selection:text-white relative">
             
+            {/* Structured Data Markup (JSON-LD) */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(webpageSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
+
             {/* Immersive Ambient Glow for Transparent Header Integration */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] bg-[#FE8204] opacity-[0.04] blur-[150px] pointer-events-none z-0" />
 

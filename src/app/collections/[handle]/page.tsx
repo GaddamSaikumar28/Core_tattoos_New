@@ -136,7 +136,13 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   const finalTitle = collection.seo?.title || `${collection.title} | Just Tattoos`;
   const finalDescription = collection.seo?.description || collection.description || `Shop the ${collection.title} collection at Just Tattoos.`;
+  // 🚀 FIX: getCollectionQuery now selects `image { url, altText, width, height }`,
+  // so a real per-collection banner (when set in Shopify) is used here instead of
+  // always silently falling back to the generic default — this was previously
+  // impossible because the query never requested the `image` field at all.
   const collectionImage = collection.image?.url || defaultImage;
+  const collectionImageWidth = collection.image?.width || 1200;
+  const collectionImageHeight = collection.image?.height || 630;
 
   // Dynamic Shopify Collection Execution
   return {
@@ -149,8 +155,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
       description: collection.seo?.description || collection.description,
       url: canonicalUrl,
       type: 'website',
-      // 🚀 SEO FIX: Added openGraph image configurations
-      images: [{ url: collectionImage, width: 1200, height: 630, alt: collection.title || finalTitle }],
+      // 🚀 SEO FIX: Added openGraph image configurations (now with real dimensions when available)
+      images: [{ url: collectionImage, width: collectionImageWidth, height: collectionImageHeight, alt: collection.title || finalTitle }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -188,6 +194,9 @@ interface InitialData {
   currentCollectionTitle: string;
   activeFilters: ActiveFilters;
   description?: string; // 🚀 SEO FIX: Optional description added to interface for schema
+  imageUrl?: string;    // Added for ImageObject schema injection
+  imageWidth?: number;  // 🚀 FIX: real width when Shopify has one set, for ImageObject accuracy
+  imageHeight?: number; // 🚀 FIX: real height when Shopify has one set, for ImageObject accuracy
 }
 
 async function fetchCollectionInitialData(
@@ -322,6 +331,9 @@ async function fetchCollectionInitialData(
       currentCollectionTitle: foundTitle,
       activeFilters: effectiveFilters,
       description: collectionData?.description || collectionData?.seo?.description, // For schema
+      imageUrl: collectionData?.image?.url || undefined,
+      imageWidth: collectionData?.image?.width || undefined,
+      imageHeight: collectionData?.image?.height || undefined,
     };
   } catch (error) {
     console.error(`Failed to fetch initial data for collection ${handle}:`, error);
@@ -352,38 +364,143 @@ export default async function CollectionSwitchboardPage({ params, searchParams }
   // 🚀 FIX: Fetch SSR data BEFORE the switchboard so all 3 routes get the SEO benefit
   const initialData = await fetchCollectionInitialData(handle, activeFilters, sortOption, cursor);
 
-  // 🚀 SEO FIX: Generated Collection Schema dynamically from initialData with deep Product/Offer objects nested
+  // 🚀 SEO FIX: Schema Architecture mapping for Collections
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: initialData?.currentCollectionTitle || handle.replace(/-/g, ' '),
-    description: initialData?.description || `Browse our exclusive ${initialData?.currentCollectionTitle || handle} collection.`,
-    url: `${siteUrl}/collections/${handle}`,
-    mainEntity: {
-      '@type': 'ItemList',
-      itemListElement: initialData?.products?.map((product, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        url: `${siteUrl}/products/${product.handle}`,
-        item: {
-          "@type": "Product",
-          "name": product.title,
-          "image": product.media?.featuredImage,
-          "description": product.description,
-          "offers": {
-            "@type": "Offer",
-            "price": product.checkout?.price,
-            "priceCurrency": product.checkout?.currency || "USD",
-            "availability": product.inventory?.inStock 
-              ? "https://schema.org/InStock" 
-              : "https://schema.org/OutOfStock",
-            "url": `${siteUrl}/products/${product.handle}`
-          }
-        }
-      })) || []
-    }
+  const collectionName = initialData?.currentCollectionTitle || handle.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+  // Canonical (no query string) — used for BreadcrumbList, which represents
+  // site HIERARCHY and stays on the clean URL regardless of pagination/filters.
+  const collectionUrl = `${siteUrl}/collections/${handle}`;
+
+  // 🚀 FIX: CollectionPage / ItemList / Collection must track the ACTUAL
+  // page being viewed (cursor, sort, filters) in their @id/url — confirmed
+  // by the cursor-paginated rows in Google_Schema_Implementation_Map_
+  // JustTattoos_WITH_CODE.xlsx (same pattern already applied on /collections).
+  // This was previously hardcoded to the bare collectionUrl with no
+  // pagination/filter awareness at all.
+  const buildQueryString = (params: { [key: string]: string | string[] | undefined }): string => {
+    const usp = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === undefined) return;
+      if (Array.isArray(value)) {
+        value.forEach((v) => usp.append(key, v));
+      } else {
+        usp.set(key, value);
+      }
+    });
+    const qs = usp.toString();
+    return qs ? `?${qs}` : '';
   };
+  const currentPageUrl = `${collectionUrl}${buildQueryString(resolvedSearchParams)}`;
+
+  const defaultImageUrl = `${siteUrl}/assets/images/temporary_tattoos.webp`;
+  // 🚀 FIX: use the collection's real image + real dimensions when Shopify has
+  // one set (now possible since getCollectionQuery selects `image` at all) —
+  // only fall back to the generic default + its known 1200x630 when there's
+  // genuinely no collection image, instead of always hardcoding 1200x630.
+  const schemaImageUrl = initialData?.imageUrl || defaultImageUrl;
+  const schemaImageWidth = initialData?.imageWidth ? String(initialData.imageWidth) : '1200';
+  const schemaImageHeight = initialData?.imageHeight ? String(initialData.imageHeight) : '630';
+
+  const dynamicProductList = initialData?.products?.map((product, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    url: `${siteUrl}/products/${product.handle}`,
+    item: {
+      "@type": "Product",
+      "name": product.title,
+      "image": product.media?.featuredImage,
+      // 🚀 FIX: strip HTML from the rich-text description before it lands in
+      // JSON-LD — same treatment already applied on the product page and the
+      // /collections index; this file had regressed to the raw HTML string.
+      "description": (product.description || '').replace(/<[^>]+>/g, ''),
+      "offers": {
+        "@type": "Offer",
+        "price": product.checkout?.price,
+        "priceCurrency": product.checkout?.currency || "USD",
+        "availability": product.inventory?.inStock 
+          ? "https://schema.org/InStock" 
+          : "https://schema.org/OutOfStock",
+        "url": `${siteUrl}/products/${product.handle}`
+      }
+    }
+  })) || [];
+
+  // Grouped Schemas inside an Array to be injected into a single script tag
+  const schemas = [
+    {
+      // 1. CollectionPage Schema
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "@id": `${currentPageUrl}#webpage`,
+      "url": currentPageUrl,
+      "name": collectionName,
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        "name": "Just Tattoos",
+        "url": siteUrl
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": collectionName,
+        "itemListElement": dynamicProductList
+      }
+    },
+    {
+      // 2. BreadcrumbList Schema — this is the ONLY BreadcrumbList for this
+      // route now; Breadcrumbs.tsx no longer emits its own <script>, so
+      // confirm that edit is in place to avoid a duplicate.
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": `${siteUrl}/`
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Collections",
+          "item": `${siteUrl}/collections`
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": collectionName,
+          "item": collectionUrl
+        }
+      ]
+    },
+    {
+      // 3. ItemList Schema
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "@id": `${currentPageUrl}#itemlist`,
+      "name": collectionName,
+      "itemListElement": dynamicProductList
+    },
+    {
+      // 4. ImageObject Schema
+      "@context": "https://schema.org",
+      "@type": "ImageObject",
+      "contentUrl": schemaImageUrl,
+      "url": schemaImageUrl,
+      "caption": collectionName,
+      "width": schemaImageWidth,
+      "height": schemaImageHeight
+    },
+    {
+      // 5. Collection Schema
+      "@context": "https://schema.org",
+      "@type": "Collection",
+      "name": collectionName,
+      "url": currentPageUrl,
+      "hasPart": dynamicProductList.map(listItem => listItem.item) // Mapping out products for the Collection relation
+    }
+  ];
 
   // --- SWITCHBOARD LOGIC ---
 
@@ -403,10 +520,10 @@ export default async function CollectionSwitchboardPage({ params, searchParams }
 
   return (
     <>
-      {/* 🚀 SEO FIX: Inject Collection ItemList Schema safely before rendering the page */}
+      {/* 🚀 SEO FIX: Inject Full Aggregated Collection Schemas safely before rendering the page */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemas) }}
       />
       {PageComponent}
     </>

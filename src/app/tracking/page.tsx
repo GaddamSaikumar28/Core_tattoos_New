@@ -106,9 +106,76 @@ export default function TrackingPage() {
     });
   };
 
+  // =========================================================
+  // STRUCTURED DATA (JSON-LD)
+  // =========================================================
+
+  const webPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://www.justtattoos.com/tracking#webpage",
+    "url": "https://www.justtattoos.com/tracking",
+    "name": "Tracking",
+    "isPartOf": {
+      "@type": "WebSite",
+      "@id": "https://www.justtattoos.com/#website",
+      "name": "Just Tattoos",
+      "url": "https://www.justtattoos.com"
+    }
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.justtattoos.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Tracking",
+        "item": "https://www.justtattoos.com/tracking"
+      }
+    ]
+  };
+
+  const webApplicationSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Just Tattoos Order Tracking",
+    "url": "https://www.justtattoos.com/tracking",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  };
+
+  const entryPointSchema = {
+    "@context": "https://schema.org",
+    "@type": "EntryPoint",
+    "urlTemplate": "https://www.justtattoos.com/tracking?order={order_number}",
+    "actionPlatform": [
+      "http://schema.org/DesktopWebPlatform",
+      "http://schema.org/MobileWebPlatform"
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-black text-white selection:bg-[#FE8204] selection:text-white pt-32 sm:pt-40 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       
+      {/* 🚀 SCHEMA INJECTIONS */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(entryPointSchema) }} />
+
       {/* 🚀 SEO FIX: Only the invisible helper is wrapped in Suspense now */}
       <Suspense fallback={null}>
         <AutoTrackHelper onTrack={handleAutoTrack} />

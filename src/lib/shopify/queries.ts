@@ -1134,6 +1134,12 @@ export const getCollectionQuery = /* GraphQL */ `
         title
         description
       }
+      image {
+        url
+        altText
+        width
+        height
+      }
     }
   }
 `;

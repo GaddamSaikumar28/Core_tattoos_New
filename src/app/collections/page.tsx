@@ -5,6 +5,9 @@ import ShopAllClient from '@/src/components/shared/ShopAllClient';
 import { Loader2 } from 'lucide-react';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
+// Hoisted to module scope (was previously local to generateMetadata only) so
+// it's also reachable from ShopAllPage below for the ImageObject schema node.
+const defaultImage = `${siteUrl}/assets/images/temporary_tattoos.webp`;
 
 type SortOptionValue = 'newest' | 'price-asc' | 'price-desc' | 'alpha-asc';
 
@@ -23,8 +26,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     ['styles', 'sizes', 'placements', 'category', 'cursor', 'sort'].includes(key)
   );
 
-  //const defaultImage = `${siteUrl}/fallback-seo-image.jpg`; // Fallback image for OG/Twitter
-  const defaultImage = `${siteUrl}/assets/images/temporary_tattoos.webp`; // Updated fallback image for OG/Twitter
+  // defaultImage is now declared at module scope above (shared with ShopAllPage's schema block)
   return {
     title: 'Shop All | Just Tattoos',
     description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
@@ -232,36 +234,159 @@ export default async function ShopAllPage({ searchParams }: Props) {
     currentCollectionTitle: activeFilters.collections.length === 1 ? activeFilters.collections[0] : 'Shop All',
   };
 
-  // 🚀 SEO FIX: Construct highly explicit ItemList structured data arrays safely, including nested Product/Offers
+  // ---------------------------------------------------------
+  // 🚀 SEO FIX: Full CollectionPage schema graph
+  // Covers: CollectionPage, BreadcrumbList, ItemList, ImageObject,
+  // Dataset (per CONSOLIDATED_SCHEMA_BY_PAGE.md "Collections Index").
+  // Everything is cross-referenced by @id the same way the product
+  // page's graph is, and it's purely additive markup — none of the
+  // fetching/filtering/rendering logic above or below this block changed.
+  // ---------------------------------------------------------
+  const collectionsUrl = `${siteUrl}/collections`;
+
+  // The doc's own examples show the CollectionPage node's @id/url tracking
+  // the ACTUAL page being viewed — e.g. a cursor-paginated URL gets its own
+  // @id/url with the cursor query string, not the bare /collections one.
+  // This is separate from (and doesn't touch) the `alternates.canonical`
+  // above, which intentionally always points at bare /collections for
+  // crawl-budget reasons — the canonical tag says "index this URL instead,"
+  // while this just describes the URL that's actually rendering right now.
+  const buildQueryString = (params: Record<string, string | string[] | undefined>): string => {
+    const usp = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === undefined) return;
+      if (Array.isArray(value)) {
+        value.forEach((v) => usp.append(key, v));
+      } else {
+        usp.set(key, value);
+      }
+    });
+    const qs = usp.toString();
+    return qs ? `?${qs}` : '';
+  };
+  const currentPageUrl = `${collectionsUrl}${buildQueryString(resolvedParams)}`;
+
+  const isFilteredView = initialData.currentCollectionTitle !== 'Shop All';
+  // "All Products" matches the doc's default naming for the master catalog;
+  // a filtered view (e.g. ?category=Skulls) gets its own name/breadcrumb leaf.
+  const collectionName = isFilteredView ? initialData.currentCollectionTitle : 'All Products';
+
+  const websiteJsonLd = {
+    '@type': 'WebSite',
+    '@id': `${siteUrl}/#website`,
+    name: 'Just Tattoos',
+    url: siteUrl,
+  };
+
+  const breadcrumbJsonLd = {
+    '@type': 'BreadcrumbList',
+    '@id': `${collectionsUrl}#breadcrumb`,
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${siteUrl}/` },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'All Products',
+        item: collectionsUrl,
+      },
+      // Only add a third crumb when an actual category filter is active —
+      // the master catalog view stays a 2-level trail per the doc's example.
+      ...(isFilteredView
+        ? [
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: collectionName,
+              item: `${collectionsUrl}?category=${encodeURIComponent(collectionName)}`,
+            },
+          ]
+        : []),
+    ],
+  };
+
+  // Reused per-product shape from the original code (kept intact), just with
+  // HTML stripped from the description for cleaner, more accurate markup —
+  // same treatment already applied on the product detail page.
+  const itemListJsonLd = {
+    '@type': 'ItemList',
+    '@id': `${collectionsUrl}#itemlist`,
+    name: collectionName,
+    itemListElement: (result?.formattedData || []).map((product: any, index: number) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: `${siteUrl}/products/${product.handle}`,
+      item: {
+        '@type': 'Product',
+        name: product.title,
+        image: product.media?.featuredImage,
+        description: (product.description || '').replace(/<[^>]+>/g, ''),
+        offers: {
+          '@type': 'Offer',
+          price: product.checkout?.price,
+          priceCurrency: product.checkout?.currency || 'USD',
+          availability: product.inventory?.inStock
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock',
+          url: `${siteUrl}/products/${product.handle}`,
+        },
+      },
+    })),
+  };
+
+  // Hero/OG image for this listing view — same asset already used for
+  // openGraph/twitter above, just also marked up explicitly per the doc.
+  const heroImageJsonLd = {
+    '@type': 'ImageObject',
+    contentUrl: defaultImage,
+    url: defaultImage,
+    caption: collectionName,
+  };
+
+  // Dataset is called out as "Optional/marginal" in the schema doc itself.
+  // Only emitting it for the true unfiltered "All Products" view, since it's
+  // meant to describe the whole catalog, not a single filtered slice of it.
+  // NOTE: there's no real catalog feed/export endpoint in this codebase today
+  // (no {{catalog_feed_url}} equivalent) — using the product sitemap as the
+  // closest existing stand-in for `distribution.contentUrl`. Flag if you'd
+  // rather point this at a real feed (Merchant Center feed, CSV export, etc.)
+  // or drop the `distribution` property entirely until one exists.
+  const datasetJsonLd =
+    !isFilteredView
+      ? [
+          {
+            '@type': 'Dataset',
+            name: 'Just Tattoos Design Catalog',
+            url: collectionsUrl,
+            description:
+              'Structured catalog of Just Tattoos temporary tattoo designs, including style, placement, and pricing attributes.',
+            creator: { '@type': 'Organization', name: 'Just Tattoos' },
+            distribution: {
+              '@type': 'DataDownload',
+              encodingFormat: 'application/xml',
+              contentUrl: `${siteUrl}/sitemap.xml`,
+            },
+          },
+        ]
+      : [];
+
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: 'Shop All | Just Tattoos',
-    description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
-    url: `${siteUrl}/collections`,
-    mainEntity: {
-      '@type': 'ItemList',
-      itemListElement: (result?.formattedData || []).map((product: any, index: number) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        url: `${siteUrl}/products/${product.handle}`,
-        item: {
-          "@type": "Product",
-          "name": product.title,
-          "image": product.media?.featuredImage,
-          "description": product.description,
-          "offers": {
-            "@type": "Offer",
-            "price": product.checkout?.price,
-            "priceCurrency": product.checkout?.currency || "USD",
-            "availability": product.inventory?.inStock 
-              ? "https://schema.org/InStock" 
-              : "https://schema.org/OutOfStock",
-            "url": `${siteUrl}/products/${product.handle}`
-          }
-        }
-      }))
-    }
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': `${currentPageUrl}#webpage`,
+        url: currentPageUrl,
+        name: isFilteredView ? `${collectionName} | Just Tattoos` : 'All Products',
+        description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
+        isPartOf: { '@id': `${siteUrl}/#website` },
+        mainEntity: { '@id': `${collectionsUrl}#itemlist` },
+      },
+      websiteJsonLd,
+      breadcrumbJsonLd,
+      itemListJsonLd,
+      heroImageJsonLd,
+      ...datasetJsonLd,
+    ],
   };
 
   // 5. Render Client Component (No redundant blocking Suspense around data fetch)

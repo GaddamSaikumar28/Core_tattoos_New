@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getArticle } from "@/src/lib/shopify/index";
 import { Metadata } from "next";
 import { Breadcrumbs } from "@/src/components/shared/Breadcrumbs";
+import { extractFaqsFromHtml, extractHowToStepsFromHtml } from "@/src/lib/extractArticleSchema";
 
 type Props = { 
   params: Promise<{ blogHandle: string, articleHandle: string }> 
@@ -42,30 +43,204 @@ export default async function SingleArticlePage({ params }: Props) {
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.justtattoos.com";
   const articleUrl = `${siteUrl}/blogs/${blogHandle}/${articleHandle}`;
+  const authorName = article.authorV2?.name || "Just Tattoos Team";
+  const publisherLogo = "https://cdn.shopify.com/s/files/1/0973/6608/1834/files/Fotterlogo2.svg";
 
-  const blogPostingSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: article.seo?.title || article.title,
-    image: article.image ? [article.image.url] : [],
-    datePublished: article.publishedAt,
-    dateModified: article.publishedAt,
-    author: [{
-        '@type': 'Person',
-        name: article.authorV2?.name || 'Just Tattoos Team',
-    }],
-    publisher: {
-      '@type': 'Organization',
-      name: 'Just Tattoos',
-      logo: { '@type': 'ImageObject', url: `${siteUrl}/assets/icons/DesktopLogo.svg` }
+  // =========================================================
+  // 🚀 SEO FIX: CONDITIONAL SCHEMA TARGETING (BY HANDLE)
+  // =========================================================
+  const faqAndSpeakableHandles = [
+    'how-long-do-semi-permanent-tattoos-last',
+    'why-does-my-tattoo-look-faint-after-applying',
+    'are-semi-permanent-tattoos-safe',
+    'how-do-semi-permanent-tattoos-work-the-science-explained'
+  ];
+
+  const howToHandles = [
+    'how-to-fade-tattoos-fast-proven-methods-that-actually-work',
+    'how-to-remove-temporary-tattoos-easily-without-damaging-your-skin-guide',
+    'how-to-apply-a-temporary-tattoo-step-by-step-guide',
+    'how-to-make-temporary-tattoos-at-home-secret-printer-method-that-actually-works',
+    'how-to-make-temporary-tattoos-last-longer'
+  ];
+
+  const definedTermHandles = [
+    'what-is-a-semi-permanent-tattoo'
+  ];
+
+  // =========================================================
+  // 🚀 SEO FIX: CONSOLIDATE UNIVERSAL POST SCHEMAS
+  // =========================================================
+  const schemas: any[] = [
+    {
+      // 1. BreadcrumbList (3 Levels)
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": `${siteUrl}/` },
+        { "@type": "ListItem", "position": 2, "name": "Blog", "item": `${siteUrl}/blogs` },
+        { "@type": "ListItem", "position": 3, "name": article.title, "item": articleUrl }
+      ]
     },
-    description: article.seo?.description || article.title,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl }
-  };
+    {
+      // 2. BlogPosting
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "@id": `${articleUrl}#blogposting`,
+      "headline": article.title,
+      "url": articleUrl,
+      "mainEntityOfPage": { "@type": "WebPage", "@id": articleUrl },
+      "author": { "@type": "Person", "name": authorName },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Just Tattoos",
+        "logo": { "@type": "ImageObject", "url": publisherLogo }
+      },
+      "image": article.image ? [article.image.url] : [],
+      "datePublished": article.publishedAt,
+      // NOTE: Shopify's Storefront API Article type has no "updatedAt"/"modified"
+      // field, so this still falls back to publishedAt. See the comment block
+      // at the bottom of this file for exactly what to add if you want a real,
+      // independent dateModified value.
+      "dateModified": article.publishedAt
+    },
+    {
+      // 3. Article
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "@id": `${articleUrl}#article`,
+      "headline": article.title,
+      "url": articleUrl,
+      "author": { "@type": "Person", "name": authorName },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Just Tattoos",
+        "logo": { "@type": "ImageObject", "url": publisherLogo }
+      },
+      "image": article.image ? [article.image.url] : [],
+      "datePublished": article.publishedAt
+    },
+    {
+      // 4. Person (Author)
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": authorName,
+      "url": `${siteUrl}/about`
+    },
+    {
+      // 5. CreativeWork
+      "@context": "https://schema.org",
+      "@type": "CreativeWork",
+      "name": article.title,
+      "url": articleUrl,
+      "creator": { "@type": "Organization", "name": "Just Tattoos" }
+    }
+  ];
+
+  // 6. ImageObject (If Image Exists)
+  if (article.image) {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "ImageObject",
+      "contentUrl": article.image.url,
+      "url": article.image.url,
+      "caption": article.image.altText || article.title,
+      "width": article.image.width?.toString() || "1200",
+      "height": article.image.height?.toString() || "800"
+    });
+  }
+
+  // =========================================================
+  // 🚀 SEO FIX: INJECT CONDITIONAL SCHEMAS
+  // =========================================================
+  
+  if (faqAndSpeakableHandles.includes(articleHandle)) {
+    // 🚀 FIX: try to pull real Q&A pairs out of the article body first
+    // (headings that read like a question, plus the text under them).
+    // Only fall back to the single generic question if the article isn't
+    // written in that heading style — so this never breaks, it just gets
+    // better automatically as content is written in a Q&A format.
+    const extractedFaqs = extractFaqsFromHtml(article.contentHtml);
+
+    const faqEntities = extractedFaqs.length > 0
+      ? extractedFaqs.map((f) => ({
+          "@type": "Question",
+          "name": f.question,
+          "acceptedAnswer": { "@type": "Answer", "text": f.answer }
+        }))
+      : [
+          {
+            "@type": "Question",
+            "name": article.title,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": article.seo?.description || `Detailed guide on ${article.title}`
+            }
+          }
+        ];
+
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "@id": `${articleUrl}#faq`,
+      "mainEntity": faqEntities
+    });
+
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "url": articleUrl,
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": ["h1", ".faq-answer", ".article-summary"]
+      }
+    });
+  }
+
+  if (howToHandles.includes(articleHandle)) {
+    // 🚀 FIX: try to pull the real numbered steps out of the article body's
+    // <ol> list first. Falls back to the single generic step only if the
+    // article has no ordered list to parse.
+    const extractedSteps = extractHowToStepsFromHtml(article.contentHtml);
+
+    const stepEntities = extractedSteps.length > 0
+      ? extractedSteps.map((s) => ({ "@type": "HowToStep", "name": s.name, "text": s.text }))
+      : [
+          {
+            "@type": "HowToStep",
+            "name": "Read Full Instructions",
+            "text": article.seo?.description || "Read the article below for full step-by-step instructions."
+          }
+        ];
+
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": article.title,
+      "url": articleUrl,
+      "step": stepEntities
+    });
+  }
+
+  if (definedTermHandles.includes(articleHandle)) {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "DefinedTerm",
+      "name": "Semi-Permanent Tattoo", // Or dynamically extracted based on title mapping
+      "url": articleUrl,
+      "description": article.seo?.description || "Definition and breakdown of this term.",
+      "inDefinedTermSet": `${siteUrl}/blogs/${blogHandle}`
+    });
+  }
 
   return (
     <article className="w-full min-h-screen bg-black text-white selection:bg-[#FE8204] selection:text-white pb-24 relative overflow-hidden">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingSchema) }} />
+      
+      {/* 🚀 INJECT ALL CONSOLIDATED SCHEMAS SAFELY */}
+      <script 
+        type="application/ld+json" 
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemas) }} 
+      />
 
       {/* Premium Hero Bleed Container (Flows seamlessly under transparent headers) */}
       <div className="relative w-full pt-32 md:pt-40 pb-16 md:pb-24 bg-zinc-950 border-b border-white/5 overflow-hidden">
@@ -94,7 +269,8 @@ export default async function SingleArticlePage({ params }: Props) {
               { label: 'Blogs', url: '/blogs' },
               { label: blogHandle, url: `/blogs/${blogHandle}` },
               { label: article.title, url: articleUrl }
-            ]} />
+            ]} renderSchema={false} /> 
+            {/* 👆 THE FIX: renderSchema={false} prevents duplication */}
           </div>
 
           {/* Core Post Title Details Wrapper */}
@@ -137,3 +313,28 @@ export default async function SingleArticlePage({ params }: Props) {
     </article>
   );
 }
+
+// =========================================================
+// 📝 OPTIONAL FOLLOW-UP — real dateModified (not applied here, needs your input)
+// =========================================================
+// Shopify's Storefront API Article type has no updatedAt/modified field, only
+// publishedAt — that's why dateModified above still falls back to publishedAt.
+// If you want a real, independently-tracked "last updated" date, add a
+// metafield and wire it through like this:
+//
+// 1. Shopify Admin → the Article → Metafields → add a Date field, e.g.
+//    namespace "custom", key "updated_at".
+//
+// 2. In queries.ts, inside getArticleByHandleQuery's `articleByHandle { ... }`
+//    selection, add:
+//      updatedAtMetafield: metafield(namespace: "custom", key: "updated_at") {
+//        value
+//      }
+//
+// 3. No change needed in index.ts — getArticle() already returns the raw
+//    articleByHandle object as-is, so the new field will just show up on it.
+//
+// 4. Back in this file, change:
+//      "dateModified": article.publishedAt
+//    to:
+//      "dateModified": article.updatedAtMetafield?.value || article.publishedAt

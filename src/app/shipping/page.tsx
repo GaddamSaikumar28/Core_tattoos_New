@@ -14,7 +14,6 @@ export async function generateMetadata(): Promise<Metadata> {
     getShippingSeoSettings().catch(() => null),
   ]);
 
-  //console.log('Shipping Page Metadata:', { seoData, data }); // Debugging log
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
 
   // Prioritize dedicated SEO Metaobject title -> Fall back to dynamic Hero Title -> Fall back to default
@@ -39,7 +38,6 @@ export async function generateMetadata(): Promise<Metadata> {
       description: defaultDescription,
       url: `${siteUrl}/shipping`,
       type: 'website',
-      // Preserves your existing OpenGraph dynamic image integration
       images: data?.heroImage 
         ? [
             {
@@ -64,7 +62,7 @@ export async function generateMetadata(): Promise<Metadata> {
 // 2. MAIN SHIPPING SERVER COMPONENT
 // =========================================================
 export default async function ShippingPage() {
-    // Fetch dynamic data from Shopify on the server (0% DOM Parity Discrepancy)
+    // Fetch dynamic data from Shopify on the server
     const data = await getShippingPageData('shipping-page');
 
     if (!data) {
@@ -75,9 +73,117 @@ export default async function ShippingPage() {
         );
     }
 
+    // JSON-LD Schema Definitions
+    const webpageSchema = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": "https://www.justtattoos.com/shipping#webpage",
+      "url": "https://www.justtattoos.com/shipping",
+      "name": "Shipping",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://www.justtattoos.com/#website",
+        "name": "Just Tattoos",
+        "url": "https://www.justtattoos.com"
+      }
+    };
+
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.justtattoos.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Shipping",
+          "item": "https://www.justtattoos.com/shipping"
+        }
+      ]
+    };
+
+    const faqSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "@id": "https://www.justtattoos.com/shipping#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What are your order processing times?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Orders are typically processed within 1–3 business days (excluding weekends and U.S. federal holidays), unless otherwise stated."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where do you ship?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We currently ship within the United States only."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What should I do if my package arrives damaged?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "If your order arrives damaged, email support@justtattoos.com within 48 hours of delivery with your order number, photos of the damaged item(s), and photos of the packaging and shipping label."
+          }
+        }
+      ]
+    };
+
+    const offerShippingSchema = {
+      "@context": "https://schema.org",
+      "@type": "OfferShippingDetails",
+      "@id": "https://www.justtattoos.com/shipping#shipping",
+      "shippingRate": {
+        "@type": "MonetaryAmount",
+        "value": "0.00",
+        "currency": "USD"
+      },
+      "shippingDestination": {
+        "@type": "DefinedRegion",
+        "addressCountry": "US"
+      },
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "transitTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 10,
+          "maxValue": 14,
+          "unitCode": "DAY"
+        }
+      }
+    };
+
     return (
         <main className="w-full bg-black text-white overflow-hidden min-h-screen selection:bg-[#FE8204] selection:text-white">
             
+            {/* Structured Data Markup (JSON-LD) */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(webpageSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(offerShippingSchema) }}
+            />
+
             {/* --- 1. 🚀 PREMIUM HERO BANNER REPLACEMENT --- */}
             <div className="container max-w-[1400px] mx-auto px-4 pt-24 md:pt-32">
                 <div className="relative w-full h-[280px] md:h-[380px] rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl group bg-zinc-900 flex items-center">

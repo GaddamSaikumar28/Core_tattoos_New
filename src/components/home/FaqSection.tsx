@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { getFaqSectionData } from '@/src/lib/shopify'; // Update path if needed
 import FaqClient from './FaqClient';
@@ -14,11 +13,74 @@ export default async function FaqSection() {
     );
   }
 
+  // =========================================================
+  // 🚀 SEO: INJECT HELP & FAQ PAGE SCHEMAS
+  // =========================================================
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.justtattoos.com';
+
+  const schemas: any[] = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": `${siteUrl}/help#webpage`,
+      "url": `${siteUrl}/help`,
+      "name": "Help",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        "name": "Just Tattoos",
+        "url": siteUrl
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": `${siteUrl}/` },
+        { "@type": "ListItem", "position": 2, "name": "Help", "item": `${siteUrl}/help` }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "@id": `${siteUrl}/help#faq`,
+      // 🚀 Dynamically generate the Questions & Answers from Shopify Data
+      "mainEntity": data.faqs.map((faq: { question: string; answer: string }) => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
+        }
+      }))
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "url": `${siteUrl}/help`,
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": [
+          "h1",
+          ".faq-answer",
+          ".article-summary"
+        ]
+      }
+    }
+  ];
+
   return (
     <section className="bg-[#050505] w-full px-4 py-16 md:px-8 lg:px-16 md:py-24 overflow-hidden relative selection:bg-[var(--color-brand-orange)] selection:text-white">
+      
+      {/* 🚀 INJECT ALL CONSOLIDATED SCHEMAS SAFELY */}
+      <script 
+        type="application/ld+json" 
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemas) }} 
+      />
+
       {/* Optional: Subtle background glow effect for premium feel */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[var(--color-brand-orange)] opacity-[0.04] blur-[120px] pointer-events-none"></div>
-      
+
       {/* Pass the dynamic data to the interactive client component */}
       <FaqClient data={data} />
     </section>

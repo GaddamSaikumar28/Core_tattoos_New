@@ -107,9 +107,46 @@ export default function CommunityGalleryClient({ data }: { data: GalleryData }) 
     },
   };
 
+  // 🚀 SEO FIX: ImageObject markup for the gallery images that are actually part of
+  // the page's initial content (the same first-11 slice used for the <noscript>
+  // fallback below), built from real url/alt/width/height — no placeholders.
+  // NOTE: schema.org Comment / DiscussionForumPosting were considered here per the
+  // client sheet, but GalleryImage has no author handle or caption text to populate
+  // them with, so they're intentionally omitted rather than filled with fake UGC
+  // authorship. If/when this gallery gets real per-image captions and usernames,
+  // those two types can be added the same way.
+  const initialGalleryImages = data.images?.slice(0, 11) || [];
+  const galleryImageJsonLd =
+    initialGalleryImages.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@graph": initialGalleryImages.map((img, idx) => {
+            const fallbackAlt =
+              img.alt && img.alt.toLowerCase() !== 'community image'
+                ? img.alt
+                : `Just Tattoos community member wearing a custom temporary tattoo design ${idx + 1}`;
+            return {
+              "@type": "ImageObject",
+              "contentUrl": img.url,
+              "url": img.url,
+              "caption": fallbackAlt,
+              "width": img.width,
+              "height": img.height,
+            };
+          }),
+        }
+      : null;
+
   return (
     <section className="w-full bg-[#050505] text-white py-24 px-4 md:px-8 overflow-hidden">
-      
+
+      {galleryImageJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(galleryImageJsonLd) }}
+        />
+      )}
+
       {/* 🚀 SEO FIX: Inject <noscript> fallback for crawlers that do not execute JS intervals */}
       <noscript>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>

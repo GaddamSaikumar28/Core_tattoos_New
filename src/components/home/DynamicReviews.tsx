@@ -125,8 +125,41 @@ export default function Testimonials() {
     }
   };
 
+  // 🚀 SEO FIX: Review schema built from the same testimonial copy already shown on
+  // screen (FiveStars is always rendered 5-full, so ratingValue is a faithful 1:1
+  // match of what's visibly displayed — no fabricated numbers).
+  // NOTE (dummy data, by design): this component has no live reviews-app connection
+  // yet (Judge.me / Loox / Yotpo etc.). Once that's wired up, swap `allTestimonials`
+  // for the real review feed here and this schema block keeps working unchanged.
+  const reviewJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": allTestimonials.map((item) => ({
+      "@type": "Review",
+      "itemReviewed": {
+        "@type": "Thing",
+        "name": "Just Tattoos",
+      },
+      "author": {
+        "@type": "Person",
+        "name": item.name,
+      },
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": "5",
+        "bestRating": "5",
+      },
+      "reviewBody": item.text.replace(/^"|"$/g, ""),
+    })),
+  };
+
   return (
     <section className="relative w-full bg-[#050505] py-20 md:py-32 overflow-hidden selection:bg-[var(--color-brand-orange)] selection:text-white">
+      {/* 🚀 SEO FIX: Inject Review structured data (dummy testimonial copy for now) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewJsonLd) }}
+      />
+
       {/* Background ambient lighting */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[1000px] bg-[var(--color-brand-orange)] opacity-[0.02] blur-[150px] pointer-events-none rounded-full"></div>
 
