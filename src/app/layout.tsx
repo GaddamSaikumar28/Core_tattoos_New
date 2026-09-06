@@ -185,7 +185,8 @@ export default async function RootLayout({
                   "@id": `${siteUrl}/#organization`,
                   name: "Just Tattoos",
                   url: siteUrl,
-                  logo: "${siteUrl}/assets/icons/Fotterlogo2.svg",
+                  // logo: "${siteUrl}/assets/icons/Fotterlogo2.svg",
+                  logo: `${siteUrl}/assets/icons/Fotterlogo2.svg`, 
                   email: "info@justtattoos.com",
                   telephone: "+1-281-777-9880",
                   sameAs: [
@@ -238,7 +239,7 @@ export default async function RootLayout({
                   "@id": `${siteUrl}/#brand`,
                   name: "Just Tattoos",
                   url: siteUrl,
-                  logo: "${siteUrl}/assets/icons/Fotterlogo2.svg"
+                  logo: `${siteUrl}/assets/icons/Fotterlogo2.svg`, 
                 }
               ],
             }),

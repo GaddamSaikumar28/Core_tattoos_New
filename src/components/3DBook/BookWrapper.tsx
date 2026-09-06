@@ -1,4 +1,4 @@
-import Link from "next/link";
+// import Link from "next/link";
 import type { TattooProduct } from "./UI";
 import BookClientLoader from "./BookClientLoader";
 
@@ -24,9 +24,9 @@ export default function BookWrapper({ products }: BookWrapperProps) {
           <ul>
             {products.map((product) => (
               <li key={product.id}>
-                <Link href={`/products/${product.handle}`} prefetch={false}>
+                {/* <Link href={`/products/${product.handle}`} prefetch={false}>
                   <h3>{product.title}</h3>
-                </Link>
+                </Link> */}
                 <span>Price: ${product.price}</span>
                 <span>Ink Variant Type: {product.colorType}</span>
                 

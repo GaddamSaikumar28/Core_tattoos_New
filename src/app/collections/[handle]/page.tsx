@@ -405,10 +405,11 @@ export default async function CollectionSwitchboardPage({ params, searchParams }
   const dynamicProductList = initialData?.products?.map((product, index) => ({
     '@type': 'ListItem',
     position: index + 1,
-    url: `${siteUrl}/products/${product.handle}`,
+    // url: `${siteUrl}/products/${product.handle}`,
     item: {
       "@type": "Product",
       "name": product.title,
+      "url": `${siteUrl}/products/${product.handle}`,  
       "image": product.media?.featuredImage,
       // 🚀 FIX: strip HTML from the rich-text description before it lands in
       // JSON-LD — same treatment already applied on the product page and the
@@ -426,81 +427,78 @@ export default async function CollectionSwitchboardPage({ params, searchParams }
     }
   })) || [];
 
+  const hasProducts = dynamicProductList.length > 0;
+  
   // Grouped Schemas inside an Array to be injected into a single script tag
   const schemas = [
-    {
-      // 1. CollectionPage Schema
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      "@id": `${currentPageUrl}#webpage`,
-      "url": currentPageUrl,
-      "name": collectionName,
-      "isPartOf": {
-        "@type": "WebSite",
-        "@id": `${siteUrl}/#website`,
-        "name": "Just Tattoos",
-        "url": siteUrl
-      },
-      "mainEntity": {
-        "@type": "ItemList",
-        "name": collectionName,
-        "itemListElement": dynamicProductList
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${currentPageUrl}#webpage`,
+    "url": currentPageUrl,
+    "name": collectionName,
+    "isPartOf": { 
+      "@type": "WebSite", 
+      "@id": `${siteUrl}/#website`, 
+      "name": "Just Tattoos", 
+      "url": siteUrl 
+    },
+    ...(hasProducts && {
+      "mainEntity": { 
+        "@type": "ItemList", 
+        "name": collectionName, 
+        "itemListElement": dynamicProductList 
       }
-    },
-    {
-      // 2. BreadcrumbList Schema — this is the ONLY BreadcrumbList for this
-      // route now; Breadcrumbs.tsx no longer emits its own <script>, so
-      // confirm that edit is in place to avoid a duplicate.
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": `${siteUrl}/`
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Collections",
-          "item": `${siteUrl}/collections`
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": collectionName,
-          "item": collectionUrl
-        }
-      ]
-    },
-    {
-      // 3. ItemList Schema
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      "@id": `${currentPageUrl}#itemlist`,
-      "name": collectionName,
-      "itemListElement": dynamicProductList
-    },
-    {
-      // 4. ImageObject Schema
-      "@context": "https://schema.org",
-      "@type": "ImageObject",
-      "contentUrl": schemaImageUrl,
-      "url": schemaImageUrl,
-      "caption": collectionName,
-      "width": schemaImageWidth,
-      "height": schemaImageHeight
-    },
-    {
-      // 5. Collection Schema
-      "@context": "https://schema.org",
-      "@type": "Collection",
-      "name": collectionName,
-      "url": currentPageUrl,
-      "hasPart": dynamicProductList.map(listItem => listItem.item) // Mapping out products for the Collection relation
-    }
-  ];
+    })
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { 
+        "@type": "ListItem", 
+        "position": 1, 
+        "name": "Home", 
+        "item": `${siteUrl}/` 
+      },
+      { 
+        "@type": "ListItem", 
+        "position": 2, 
+        "name": "Collections", 
+        "item": `${siteUrl}/collections` 
+      },
+      { 
+        "@type": "ListItem", 
+        "position": 3, 
+        "name": collectionName, 
+        "item": collectionUrl 
+      }
+    ]
+  },
+  ...(hasProducts ? [{
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${currentPageUrl}#itemlist`,
+    "name": collectionName,
+    "itemListElement": dynamicProductList
+  }] : []),
+  {
+    "@context": "https://schema.org",
+    "@type": "ImageObject",
+    "contentUrl": schemaImageUrl,
+    "url": schemaImageUrl,
+    "caption": collectionName,
+    "width": schemaImageWidth,
+    "height": schemaImageHeight
+  },
+  ...(hasProducts ? [{
+    "@context": "https://schema.org",
+    "@type": "Collection",
+    "name": collectionName,
+    "url": currentPageUrl,
+    "hasPart": dynamicProductList.map(listItem => listItem.item)
+  }] : []),
+];
 
   // --- SWITCHBOARD LOGIC ---
 

@@ -181,7 +181,16 @@ const config: NextConfig = {
         destination: '/collections/new-arrival',
         permanent: true,
       },
-      
+      { source: '/shop', destination: '/collections/all', permanent: true },
+      { source: '/pages/how-it-works', destination: '/how-it-works', permanent: true },
+      { source: '/pages/help-faq', destination: '/help', permanent: true },
+      { source: '/pages/tattoos', destination: '/collections', permanent: true },
+      { source: '/pages/tattoos-maker', destination: '/', permanent: true }, // confirm real target with client
+      { source: '/pages/categories', destination: '/collections', permanent: true },
+      { source: '/pages/affiliate-program', destination: '/', permanent: true }, // page doesn't exist anymore — confirm with client whether to redirect somewhere specific or just kill it
+      { source: '/pages/artist-portal', destination: '/', permanent: true },     // same — confirm
+      { source: '/pages/traking', destination: '/tracking', permanent: true },  // typo of your real /tracking page
+            
       // 2. SEO Site-Wide Domain Redirect (justtattoos.com -> www.justtattoos.com)
       {
         source: '/:path*',

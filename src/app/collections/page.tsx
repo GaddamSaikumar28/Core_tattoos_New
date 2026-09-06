@@ -314,10 +314,10 @@ export default async function ShopAllPage({ searchParams }: Props) {
     itemListElement: (result?.formattedData || []).map((product: any, index: number) => ({
       '@type': 'ListItem',
       position: index + 1,
-      url: `${siteUrl}/products/${product.handle}`,
       item: {
         '@type': 'Product',
         name: product.title,
+        url: `${siteUrl}/products/${product.handle}`,
         image: product.media?.featuredImage,
         description: (product.description || '').replace(/<[^>]+>/g, ''),
         offers: {
@@ -369,6 +369,8 @@ export default async function ShopAllPage({ searchParams }: Props) {
         ]
       : [];
 
+  const hasProducts = (result?.formattedData || []).length > 0;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -379,15 +381,34 @@ export default async function ShopAllPage({ searchParams }: Props) {
         name: isFilteredView ? `${collectionName} | Just Tattoos` : 'All Products',
         description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
         isPartOf: { '@id': `${siteUrl}/#website` },
-        mainEntity: { '@id': `${collectionsUrl}#itemlist` },
+        ...(hasProducts && { mainEntity: { '@id': `${collectionsUrl}#itemlist` } }),
       },
       websiteJsonLd,
       breadcrumbJsonLd,
-      itemListJsonLd,
+      ...(hasProducts ? [itemListJsonLd] : []),
       heroImageJsonLd,
       ...datasetJsonLd,
     ],
   };
+  // const jsonLd = {
+  //   '@context': 'https://schema.org',
+  //   '@graph': [
+  //     {
+  //       '@type': 'CollectionPage',
+  //       '@id': `${currentPageUrl}#webpage`,
+  //       url: currentPageUrl,
+  //       name: isFilteredView ? `${collectionName} | Just Tattoos` : 'All Products',
+  //       description: 'Browse our complete collection of temporary tattoos with advanced filtering and search.',
+  //       isPartOf: { '@id': `${siteUrl}/#website` },
+  //       mainEntity: { '@id': `${collectionsUrl}#itemlist` },
+  //     },
+  //     websiteJsonLd,
+  //     breadcrumbJsonLd,
+  //     itemListJsonLd,
+  //     heroImageJsonLd,
+  //     ...datasetJsonLd,
+  //   ],
+  // };
 
   // 5. Render Client Component (No redundant blocking Suspense around data fetch)
   return (
